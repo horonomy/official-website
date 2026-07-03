@@ -1,25 +1,30 @@
+/* The card row belongs to the hero scene: it is pulled up over the bottom of
+   the sky/terrace so the cards read as a band inside the universe (per the v1
+   mock), not as a separate section below it. */
 .section {
   position: relative;
-  padding: 40px 0 64px;
-  background: var(--hn-graphite);
+  margin-top: clamp(-150px, -11vw, -72px);
+  padding: 0 0 56px;
+  background: transparent;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 22px;
 }
 
 .card {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 24px;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 22px 20px;
   border-radius: 14px;
-  background: rgba(19, 23, 29, 0.7);
+  background: rgba(14, 16, 22, 0.78);
   border: 1px solid var(--hn-line-strong);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   text-decoration: none;
   transition: border-color 0.15s ease, transform 0.15s ease,
     background 0.15s ease;
@@ -29,7 +34,21 @@
   text-decoration: none;
   transform: translateY(-3px);
   border-color: var(--hn-gold);
-  background: rgba(24, 28, 35, 0.85);
+  background: rgba(22, 25, 33, 0.88);
+}
+
+/* Gold diamond connectors join the cards into one constellation path. */
+.card:not(:first-child)::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  background: var(--hn-gold);
+  transform: translate(-50%, -50%) rotate(45deg);
+  opacity: 0.8;
+  box-shadow: 0 0 6px rgba(224, 185, 120, 0.6);
 }
 
 /* The primary product carries a standing gold accent. */
@@ -38,9 +57,39 @@
   box-shadow: inset 0 0 0 1px var(--hn-gold-soft);
 }
 
+/* Small constellation glyph on the left of each card. */
+.glyph {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  margin-top: 2px;
+}
+
+.glyphLink {
+  fill: none;
+  stroke: var(--hn-gold);
+  stroke-width: 0.8;
+  opacity: 0.7;
+}
+
+.glyphNode {
+  fill: var(--hn-gold-bright);
+}
+
+.primary .glyphNode {
+  filter: drop-shadow(0 0 3px rgba(224, 185, 120, 0.9));
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
 .name {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
   color: var(--hn-ink);
 }
@@ -52,7 +101,7 @@
 .blurb {
   margin: 0;
   flex: 1;
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.55;
   color: var(--hn-muted);
 }
@@ -71,8 +120,18 @@
 }
 
 @media (max-width: 996px) {
+  .section {
+    margin-top: 0;
+    padding-top: 32px;
+    background: var(--hn-graphite);
+  }
+
   .grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card:not(:first-child)::before {
+    display: none;
   }
 }
 

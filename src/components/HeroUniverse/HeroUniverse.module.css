@@ -67,11 +67,12 @@
   max-width: 620px;
 }
 
-/* Push the annotation card toward the lower-right of the scene. */
+/* Push the annotation card toward the lower-right of the scene, keeping clear
+   of the product-card band that overlaps the bottom of the scene. */
 .annotationCol {
   flex: 0 0 auto;
   align-self: flex-end;
-  margin-bottom: clamp(24px, 8vh, 96px);
+  margin-bottom: clamp(120px, 16vh, 190px);
 }
 
 @media (max-width: 996px) {
