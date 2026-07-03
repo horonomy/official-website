@@ -10,6 +10,7 @@
   letter-spacing: -0.03em;
   color: var(--hn-ink);
   text-wrap: balance;
+  text-shadow: 0 2px 18px rgba(8, 10, 20, 0.65);
 }
 
 /* "Intelligence." — the gold word, forced onto its own line. */
@@ -23,7 +24,8 @@
   max-width: 520px;
   font-size: clamp(15px, 1.5vw, 18px);
   line-height: 1.6;
-  color: var(--hn-muted);
+  color: var(--hn-text);
+  text-shadow: 0 1px 12px rgba(8, 10, 20, 0.75);
 }
 
 @media (max-width: 996px) {
