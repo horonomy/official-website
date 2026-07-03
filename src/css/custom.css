@@ -15,6 +15,10 @@
   --hn-faint: #6b7280;
   --hn-cyan: #00b2ff;
   --hn-amber: #f5a623;
+  /* Gold — the primary accent for the HeroUniverse (HORO-2+). */
+  --hn-gold: #c9a45c;
+  --hn-gold-bright: #e0b978;
+  --hn-gold-soft: rgba(201, 164, 92, 0.16);
   --hn-line: rgba(229, 231, 235, 0.09);
   --hn-line-strong: rgba(229, 231, 235, 0.15);
 
