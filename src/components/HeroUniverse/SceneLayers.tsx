@@ -8,15 +8,15 @@ import styles from './SceneLayers.module.css';
  *
  * `background.webp` is the full-bleed night-sky backdrop (stars, shooting stars,
  * dusk mountains, orange horizon glow) and covers the entire scene at
- * z=background. `environment.webp` is a transparent astrolabe-engraved stone
- * platform prop that sits low at bottom-centre (z=environment) for the observer
- * to stand on — it is NOT a background. Both are decorative (`aria-hidden`) and
- * load through `useBaseUrl` so the site works under a non-root `baseUrl` and
- * stays SSR-safe.
+ * z=background. `ground.webp` is a transparent observatory terrace (cracked
+ * stone + a central astrolabe dais) anchored across the bottom (z=environment)
+ * so the observer stands on real ground instead of floating. Both are
+ * decorative (`aria-hidden`) and load through `useBaseUrl` so the site works
+ * under a non-root `baseUrl` and stays SSR-safe.
  */
 export default function SceneLayers(): React.ReactElement {
   const background = useBaseUrl('/img/hero/background.webp');
-  const platform = useBaseUrl('/img/hero/environment.webp');
+  const ground = useBaseUrl('/img/hero/ground.webp');
 
   return (
     <div className={styles.root} aria-hidden="true">
@@ -29,9 +29,9 @@ export default function SceneLayers(): React.ReactElement {
         decoding="async"
       />
       <img
-        className={styles.platform}
+        className={styles.ground}
         style={{zIndex: LAYERS.environment}}
-        src={platform}
+        src={ground}
         alt=""
         loading="eager"
         decoding="async"

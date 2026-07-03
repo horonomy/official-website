@@ -9,21 +9,21 @@
    onto the stone dais, facing the sky. The focal character of the scene. */
 .observer {
   position: absolute;
-  left: 52%;
-  bottom: 12.5%;
-  width: clamp(180px, 24vw, 360px);
+  left: 40%;
+  bottom: 17%;
+  width: clamp(120px, 15vw, 220px);
   height: auto;
   transform: translateX(-50%);
   /* Cool + slightly darker so the cutout sits in the same night light as the
-     sky, plus a soft contact shadow to ground it on the platform. */
-  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.6)) brightness(0.95)
+     sky, plus a soft contact shadow to ground it on the terrace dais. */
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.6)) brightness(0.95)
     saturate(0.93) contrast(1.02);
 }
 
 @media (max-width: 996px) {
   .observer {
-    left: 50%;
-    bottom: 8%;
-    width: clamp(150px, 42vw, 300px);
+    left: 46%;
+    bottom: 13%;
+    width: clamp(110px, 32vw, 190px);
   }
 }

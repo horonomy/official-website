@@ -16,25 +16,26 @@
   display: block;
 }
 
-/* Transparent stone platform (astrolabe disc): a modest dais low at
-   bottom-centre for the observer to stand on — not a background. */
-.platform {
+/* Observatory ground terrace anchored across the bottom. The image's central
+   dais is shifted toward the middle-left so the observer stands on it, and the
+   dusty bottom edge bleeds off-screen so it reads as real ground, not a
+   floating slab. */
+.ground {
   position: absolute;
-  left: 50%;
-  bottom: 7%;
+  left: 40%;
+  bottom: -3%;
   transform: translateX(-50%);
-  width: clamp(280px, 38vw, 560px);
+  width: min(1500px, 122%);
   height: auto;
   display: block;
-  /* Match the observer's grade + a deep contact shadow so the dais reads as
-     sitting in the scene rather than pasted on top. */
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6)) brightness(0.95)
-    saturate(0.94) contrast(1.02);
+  filter: brightness(0.95) saturate(0.95) contrast(1.02)
+    drop-shadow(0 -4px 26px rgba(0, 0, 0, 0.35));
 }
 
 @media (max-width: 996px) {
-  .platform {
-    bottom: 4%;
-    width: clamp(220px, 58vw, 420px);
+  .ground {
+    left: 46%;
+    bottom: -2%;
+    width: min(900px, 150%);
   }
 }
