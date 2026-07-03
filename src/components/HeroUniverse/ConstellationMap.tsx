@@ -15,58 +15,69 @@ import styles from './ConstellationMap.module.css';
  */
 
 // Constellation geometry keyed by product id. Coordinates are in the SVG
-// viewBox space (0..1000 x, 0..500 y). `nodes` draw as connected stars; `label`
+// viewBox space (0..1000 x, 0..520 y). `nodes` draw as connected stars; `label`
 // anchors the text block beside the cluster.
 type Shape = {
   nodes: Array<[number, number]>;
+  /** Optional internal star-map chords (index pairs into `nodes`). */
+  chords?: Array<[number, number]>;
   label: [number, number];
   labelAlign: 'start' | 'end';
 };
 
 const SHAPES: Record<string, Shape> = {
+  // The primary constellation is the biggest shape in the sky, roughly centre
+  // of the map, label anchored to its lower-right (per the v1 mock).
   'ai-agent-assembly': {
     nodes: [
-      [470, 210],
-      [520, 150],
-      [590, 165],
-      [610, 235],
-      [560, 285],
-      [500, 270],
-      [455, 300],
+      [350, 260],
+      [415, 160],
+      [520, 135],
+      [605, 195],
+      [580, 300],
+      [475, 345],
+      [385, 330],
     ],
-    label: [630, 210],
+    chords: [
+      [0, 3],
+      [1, 4],
+    ],
+    label: [640, 310],
     labelAlign: 'start',
   },
+  // Small cluster in the upper-left of the map region.
   archeweave: {
     nodes: [
-      [120, 120],
-      [175, 95],
-      [230, 130],
-      [200, 185],
-      [140, 175],
+      [70, 150],
+      [120, 105],
+      [180, 125],
+      [160, 185],
+      [95, 190],
     ],
-    label: [255, 120],
+    label: [210, 140],
     labelAlign: 'start',
   },
+  // Small cluster in the upper-right corner of the sky.
   harbinger: {
     nodes: [
-      [790, 110],
-      [845, 90],
-      [900, 120],
-      [875, 175],
-      [815, 170],
+      [800, 75],
+      [855, 45],
+      [915, 80],
+      [890, 140],
+      [825, 135],
     ],
-    label: [770, 110],
+    label: [775, 85],
     labelAlign: 'end',
   },
+  // Faint hint in the lower-right, clearly separated from the primary label.
   more: {
     nodes: [
-      [820, 300],
-      [870, 285],
-      [910, 320],
-      [865, 350],
+      [855, 400],
+      [905, 380],
+      [950, 420],
+      [900, 450],
     ],
-    label: [790, 300],
+    label: [830, 415],
     labelAlign: 'end',
   },
 };
@@ -84,6 +95,16 @@ function Constellation({product}: {product: Product}): React.ReactElement | null
   return (
     <g className={isPrimary ? styles.primary : styles.dim}>
       <polyline className={styles.link} points={line(shape.nodes)} />
+      {shape.chords?.map(([a, b], i) => (
+        <line
+          key={i}
+          className={styles.chord}
+          x1={shape.nodes[a][0]}
+          y1={shape.nodes[a][1]}
+          x2={shape.nodes[b][0]}
+          y2={shape.nodes[b][1]}
+        />
+      ))}
       {shape.nodes.map(([x, y], i) => (
         <circle
           key={i}
@@ -116,7 +137,7 @@ export default function ConstellationMap(): React.ReactElement {
     <svg
       className={styles.root}
       style={{zIndex: LAYERS.constellations}}
-      viewBox="0 0 1000 500"
+      viewBox="0 0 1000 520"
       preserveAspectRatio="xMidYMin meet"
       role="img"
       aria-label="Product constellations: AI Agent Assembly, ArcheWeave, Harbinger, and more.">

@@ -1,11 +1,12 @@
-/* Keep the constellations in the open upper-right sky only, so their labels
-   read against the sky and never overlap the platform or the observer. */
+/* Spread the constellations across the open upper sky to the right of the
+   headline: they breathe over ~55% of the width, with the primary product's
+   constellation burning big in the middle, above the observer's gaze. */
 .root {
   position: absolute;
-  top: 4%;
-  right: 1%;
-  width: 55%;
-  max-height: 55%;
+  top: 7%;
+  right: 2%;
+  width: 56%;
+  max-height: 62%;
   height: auto;
   pointer-events: none;
   overflow: visible;
@@ -20,6 +21,13 @@
 
 .node {
   fill: var(--hn-gold-bright);
+}
+
+/* Faint internal star-map chords inside the primary constellation. */
+.chord {
+  stroke: var(--hn-gold);
+  stroke-width: 0.8;
+  opacity: 0.35;
 }
 
 /* The primary product burns brighter than the research constellations. */
