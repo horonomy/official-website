@@ -28,8 +28,8 @@
   pointer-events: none;
   background:
     radial-gradient(
-      68% 38% at 50% 84%,
-      rgba(112, 82, 168, 0.22),
+      60% 30% at 47% 92%,
+      rgba(112, 82, 168, 0.24),
       transparent 72%
     ),
     radial-gradient(130% 105% at 50% 32%, transparent 46%, rgba(8, 10, 20, 0.55) 100%),
@@ -67,12 +67,12 @@
   max-width: 620px;
 }
 
-/* Push the annotation card toward the lower-right of the scene, keeping clear
-   of the product-card band that overlaps the bottom of the scene. */
+/* Push the annotation card toward the lower-right of the scene, floating just
+   above the terrace's altar corner. */
 .annotationCol {
   flex: 0 0 auto;
   align-self: flex-end;
-  margin-bottom: clamp(120px, 16vh, 190px);
+  margin-bottom: clamp(28px, 7vh, 84px);
 }
 
 @media (max-width: 996px) {
@@ -90,7 +90,9 @@
     gap: 40px;
     min-height: auto;
     padding-top: 56px;
-    padding-bottom: 64px;
+    /* Reserve a bottom band so the terrace, observer, and mountain horizon
+       stay visible below the annotation card on small screens. */
+    padding-bottom: 230px;
   }
 
   .copyCol {

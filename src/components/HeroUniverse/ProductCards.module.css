@@ -1,10 +1,9 @@
-/* The card row belongs to the hero scene: it is pulled up over the bottom of
-   the sky/terrace so the cards read as a band inside the universe (per the v1
-   mock), not as a separate section below it. */
+/* The card row sits fully below the scene: the scene bottom stays clear so
+   the terrace and the distant mountain range display uncovered. The dark
+   universe base keeps the band reading as part of the same night. */
 .section {
   position: relative;
-  margin-top: clamp(-150px, -11vw, -72px);
-  padding: 0 0 56px;
+  padding: 44px 0 64px;
   background: transparent;
 }
 
@@ -121,7 +120,6 @@
 
 @media (max-width: 996px) {
   .section {
-    margin-top: 0;
     padding-top: 32px;
     background: var(--hn-graphite);
   }
