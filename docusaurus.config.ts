@@ -13,7 +13,7 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://horonomy.com',
+  url: 'https://horonomy.dev',
   baseUrl: '/',
 
   organizationName: 'horonomy',
