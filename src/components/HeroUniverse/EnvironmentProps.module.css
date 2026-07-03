@@ -5,9 +5,258 @@
   overflow: hidden;
 }
 
-/* The terrace panorama bakes in its own props (braziers, armillary sphere,
-   altar with books), so the placeholder SVG hourglass stays hidden until
-   HORO-6 draws the real animated one. */
+/* Rest the hourglass in the lower-right corner of the scene — on the terrace
+   near the annotation card, clear of the copy column and CTAs. Sized modestly so
+   it reads as a small prop, not a focal point. */
+.hourglassSlot {
+  position: absolute;
+  right: clamp(26px, 6vw, 104px);
+  bottom: clamp(24px, 6vh, 68px);
+  width: clamp(44px, 5.5vw, 78px);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+}
+
 .hourglass {
-  display: none;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---- Static glass shell -------------------------------------------------- */
+
+.glassBody {
+  fill: rgba(201, 164, 92, 0.06);
+}
+
+.glassOutline {
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+
+.frame {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.shine {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+/* ---- Animated sand ------------------------------------------------------- */
+
+/* Whole glass flips 180° at each half-cycle so the loop returns to its start
+   state seamlessly (the empty/full chambers swap places, then swap back). */
+.spin {
+  transform-box: view-box;
+  transform-origin: 30px 50px;
+  animation: hnHourglassSpin 9s ease-in-out infinite;
+}
+
+/* Top chamber drains: anchored at the neck, its surface lowers as it shrinks. */
+.sandTop {
+  transform-box: view-box;
+  transform-origin: 30px 50px;
+  animation: hnHourglassTop 9s ease-in-out infinite;
+}
+
+/* Bottom chamber fills: anchored at the base, the pile grows upward. */
+.sandPile {
+  transform-box: view-box;
+  transform-origin: 30px 88px;
+  animation: hnHourglassPile 9s ease-in-out infinite;
+}
+
+.streamDown {
+  opacity: 0;
+  animation: hnHourglassStreamDown 9s linear infinite;
+}
+
+.streamUp {
+  opacity: 0;
+  animation: hnHourglassStreamUp 9s linear infinite;
+}
+
+/* Grains fall on their own quick loop; the phase animation only toggles which
+   direction's grains are visible so the falling always reads as downward. */
+.grainsDown {
+  opacity: 0;
+  animation: hnGrainFall 1.2s linear infinite, hnPhaseA 9s linear infinite;
+}
+
+.grainsUp {
+  opacity: 0;
+  animation: hnGrainRise 1.2s linear infinite, hnPhaseB 9s linear infinite;
+}
+
+@keyframes hnHourglassSpin {
+  0%,
+  44% {
+    transform: rotate(0deg);
+  }
+  50%,
+  94% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes hnHourglassTop {
+  0% {
+    transform: scaleY(1);
+  }
+  44%,
+  50% {
+    transform: scaleY(0.03);
+  }
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes hnHourglassPile {
+  0% {
+    transform: scaleY(0.06);
+  }
+  44%,
+  50% {
+    transform: scaleY(1);
+  }
+  94%,
+  100% {
+    transform: scaleY(0.06);
+  }
+}
+
+@keyframes hnHourglassStreamDown {
+  0%,
+  3% {
+    opacity: 0;
+  }
+  6%,
+  42% {
+    opacity: 0.9;
+  }
+  45%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hnHourglassStreamUp {
+  0%,
+  50% {
+    opacity: 0;
+  }
+  54%,
+  92% {
+    opacity: 0.9;
+  }
+  95%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hnPhaseA {
+  0%,
+  4% {
+    opacity: 0;
+  }
+  8%,
+  40% {
+    opacity: 1;
+  }
+  44%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hnPhaseB {
+  0%,
+  52% {
+    opacity: 0;
+  }
+  56%,
+  90% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hnGrainFall {
+  from {
+    transform: translateY(-6px);
+  }
+  to {
+    transform: translateY(20px);
+  }
+}
+
+@keyframes hnGrainRise {
+  from {
+    transform: translateY(6px);
+  }
+  to {
+    transform: translateY(-20px);
+  }
+}
+
+/* ---- Reduced motion: static, mid-filled hourglass ------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .spin,
+  .sandTop,
+  .sandPile,
+  .streamDown,
+  .streamUp,
+  .grainsDown,
+  .grainsUp {
+    animation: none;
+  }
+
+  .spin {
+    transform: none;
+  }
+
+  .sandTop {
+    transform: scaleY(0.5);
+  }
+
+  .sandPile {
+    transform: scaleY(0.5);
+  }
+
+  /* A single quiet grain mid-stream instead of a moving flow. */
+  .streamDown {
+    opacity: 0.5;
+  }
+
+  .streamUp,
+  .grainsDown,
+  .grainsUp {
+    opacity: 0;
+  }
+}
+
+/* ---- Small screens: keep it tucked into the visible terrace band --------- */
+
+@media (max-width: 996px) {
+  .hourglassSlot {
+    right: 18px;
+    bottom: 40px;
+    width: clamp(38px, 11vw, 56px);
+  }
 }
