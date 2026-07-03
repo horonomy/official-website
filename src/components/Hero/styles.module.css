@@ -1,0 +1,272 @@
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - var(--ifm-navbar-height));
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    #090b13 0%,
+    #0e1019 52%,
+    #151527 76%,
+    #1b1930 100%
+  );
+  color: var(--hn-text);
+  isolation: isolate;
+}
+
+.sky {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 0;
+}
+
+.ridges {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 300px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ---- hero copy ---- */
+.copyWrap {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  padding-top: 118px;
+  pointer-events: none;
+}
+
+.copy {
+  max-width: 640px;
+  pointer-events: auto;
+}
+
+.title {
+  margin: 22px 0 18px;
+  font-size: clamp(38px, 5.4vw, 58px);
+  line-height: 1.03;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--hn-ink);
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 0 0 32px;
+  max-width: 540px;
+  font-size: clamp(15px, 1.5vw, 17px);
+  line-height: 1.6;
+  color: var(--hn-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* ---- the observer ---- */
+.horologer {
+  position: absolute;
+  left: 26%;
+  bottom: 18px;
+  width: clamp(220px, 24vw, 340px);
+  height: auto;
+  overflow: visible;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.head {
+  transition: transform 0.12s linear;
+  will-change: transform;
+}
+
+.sand {
+  animation: hn-sand 4s linear infinite;
+}
+
+/* ---- constellations ---- */
+.constellation {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translate(-50%, -50%);
+  text-decoration: none;
+  cursor: default;
+}
+
+.constellation[href] {
+  cursor: pointer;
+}
+
+.node {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.tone_active .node {
+  background: var(--hn-cyan);
+  animation: hn-pulse 2.8s ease-out infinite;
+}
+
+.tone_research .node {
+  border: 2px solid var(--hn-faint);
+  opacity: 0.75;
+}
+
+.tone_future .node {
+  background: var(--hn-amber);
+  border-radius: 0;
+  width: 9px;
+  height: 9px;
+  animation: hn-blink 3.2s ease-in-out infinite;
+}
+
+/* golden measurement ray — fires on hover */
+.ray {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, var(--hn-amber), rgba(245, 166, 35, 0));
+  transform-origin: left center;
+  transform: translateY(-50%) rotate(-24deg);
+  transition: width 0.4s ease;
+  pointer-events: none;
+}
+
+.constName {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--hn-ink);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.constStatus {
+  font-family: var(--hn-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 400;
+  color: var(--hn-cyan);
+}
+
+.tone_research .constStatus,
+.tone_future .constStatus {
+  color: var(--hn-faint);
+}
+
+.constellation:hover .constName {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.constellation:hover .ray {
+  width: 84px;
+}
+
+.constellation:hover .node {
+  box-shadow: 0 0 0 6px rgba(0, 178, 255, 0.12);
+}
+
+.statusline {
+  position: absolute;
+  left: var(--hn-gutter);
+  bottom: 26px;
+  z-index: 4;
+  font-family: var(--hn-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: #3f4650;
+  pointer-events: none;
+}
+
+/* ---- keyframes (ported from the design) ---- */
+@keyframes hn-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 178, 255, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 16px rgba(0, 178, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 178, 255, 0);
+  }
+}
+
+@keyframes hn-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes hn-sand {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
+
+/* ---- responsive ---- */
+@media (max-width: 996px) {
+  .hero {
+    min-height: 640px;
+  }
+  .copyWrap {
+    padding-top: 84px;
+  }
+  .horologer {
+    left: auto;
+    right: 6%;
+    bottom: 12px;
+    opacity: 0.85;
+  }
+  /* Constellation labels can collide with copy on small screens; keep the
+     nodes as ambient dots but drop the hover labels' reserved space. */
+  .constStatus {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .horologer {
+    display: none;
+  }
+  .constellation {
+    display: none;
+  }
+  .statusline {
+    display: none;
+  }
+}
