@@ -1,8 +1,11 @@
+/* Keep the constellations in the open upper-right sky only, so their labels
+   read against the sky and never overlap the platform or the observer. */
 .root {
   position: absolute;
-  top: 6%;
-  right: 0;
-  width: 62%;
+  top: 4%;
+  right: 1%;
+  width: 55%;
+  max-height: 55%;
   height: auto;
   pointer-events: none;
   overflow: visible;

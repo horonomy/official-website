@@ -1,5 +1,6 @@
 import React from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import {LAYERS} from './layers';
 import styles from './ObserverSpider.module.css';
 
 /**
@@ -13,7 +14,10 @@ export default function ObserverSpider(): React.ReactElement {
   const observer = useBaseUrl('/img/hero/observer.webp');
 
   return (
-    <div className={styles.root} aria-hidden="true">
+    <div
+      className={styles.root}
+      style={{zIndex: LAYERS.observer}}
+      aria-hidden="true">
       <img
         className={styles.observer}
         src={observer}

@@ -1,7 +1,7 @@
 .universe {
   position: relative;
   width: 100%;
-  background: var(--hn-graphite);
+  background: #0b0d14;
   color: var(--hn-text);
   overflow: hidden;
 }
@@ -12,7 +12,8 @@
   width: 100%;
   min-height: calc(100vh - var(--ifm-navbar-height));
   overflow: hidden;
-  background: var(--hn-graphite);
+  /* Solid dark base so no transparency ever shows through the layers. */
+  background: #0b0d14;
   isolation: isolate;
 }
 

@@ -4,15 +4,19 @@ import {LAYERS} from './layers';
 import styles from './SceneLayers.module.css';
 
 /**
- * The real raster backdrop of the scene: wide background plate, night sky, and
- * the dusk mountains + stone platform. All three are decorative and marked
- * `aria-hidden`; sources load through `useBaseUrl` so the site works under a
- * non-root `baseUrl` and stays SSR-safe.
+ * The real raster backdrop of the scene.
+ *
+ * `background.webp` is the full-bleed night-sky backdrop (stars, shooting stars,
+ * dusk mountains, orange horizon glow) and covers the entire scene at
+ * z=background. `environment.webp` is a transparent astrolabe-engraved stone
+ * platform prop that sits low at bottom-centre (z=environment) for the observer
+ * to stand on — it is NOT a background. Both are decorative (`aria-hidden`) and
+ * load through `useBaseUrl` so the site works under a non-root `baseUrl` and
+ * stays SSR-safe.
  */
 export default function SceneLayers(): React.ReactElement {
   const background = useBaseUrl('/img/hero/background.webp');
-  const sky = useBaseUrl('/img/hero/sky.webp');
-  const environment = useBaseUrl('/img/hero/environment.webp');
+  const platform = useBaseUrl('/img/hero/environment.webp');
 
   return (
     <div className={styles.root} aria-hidden="true">
@@ -25,17 +29,9 @@ export default function SceneLayers(): React.ReactElement {
         decoding="async"
       />
       <img
-        className={styles.sky}
-        style={{zIndex: LAYERS.sky}}
-        src={sky}
-        alt=""
-        loading="eager"
-        decoding="async"
-      />
-      <img
-        className={styles.environment}
+        className={styles.platform}
         style={{zIndex: LAYERS.environment}}
-        src={environment}
+        src={platform}
         alt=""
         loading="eager"
         decoding="async"

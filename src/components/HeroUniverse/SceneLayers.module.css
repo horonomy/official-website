@@ -5,39 +5,33 @@
   pointer-events: none;
 }
 
-.root img {
+/* Full-bleed night-sky backdrop — covers the entire scene. */
+.background {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
 }
 
-/* Wide background plate fills the frame. */
-.background {
-  object-position: center;
-  opacity: 0.9;
+/* Transparent stone platform (astrolabe disc): a modest dais low at
+   bottom-centre for the observer to stand on — not a background. */
+.platform {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  width: clamp(340px, 46vw, 720px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 22px 44px rgba(0, 0, 0, 0.55));
 }
 
-/* Night sky sits high; keep the star field toward the top on tall frames. */
-.sky {
-  object-position: center top;
-  opacity: 0.92;
-}
-
-/* Mountains + stone platform anchor to the bottom edge. */
-.environment {
-  object-position: center bottom;
-}
-
-/* Soften the seam between the sky and the environment plate. */
-.environment {
-  -webkit-mask-image: linear-gradient(
-    180deg,
-    transparent 0%,
-    #000 24%,
-    #000 100%
-  );
-  mask-image: linear-gradient(180deg, transparent 0%, #000 24%, #000 100%);
+@media (max-width: 996px) {
+  .platform {
+    bottom: 3%;
+    width: clamp(260px, 68vw, 480px);
+  }
 }
