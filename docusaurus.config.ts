@@ -20,7 +20,6 @@ const config: Config = {
   projectName: 'official-website',
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
 
   i18n: {
     defaultLocale: 'en',
@@ -77,7 +76,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/logo.svg',
+    image: 'img/horonomy-mascot.png',
     colorMode: {
       // The brand is dark-native; light mode is not part of the design system.
       defaultMode: 'dark',
