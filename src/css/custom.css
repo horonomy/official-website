@@ -183,3 +183,20 @@ body {
   color: var(--hn-text);
   text-decoration: none;
 }
+
+@media (max-width: 996px) {
+  :root {
+    --hn-gutter: 28px;
+  }
+}
+
+/* Respect reduced-motion: the site is legible without any animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
