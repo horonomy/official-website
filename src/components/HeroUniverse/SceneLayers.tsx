@@ -6,11 +6,12 @@ import styles from './SceneLayers.module.css';
 /**
  * The real raster backdrop of the scene.
  *
- * `background.webp` is the full-bleed night-sky backdrop (stars, shooting stars,
- * dusk mountains, orange horizon glow) and covers the entire scene at
- * z=background. `ground.webp` is a transparent observatory terrace (cracked
- * stone + a central astrolabe dais) anchored across the bottom (z=environment)
- * so the observer stands on real ground instead of floating. Both are
+ * `background.webp` is the night-sky backdrop (stars, shooting stars, dusk
+ * mountains, orange horizon glow) at z=background; it stops short of the
+ * scene's bottom edge so the mountain range stays fully visible above the
+ * terrace. `ground.webp` is a transparent observatory terrace panorama
+ * (astrolabe dais, braziers, armillary sphere, altar) anchored in the bottom
+ * band (z=environment) so the observer stands on real ground. Both are
  * decorative (`aria-hidden`) and load through `useBaseUrl` so the site works
  * under a non-root `baseUrl` and stays SSR-safe.
  */
