@@ -1,0 +1,202 @@
+/**
+ * Horonomy design system.
+ * Graphite base, Space Grotesk + IBM Plex Mono, signal cyan reserved for the
+ * "active boundary" only, amber for review / checkpoint states.
+ */
+
+:root {
+  /* Brand tokens */
+  --hn-graphite: #0f1115;
+  --hn-graphite-deep: #0b0d10;
+  --hn-panel: #13171d;
+  --hn-ink: #f4f5f7;
+  --hn-text: #e5e7eb;
+  --hn-muted: #9ca3af;
+  --hn-faint: #6b7280;
+  --hn-cyan: #00b2ff;
+  --hn-amber: #f5a623;
+  --hn-line: rgba(229, 231, 235, 0.09);
+  --hn-line-strong: rgba(229, 231, 235, 0.15);
+
+  --hn-font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --hn-font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+
+  --hn-shell-max: 1280px;
+  --hn-gutter: 64px;
+
+  /* Infima overrides */
+  --ifm-color-primary: #00b2ff;
+  --ifm-color-primary-dark: #00a0e6;
+  --ifm-color-primary-darker: #0097d9;
+  --ifm-color-primary-darkest: #007cb3;
+  --ifm-color-primary-light: #1ab9ff;
+  --ifm-color-primary-lighter: #26bdff;
+  --ifm-color-primary-lightest: #4dc9ff;
+
+  --ifm-font-family-base: var(--hn-font-sans);
+  --ifm-font-family-monospace: var(--hn-font-mono);
+  --ifm-background-color: #0f1115;
+  --ifm-heading-color: var(--hn-ink);
+  --ifm-navbar-height: 68px;
+  --ifm-code-font-size: 90%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.35);
+}
+
+/* Force the dark palette regardless of the html[data-theme] attribute so the
+   brand reads identically everywhere (light mode is disabled in config). */
+:root,
+[data-theme='dark'],
+[data-theme='light'] {
+  --ifm-background-color: #0f1115;
+  --ifm-background-surface-color: #13171d;
+  --ifm-navbar-background-color: rgba(15, 17, 21, 0.72);
+  --ifm-navbar-link-color: var(--hn-muted);
+  --ifm-navbar-link-hover-color: var(--hn-text);
+  --ifm-footer-background-color: #0b0d10;
+  --ifm-footer-color: var(--hn-muted);
+  --ifm-footer-link-color: var(--hn-muted);
+  --ifm-footer-title-color: var(--hn-faint);
+  --ifm-heading-color: var(--hn-ink);
+  --ifm-font-color-base: var(--hn-text);
+}
+
+html,
+body {
+  background: var(--hn-graphite);
+  color: var(--hn-text);
+  font-family: var(--hn-font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Navbar: translucent, blurred, hairline boundary --- */
+.navbar {
+  backdrop-filter: saturate(140%) blur(12px);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid var(--hn-line);
+  box-shadow: none;
+}
+
+.navbar__title {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-size: 18px;
+}
+
+.navbar__link {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.navbar__link:hover {
+  color: var(--hn-text);
+}
+
+/* --- Footer --- */
+.footer {
+  border-top: 1px solid var(--hn-line);
+}
+
+.footer__title {
+  font-family: var(--hn-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hn-faint);
+}
+
+.footer__link-item {
+  font-size: 14px;
+}
+
+.footer__copyright {
+  font-family: var(--hn-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--hn-faint);
+}
+
+/* --- Shared homepage primitives --- */
+.hn-shell {
+  max-width: var(--hn-shell-max);
+  margin: 0 auto;
+  padding-left: var(--hn-gutter);
+  padding-right: var(--hn-gutter);
+}
+
+.hn-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--hn-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--hn-faint);
+  text-transform: uppercase;
+}
+
+.hn-eyebrow::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: var(--hn-cyan);
+}
+
+.hn-section-kicker {
+  font-family: var(--hn-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--hn-faint);
+  text-transform: uppercase;
+}
+
+/* --- Buttons --- */
+.hn-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 14px 26px;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.hn-btn--solid {
+  background: var(--hn-text);
+  color: var(--hn-graphite);
+}
+
+.hn-btn--solid:hover {
+  background: #ffffff;
+  color: var(--hn-graphite);
+  text-decoration: none;
+}
+
+.hn-btn--ghost {
+  color: var(--hn-text);
+  font-weight: 500;
+  border: 1px solid rgba(229, 231, 235, 0.25);
+}
+
+.hn-btn--ghost:hover {
+  border-color: var(--hn-cyan);
+  color: var(--hn-text);
+  text-decoration: none;
+}
+
+@media (max-width: 996px) {
+  :root {
+    --hn-gutter: 28px;
+  }
+}
+
+/* Respect reduced-motion: the site is legible without any animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
