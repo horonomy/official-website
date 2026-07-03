@@ -21,17 +21,20 @@
 .platform {
   position: absolute;
   left: 50%;
-  bottom: 6%;
+  bottom: 7%;
   transform: translateX(-50%);
-  width: clamp(340px, 46vw, 720px);
+  width: clamp(280px, 38vw, 560px);
   height: auto;
   display: block;
-  filter: drop-shadow(0 22px 44px rgba(0, 0, 0, 0.55));
+  /* Match the observer's grade + a deep contact shadow so the dais reads as
+     sitting in the scene rather than pasted on top. */
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6)) brightness(0.95)
+    saturate(0.94) contrast(1.02);
 }
 
 @media (max-width: 996px) {
   .platform {
-    bottom: 3%;
-    width: clamp(260px, 68vw, 480px);
+    bottom: 4%;
+    width: clamp(220px, 58vw, 420px);
   }
 }
