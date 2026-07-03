@@ -1,0 +1,59 @@
+.root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Night-sky backdrop. It stops at ~78% of the scene height (bottom-anchored
+   crop) so the distant mountain range at the image's foot stays fully visible
+   ABOVE the terrace line instead of being buried behind the ground layer. The
+   strip below it fades into the scene's dark base. */
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 82%;
+  object-fit: cover;
+  object-position: center bottom;
+  display: block;
+}
+
+/* Seam blend: soft fade from the backdrop's dark valley floor into the scene
+   base so the 78% cut never reads as a hard edge. */
+.root::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 72%;
+  height: 14%;
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 0%, rgba(11, 13, 20, 0.85) 78%, #0b0d14 100%);
+  pointer-events: none;
+}
+
+/* Observatory ground terrace (prop-rich panorama: braziers, armillary sphere,
+   altar). Anchored low in the bottom band so its top edge sits BELOW the
+   backdrop's mountain range — the mountains must display completely. The
+   dusty bottom edge bleeds off-screen so it reads as real ground. */
+.ground {
+  position: absolute;
+  left: 47%;
+  bottom: -12%;
+  transform: translateX(-50%);
+  width: min(1280px, 66%);
+  height: auto;
+  display: block;
+  filter: brightness(0.95) saturate(0.95) contrast(1.02)
+    drop-shadow(0 -4px 26px rgba(0, 0, 0, 0.35));
+}
+
+@media (max-width: 996px) {
+  .ground {
+    left: 46%;
+    bottom: -6%;
+    width: min(640px, 118%);
+  }
+}

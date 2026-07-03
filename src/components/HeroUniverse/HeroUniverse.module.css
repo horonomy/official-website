@@ -1,0 +1,106 @@
+.universe {
+  position: relative;
+  width: 100%;
+  background: #0b0d14;
+  color: var(--hn-text);
+  overflow: hidden;
+}
+
+/* Full-bleed scene: all decorative layers stack inside here. */
+.scene {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - var(--ifm-navbar-height));
+  overflow: hidden;
+  /* Solid dark base so no transparency ever shows through the layers. */
+  background: #0b0d14;
+  isolation: isolate;
+}
+
+/* Unifying color grade: a shared tint + horizon haze + vignette cast over the
+   raster/observer layers (z 5) but under the constellations (6) and content (7),
+   so the separately-cut sky / platform / observer read as one lit scene. */
+.scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60% 30% at 47% 92%,
+      rgba(112, 82, 168, 0.24),
+      transparent 72%
+    ),
+    radial-gradient(130% 105% at 50% 32%, transparent 46%, rgba(8, 10, 20, 0.55) 100%),
+    linear-gradient(180deg, rgba(18, 22, 46, 0.12) 0%, rgba(8, 10, 20, 0.3) 100%);
+}
+
+/* HTML content overlay — sits above every raster/SVG layer. */
+.overlay {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - var(--ifm-navbar-height));
+  pointer-events: none;
+}
+
+.overlayInner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  padding-top: clamp(64px, 12vh, 132px);
+  padding-bottom: 48px;
+  min-height: calc(100vh - var(--ifm-navbar-height));
+  box-sizing: border-box;
+}
+
+/* Re-enable interaction on the actual content (the overlay itself is pass-through
+   so decorative layers below can never trap the pointer awkwardly). */
+.copyCol,
+.annotationCol {
+  pointer-events: auto;
+}
+
+.copyCol {
+  flex: 1 1 auto;
+  max-width: 620px;
+}
+
+/* Push the annotation card toward the lower-right of the scene, floating just
+   above the terrace's altar corner. */
+.annotationCol {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  margin-bottom: clamp(28px, 7vh, 84px);
+}
+
+@media (max-width: 996px) {
+  .scene {
+    min-height: auto;
+  }
+
+  .overlay {
+    min-height: auto;
+  }
+
+  .overlayInner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 40px;
+    min-height: auto;
+    padding-top: 56px;
+    /* Reserve a bottom band so the terrace, observer, and mountain horizon
+       stay visible below the annotation card on small screens. */
+    padding-bottom: 230px;
+  }
+
+  .copyCol {
+    max-width: 100%;
+  }
+
+  .annotationCol {
+    align-self: stretch;
+    margin-bottom: 0;
+  }
+}

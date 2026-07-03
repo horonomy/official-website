@@ -1,0 +1,13 @@
+.root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* The terrace panorama bakes in its own props (braziers, armillary sphere,
+   altar with books), so the placeholder SVG hourglass stays hidden until
+   HORO-6 draws the real animated one. */
+.hourglass {
+  display: none;
+}

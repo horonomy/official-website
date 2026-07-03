@@ -1,0 +1,140 @@
+/* The card row sits fully below the scene: the scene bottom stays clear so
+   the terrace and the distant mountain range display uncovered. The dark
+   universe base keeps the band reading as part of the same night. */
+.section {
+  position: relative;
+  padding: 44px 0 64px;
+  background: transparent;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 22px 20px;
+  border-radius: 14px;
+  background: rgba(14, 16, 22, 0.78);
+  border: 1px solid var(--hn-line-strong);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease,
+    background 0.15s ease;
+}
+
+.card:hover {
+  text-decoration: none;
+  transform: translateY(-3px);
+  border-color: var(--hn-gold);
+  background: rgba(22, 25, 33, 0.88);
+}
+
+/* Gold diamond connectors join the cards into one constellation path. */
+.card:not(:first-child)::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  background: var(--hn-gold);
+  transform: translate(-50%, -50%) rotate(45deg);
+  opacity: 0.8;
+  box-shadow: 0 0 6px rgba(224, 185, 120, 0.6);
+}
+
+/* The primary product carries a standing gold accent. */
+.primary {
+  border-color: rgba(201, 164, 92, 0.5);
+  box-shadow: inset 0 0 0 1px var(--hn-gold-soft);
+}
+
+/* Small constellation glyph on the left of each card. */
+.glyph {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  margin-top: 2px;
+}
+
+.glyphLink {
+  fill: none;
+  stroke: var(--hn-gold);
+  stroke-width: 0.8;
+  opacity: 0.7;
+}
+
+.glyphNode {
+  fill: var(--hn-gold-bright);
+}
+
+.primary .glyphNode {
+  filter: drop-shadow(0 0 3px rgba(224, 185, 120, 0.9));
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--hn-ink);
+}
+
+.primary .name {
+  color: var(--hn-gold-bright);
+}
+
+.blurb {
+  margin: 0;
+  flex: 1;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--hn-muted);
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hn-gold);
+}
+
+.card:hover .more {
+  color: var(--hn-gold-bright);
+}
+
+@media (max-width: 996px) {
+  .section {
+    padding-top: 32px;
+    background: var(--hn-graphite);
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card:not(:first-child)::before {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
