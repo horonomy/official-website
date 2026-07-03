@@ -5,19 +5,9 @@
   overflow: hidden;
 }
 
-/* Rest the hourglass on the terrace's right slab, between the observer and
-   the annotation card (per the v1 mock it sits on stone, not on sky). */
+/* The terrace panorama bakes in its own props (braziers, armillary sphere,
+   altar with books), so the placeholder SVG hourglass stays hidden until
+   HORO-6 draws the real animated one. */
 .hourglass {
-  position: absolute;
-  right: 36%;
-  bottom: 21%;
-  width: clamp(42px, 4.2vw, 66px);
-  height: auto;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
-}
-
-@media (max-width: 996px) {
-  .hourglass {
-    display: none;
-  }
+  display: none;
 }
