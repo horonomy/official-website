@@ -1,0 +1,77 @@
+.root {
+  position: absolute;
+  top: 6%;
+  right: 0;
+  width: 62%;
+  height: auto;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.link {
+  fill: none;
+  stroke: var(--hn-gold);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.node {
+  fill: var(--hn-gold-bright);
+}
+
+/* The primary product burns brighter than the research constellations. */
+.primary .link {
+  stroke: var(--hn-gold-bright);
+  stroke-width: 1.4;
+  opacity: 0.85;
+}
+
+.primary .node {
+  fill: var(--hn-gold-bright);
+  filter: drop-shadow(0 0 4px rgba(224, 185, 120, 0.9));
+}
+
+.dim .link {
+  opacity: 0.4;
+}
+
+.dim .node {
+  fill: var(--hn-gold);
+  opacity: 0.8;
+}
+
+.name {
+  fill: var(--hn-ink);
+  font-family: var(--hn-font-sans);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.primary .name {
+  fill: var(--hn-gold-bright);
+}
+
+.tagline {
+  fill: var(--hn-muted);
+  font-family: var(--hn-font-sans);
+  font-size: 14px;
+}
+
+@media (max-width: 996px) {
+  .root {
+    position: relative;
+    top: 0;
+    right: auto;
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .name {
+    font-size: 26px;
+  }
+
+  .tagline {
+    font-size: 18px;
+  }
+}
