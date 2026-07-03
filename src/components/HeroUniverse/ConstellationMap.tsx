@@ -1,100 +1,119 @@
 import React from 'react';
+import clsx from 'clsx';
 import {LAYERS} from './layers';
 import {PRODUCTS, type Product} from './products';
+import {CONSTELLATIONS, type Constellation as Shape} from './constellations';
 import styles from './ConstellationMap.module.css';
 
 /**
- * The sky map: one small constellation per product, drawn as a static SVG
- * overlay from {@link PRODUCTS}. Gold nodes joined by faint gold lines, with a
- * label + tagline anchored beside each cluster. The `primary` product burns
- * brighter than the rest.
+ * The sky map: one small constellation per product, drawn as an SVG overlay
+ * from {@link PRODUCTS} + {@link CONSTELLATIONS}. Gold nodes joined by faint
+ * gold lines, with a label + tagline anchored beside each cluster. The
+ * `primary` product burns brighter than the rest at rest.
  *
- * STUB SLOT — static and non-interactive for now.
- * // HORO-4 adds interactivity/hover/keyboard and links each constellation to
- * // its product.
+ * Interactive (HORO-4): each constellation is a focusable target. On hover or
+ * keyboard focus its connecting lines draw in, its nodes brighten, and its
+ * label is emphasised, while the others stay dim. Fully self-contained — the
+ * hover/focus visual is driven by CSS (`:hover` / `:focus-visible`), so it
+ * works standalone with no wiring.
+ *
+ * Shared active-state with the product cards (HORO-9) is deferred: it needs the
+ * shared parent (`index.tsx`) which is owned elsewhere. This component instead
+ * accepts optional `activeId` / `onActivate` props so the parent can later sync
+ * the two, without this component depending on that wiring.
  */
 
-// Constellation geometry keyed by product id. Coordinates are in the SVG
-// viewBox space (0..1000 x, 0..520 y). `nodes` draw as connected stars; `label`
-// anchors the text block beside the cluster.
-type Shape = {
-  nodes: Array<[number, number]>;
-  /** Optional internal star-map chords (index pairs into `nodes`). */
-  chords?: Array<[number, number]>;
-  label: [number, number];
-  labelAlign: 'start' | 'end';
+export type ConstellationMapProps = {
+  /** Optional externally-controlled active product id (e.g. from HORO-9 cards). */
+  activeId?: string;
+  /** Optional callback fired when a constellation is activated/deactivated. */
+  onActivate?: (id: string | null) => void;
 };
 
-const SHAPES: Record<string, Shape> = {
-  // The primary constellation is the biggest shape in the sky, roughly centre
-  // of the map, label anchored to its lower-right (per the v1 mock).
-  'ai-agent-assembly': {
-    nodes: [
-      [350, 260],
-      [415, 160],
-      [520, 135],
-      [605, 195],
-      [580, 300],
-      [475, 345],
-      [385, 330],
-    ],
-    chords: [
-      [0, 3],
-      [1, 4],
-    ],
-    label: [640, 310],
-    labelAlign: 'start',
-  },
-  // Small cluster in the upper-left of the map region.
-  archeweave: {
-    nodes: [
-      [70, 150],
-      [120, 105],
-      [180, 125],
-      [160, 185],
-      [95, 190],
-    ],
-    label: [210, 140],
-    labelAlign: 'start',
-  },
-  // Small cluster in the upper-right corner of the sky.
-  harbinger: {
-    nodes: [
-      [800, 75],
-      [855, 45],
-      [915, 80],
-      [890, 140],
-      [825, 135],
-    ],
-    label: [775, 85],
-    labelAlign: 'end',
-  },
-  // Faint hint in the lower-right, clearly separated from the primary label.
-  more: {
-    nodes: [
-      [855, 400],
-      [905, 380],
-      [950, 420],
-      [900, 450],
-    ],
-    label: [830, 415],
-    labelAlign: 'end',
-  },
+const TONE_CLASS: Record<Product['tone'], string> = {
+  primary: styles.primary,
+  secondary: styles.secondary,
+  muted: styles.muted,
 };
 
-function line(nodes: Array<[number, number]>): string {
+function points(nodes: Array<[number, number]>): string {
   return nodes.map(([x, y]) => `${x},${y}`).join(' ');
 }
 
-function Constellation({product}: {product: Product}): React.ReactElement | null {
-  const shape = SHAPES[product.id];
+/** Padded bounding box around a cluster, for the hit area + focus ring. */
+function bbox(nodes: Array<[number, number]>, pad = 26) {
+  const xs = nodes.map(([x]) => x);
+  const ys = nodes.map(([, y]) => y);
+  const minX = Math.min(...xs) - pad;
+  const minY = Math.min(...ys) - pad;
+  return {
+    x: minX,
+    y: minY,
+    width: Math.max(...xs) + pad - minX,
+    height: Math.max(...ys) + pad - minY,
+  };
+}
+
+function Constellation({
+  product,
+  active,
+  onActivate,
+}: {
+  product: Product;
+  active: boolean;
+  onActivate?: (id: string | null) => void;
+}): React.ReactElement | null {
+  const shape: Shape | undefined = CONSTELLATIONS[product.id];
   if (!shape) return null;
+
   const isPrimary = product.tone === 'primary';
   const [lx, ly] = shape.label;
+  const box = bbox(shape.nodes);
 
   return (
-    <g className={isPrimary ? styles.primary : styles.dim}>
-      <polyline className={styles.link} points={line(shape.nodes)} />
+    <g
+      className={clsx(styles.constellation, TONE_CLASS[product.tone], {
+        [styles.active]: active,
+      })}
+      tabIndex={0}
+      role="button"
+      aria-label={product.name}
+      onMouseEnter={() => onActivate?.(product.id)}
+      onMouseLeave={() => onActivate?.(null)}
+      onFocus={() => onActivate?.(product.id)}
+      onBlur={() => onActivate?.(null)}
+      onClick={() => onActivate?.(product.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onActivate?.(product.id);
+        }
+      }}>
+      {/* Transparent hit area so the whole cluster is hoverable/clickable. */}
+      <rect
+        className={styles.hit}
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+      />
+      {/* Keyboard focus ring — revealed via :focus-visible in CSS. */}
+      <rect
+        className={styles.focusRing}
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+        rx={12}
+        aria-hidden="true"
+      />
+
+      <polyline
+        className={styles.link}
+        points={points(shape.nodes)}
+        pathLength={1}
+        aria-hidden="true"
+      />
       {shape.chords?.map(([a, b], i) => (
         <line
           key={i}
@@ -103,6 +122,8 @@ function Constellation({product}: {product: Product}): React.ReactElement | null
           y1={shape.nodes[a][1]}
           x2={shape.nodes[b][0]}
           y2={shape.nodes[b][1]}
+          pathLength={1}
+          aria-hidden="true"
         />
       ))}
       {shape.nodes.map(([x, y], i) => (
@@ -112,37 +133,66 @@ function Constellation({product}: {product: Product}): React.ReactElement | null
           cx={x}
           cy={y}
           r={isPrimary ? 4.5 : 3}
+          aria-hidden="true"
         />
       ))}
       <text
         className={styles.name}
         x={lx}
         y={ly}
-        textAnchor={shape.labelAlign}>
+        textAnchor={shape.labelAlign}
+        aria-hidden="true">
         {product.name}
       </text>
       <text
         className={styles.tagline}
         x={lx}
         y={ly + 20}
-        textAnchor={shape.labelAlign}>
+        textAnchor={shape.labelAlign}
+        aria-hidden="true">
         {product.tagline}
       </text>
     </g>
   );
 }
 
-export default function ConstellationMap(): React.ReactElement {
+export default function ConstellationMap({
+  activeId,
+  onActivate,
+}: ConstellationMapProps = {}): React.ReactElement {
+  // Self-contained active state so the map works standalone. An external
+  // `activeId` (once HORO-9 wires it through `index.tsx`) takes precedence,
+  // but internal hover/focus still drives the standalone experience.
+  const [internalActiveId, setInternalActiveId] = React.useState<string | null>(
+    null,
+  );
+
+  const resolvedActiveId = internalActiveId ?? activeId ?? null;
+
+  const handleActivate = React.useCallback(
+    (id: string | null) => {
+      setInternalActiveId(id);
+      onActivate?.(id);
+    },
+    [onActivate],
+  );
+
   return (
     <svg
       className={styles.root}
       style={{zIndex: LAYERS.constellations}}
       viewBox="0 0 1000 520"
       preserveAspectRatio="xMidYMin meet"
-      role="img"
-      aria-label="Product constellations: AI Agent Assembly, ArcheWeave, Harbinger, and more.">
+      focusable="false"
+      role="group"
+      aria-label="Product constellations">
       {PRODUCTS.map((p) => (
-        <Constellation key={p.id} product={p} />
+        <Constellation
+          key={p.id}
+          product={p}
+          active={resolvedActiveId === p.id}
+          onActivate={handleActivate}
+        />
       ))}
     </svg>
   );
