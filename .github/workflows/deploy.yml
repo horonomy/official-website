@@ -1,0 +1,58 @@
+name: Deploy
+
+# Deploys the built site to Cloudflare Pages on every push to main.
+#
+# Dormant by default: the job only runs once the repository variable
+# CLOUDFLARE_DEPLOY_ENABLED is set to "true", so it never fails noisily before
+# the Cloudflare Pages project and credentials exist.
+#
+# Required to activate (Settings → Secrets and variables → Actions):
+#   Variable  CLOUDFLARE_DEPLOY_ENABLED = true
+#   Secret    CLOUDFLARE_API_TOKEN      = token with "Cloudflare Pages: Edit"
+#   Secret    CLOUDFLARE_ACCOUNT_ID     = your account id
+# And create a Pages project named "horonomy-official-website".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    if: ${{ vars.CLOUDFLARE_DEPLOY_ENABLED == 'true' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build --project-name=horonomy-official-website --branch=main
