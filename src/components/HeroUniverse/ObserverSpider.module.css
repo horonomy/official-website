@@ -5,13 +5,14 @@
   pointer-events: none;
 }
 
-/* Stand the observer on the platform: centre / slightly right, bottom-aligned
-   onto the stone dais, facing the sky. The focal character of the scene. */
+/* Stand the observer on the dais, centre-left, facing the constellations.
+   It is THE focal character of the scene — in the v1 mock it stands roughly
+   45% of the frame tall, clearly larger than every other element. */
 .observer {
   position: absolute;
-  left: 40%;
-  bottom: 17%;
-  width: clamp(120px, 15vw, 220px);
+  left: 41.5%;
+  bottom: 16%;
+  width: clamp(280px, 29vw, 460px);
   height: auto;
   transform: translateX(-50%);
   /* Cool + slightly darker so the cutout sits in the same night light as the
@@ -22,8 +23,8 @@
 
 @media (max-width: 996px) {
   .observer {
-    left: 46%;
-    bottom: 13%;
-    width: clamp(110px, 32vw, 190px);
+    left: 44%;
+    bottom: 12%;
+    width: clamp(170px, 40vw, 260px);
   }
 }

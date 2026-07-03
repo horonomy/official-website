@@ -16,16 +16,16 @@
   display: block;
 }
 
-/* Observatory ground terrace anchored across the bottom. The image's central
-   dais is shifted toward the middle-left so the observer stands on it, and the
-   dusty bottom edge bleeds off-screen so it reads as real ground, not a
-   floating slab. */
+/* Observatory ground terrace: a modest foreground ledge in the lower-left
+   third of the scene — the sky must dominate (~70% of the frame per the v1
+   mock). The dais sits under the observer and the dusty bottom edge bleeds
+   off-screen so it reads as real ground, not a floating slab. */
 .ground {
   position: absolute;
-  left: 40%;
-  bottom: -3%;
+  left: 44%;
+  bottom: -8%;
   transform: translateX(-50%);
-  width: min(1500px, 122%);
+  width: min(1040px, 72%);
   height: auto;
   display: block;
   filter: brightness(0.95) saturate(0.95) contrast(1.02)
@@ -34,8 +34,8 @@
 
 @media (max-width: 996px) {
   .ground {
-    left: 46%;
-    bottom: -2%;
-    width: min(900px, 150%);
+    left: 44%;
+    bottom: -4%;
+    width: min(760px, 130%);
   }
 }
