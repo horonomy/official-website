@@ -1,4 +1,5 @@
 import React from 'react';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 
 const PRINCIPLES = [
@@ -23,10 +24,20 @@ function Lore(): React.ReactElement {
   return (
     <section className={styles.lore}>
       <div className={`hn-shell ${styles.loreGrid}`}>
-        <div className={styles.loreLabel}>
-          THE LORE
-          <br />
-          <span>FIRST HOROLOGER</span>
+        <div className={styles.loreIntro}>
+          <img
+            className={styles.mascot}
+            src={useBaseUrl('/img/horonomy-mascot.png')}
+            width={132}
+            height={132}
+            loading="lazy"
+            alt="The First Horologer — Horonomy's mascot, observing the sky with an astrolabe"
+          />
+          <div className={styles.loreLabel}>
+            THE LORE
+            <br />
+            <span>FIRST HOROLOGER</span>
+          </div>
         </div>
         <p className={styles.loreBody}>
           It does not create the sky. It observes it, understands it, records

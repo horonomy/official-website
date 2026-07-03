@@ -30,6 +30,20 @@
   align-items: start;
 }
 
+.loreIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.mascot {
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.55));
+}
+
 .loreLabel {
   font-family: var(--hn-font-mono);
   font-size: 11px;
