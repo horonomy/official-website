@@ -14,7 +14,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 78%;
+  height: 82%;
   object-fit: cover;
   object-position: center bottom;
   display: block;
@@ -27,8 +27,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 68%;
-  height: 16%;
+  top: 72%;
+  height: 14%;
   z-index: 1;
   background: linear-gradient(180deg, transparent 0%, rgba(11, 13, 20, 0.85) 78%, #0b0d14 100%);
   pointer-events: none;
@@ -41,9 +41,9 @@
 .ground {
   position: absolute;
   left: 47%;
-  bottom: -16%;
+  bottom: -12%;
   transform: translateX(-50%);
-  width: min(910px, 63%);
+  width: min(1280px, 66%);
   height: auto;
   display: block;
   filter: brightness(0.95) saturate(0.95) contrast(1.02)
