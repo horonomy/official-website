@@ -8,19 +8,48 @@
   width: 56%;
   max-height: 62%;
   height: auto;
+  /* The SVG canvas is inert; only each constellation's hit area opts back in. */
   pointer-events: none;
   overflow: visible;
 }
 
+/* One focusable, interactive cluster. */
+.constellation {
+  pointer-events: none;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Transparent hit area so the whole cluster (not just the thin lines) is
+   hoverable and clickable. */
+.hit {
+  fill: transparent;
+  pointer-events: all;
+}
+
+/* Keyboard focus ring — hidden until the group is focused via the keyboard. */
+.focusRing {
+  fill: none;
+  stroke: var(--hn-gold-bright);
+  stroke-width: 2;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.constellation:focus-visible .focusRing {
+  opacity: 1;
+}
+
+/* Connecting lines. Normalised to pathLength=1 so a single dash spans the whole
+   stroke; the line is "undrawn" at rest (offset 1) and draws in when active. */
 .link {
   fill: none;
   stroke: var(--hn-gold);
   stroke-width: 1;
   stroke-linejoin: round;
-}
-
-.node {
-  fill: var(--hn-gold-bright);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 600ms ease, stroke 200ms ease, opacity 200ms ease;
 }
 
 /* Faint internal star-map chords inside the primary constellation. */
@@ -28,27 +57,14 @@
   stroke: var(--hn-gold);
   stroke-width: 0.8;
   opacity: 0.35;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 600ms ease, opacity 200ms ease;
 }
 
-/* The primary product burns brighter than the research constellations. */
-.primary .link {
-  stroke: var(--hn-gold-bright);
-  stroke-width: 1.4;
-  opacity: 0.85;
-}
-
-.primary .node {
+.node {
   fill: var(--hn-gold-bright);
-  filter: drop-shadow(0 0 4px rgba(224, 185, 120, 0.9));
-}
-
-.dim .link {
-  opacity: 0.4;
-}
-
-.dim .node {
-  fill: var(--hn-gold);
-  opacity: 0.8;
+  transition: fill 200ms ease, opacity 200ms ease, filter 200ms ease;
 }
 
 .name {
@@ -56,16 +72,97 @@
   font-family: var(--hn-font-sans);
   font-size: 20px;
   font-weight: 600;
-}
-
-.primary .name {
-  fill: var(--hn-gold-bright);
+  transition: fill 200ms ease, opacity 200ms ease;
 }
 
 .tagline {
   fill: var(--hn-muted);
   font-family: var(--hn-font-sans);
   font-size: 14px;
+  transition: fill 200ms ease, opacity 200ms ease;
+}
+
+/* ---- Resting tone hierarchy: the primary burns brightest by default. ---- */
+.primary .node {
+  fill: var(--hn-gold-bright);
+  filter: drop-shadow(0 0 4px rgba(224, 185, 120, 0.9));
+}
+
+.primary .name {
+  fill: var(--hn-gold-bright);
+}
+
+.secondary .node {
+  fill: var(--hn-gold);
+  opacity: 0.85;
+}
+
+.muted .node {
+  fill: var(--hn-gold);
+  opacity: 0.6;
+}
+
+.muted .name,
+.muted .tagline {
+  opacity: 0.75;
+}
+
+/* ---- Active: hover, keyboard focus, or externally-driven `active` class.
+   Lines draw in, nodes brighten, the label is emphasised. ---- */
+.constellation:hover .link,
+.constellation:focus-visible .link,
+.active .link {
+  stroke: var(--hn-gold-bright);
+  stroke-width: 1.4;
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+.constellation:hover .chord,
+.constellation:focus-visible .chord,
+.active .chord {
+  stroke: var(--hn-gold-bright);
+  stroke-dashoffset: 0;
+  opacity: 0.7;
+}
+
+.constellation:hover .node,
+.constellation:focus-visible .node,
+.active .node {
+  fill: var(--hn-gold-bright);
+  opacity: 1;
+  filter: drop-shadow(0 0 6px rgba(224, 185, 120, 0.95));
+}
+
+.constellation:hover .name,
+.constellation:focus-visible .name,
+.active .name {
+  fill: var(--hn-gold-bright);
+  font-weight: 700;
+}
+
+.constellation:hover .tagline,
+.constellation:focus-visible .tagline,
+.active .tagline {
+  fill: var(--hn-ink);
+  opacity: 1;
+}
+
+/* Reduced motion: no line-draw animation. Lines rest fully drawn (static glow)
+   and state changes apply instantly. */
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .chord {
+    stroke-dashoffset: 0;
+    transition: stroke 200ms ease, opacity 200ms ease;
+  }
+
+  .focusRing,
+  .node,
+  .name,
+  .tagline {
+    transition: none;
+  }
 }
 
 @media (max-width: 996px) {
