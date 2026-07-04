@@ -8,8 +8,8 @@ import styles from './AmbientEffects.module.css';
  *
  * Enhances — rather than repaints — the already-starred sky backdrop with a few
  * subtle, GPU-friendly effects:
- *   - a gently twinkling canvas star field (`./starfield.ts`) — no shooting
- *     stars or meteors, just a field of stars that breathe;
+ *   - a dense, gently twinkling canvas star field (`./starfield.ts`) — no
+ *     shooting stars or meteors, just a living field of stars that breathe;
  *   - two slow-drifting haze clouds (navy / gold / soft purple gradients);
  *   - light cursor + scroll parallax, applied through CSS custom properties so
  *     only compositor-friendly `transform`s change.

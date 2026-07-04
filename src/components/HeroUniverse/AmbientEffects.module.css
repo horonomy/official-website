@@ -10,7 +10,7 @@
   --hn-amb-sy: 0;
 }
 
-/* Canvas star field: dense twinkling stars. Parallax drifts it opposite the
+/* Canvas star field: dense twinkling starfield. Parallax drifts it opposite the
    pointer and lifts it slightly as the page scrolls. `will-change: transform`
    keeps the movement on the compositor. Any few-px edge reveal shows the sky
    backdrop layer beneath — never the page background. */
