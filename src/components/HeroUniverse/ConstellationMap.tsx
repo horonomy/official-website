@@ -67,17 +67,21 @@ function Constellation({
   if (!shape) return null;
 
   const isPrimary = product.tone === 'primary';
+  // Products still in development (no real destination yet) are faded but kept.
+  const comingSoon = product.href === '#';
   const [lx, ly] = shape.label;
   const box = bbox(shape.nodes);
+  const figures = shape.figures ?? [shape.nodes.map((_, i) => i)];
 
   return (
     <g
       className={clsx(styles.constellation, TONE_CLASS[product.tone], {
         [styles.active]: active,
+        [styles.comingSoon]: comingSoon,
       })}
       tabIndex={0}
       role="button"
-      aria-label={product.name}
+      aria-label={`${product.name}, the ${shape.sky} constellation`}
       onMouseEnter={() => onActivate?.(product.id)}
       onMouseLeave={() => onActivate?.(null)}
       onFocus={() => onActivate?.(product.id)}
@@ -108,12 +112,15 @@ function Constellation({
         aria-hidden="true"
       />
 
-      <polyline
-        className={styles.link}
-        points={points(shape.nodes)}
-        pathLength={1}
-        aria-hidden="true"
-      />
+      {figures.map((idx, i) => (
+        <polyline
+          key={i}
+          className={styles.link}
+          points={points(idx.map((n) => shape.nodes[n]))}
+          pathLength={1}
+          aria-hidden="true"
+        />
+      ))}
       {shape.chords?.map(([a, b], i) => (
         <line
           key={i}
@@ -126,15 +133,32 @@ function Constellation({
           aria-hidden="true"
         />
       ))}
-      {shape.nodes.map(([x, y], i) => (
-        <circle
+      {shape.nodes.map(([x, y], i) => {
+        const isAnchor = i === shape.anchor;
+        const isMinor = shape.minor?.includes(i) ?? false;
+        return (
+          <circle
+            key={i}
+            className={clsx(styles.node, {
+              [styles.anchor]: isAnchor,
+              [styles.minorNode]: isMinor,
+            })}
+            cx={x}
+            cy={y}
+            r={isAnchor ? 5.5 : isMinor ? 1.8 : isPrimary ? 3.2 : 2.4}
+            aria-hidden="true"
+          />
+        );
+      })}
+      {shape.regions?.map((r, i) => (
+        <text
           key={i}
-          className={styles.node}
-          cx={x}
-          cy={y}
-          r={isPrimary ? 4.5 : 3}
-          aria-hidden="true"
-        />
+          className={styles.region}
+          x={r.at[0]}
+          y={r.at[1]}
+          aria-hidden="true">
+          {r.name}
+        </text>
       ))}
       <text
         className={styles.name}
@@ -145,9 +169,17 @@ function Constellation({
         {product.name}
       </text>
       <text
+        className={styles.sky}
+        x={lx}
+        y={ly + 18}
+        textAnchor={shape.labelAlign}
+        aria-hidden="true">
+        {shape.sky}
+      </text>
+      <text
         className={styles.tagline}
         x={lx}
-        y={ly + 20}
+        y={ly + 37}
         textAnchor={shape.labelAlign}
         aria-hidden="true">
         {product.tagline}
