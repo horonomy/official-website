@@ -188,6 +188,110 @@ function Constellation({
   );
 }
 
+/* ---- Stone-floor seams (HORO-21) -----------------------------------------
+ * A small perspective grid of terrace-floor joints drawn beneath the sky. Radial
+ * seams fan from a horizon vanishing point down to the terrace front edge, with
+ * a few transverse courses; the whole set ties the constellations to the floor.
+ *
+ * Geometry lives here (viewBox space), and each radial seam's owner is DERIVED
+ * from the shared constellation data (nearest cluster centroid) rather than
+ * duplicated into it — so seam ownership tracks the sky automatically. */
+const FLOOR_VP: readonly [number, number] = [500, 300];
+const FLOOR_BASE_Y = 520;
+/** Front-edge x anchors of the terrace slabs, left → right. */
+const SEAM_BASE_X = [60, 150, 300, 520, 700, 860, 1000] as const;
+/** Transverse courses, as depth fractions from the horizon (0) to the front (1). */
+const SEAM_COURSES = [0.5, 0.75, 1] as const;
+
+const PRIMARY_ID = PRODUCTS.find((p) => p.tone === 'primary')?.id ?? null;
+
+type Seam = {d: string; owner: string | null};
+
+/** Centroid x of each product's constellation, from the shared geometry. */
+function productCentroids(): Array<{id: string; cx: number}> {
+  return PRODUCTS.map((p) => {
+    const nodes = CONSTELLATIONS[p.id]?.nodes ?? [];
+    const cx = nodes.reduce((sum, [x]) => sum + x, 0) / (nodes.length || 1);
+    return {id: p.id, cx};
+  });
+}
+
+/** The product whose constellation sits nearest (horizontally) above a seam. */
+function nearestOwner(
+  baseX: number,
+  centroids: Array<{id: string; cx: number}>,
+): string | null {
+  let best: {id: string; cx: number} | null = null;
+  for (const c of centroids) {
+    if (!best || Math.abs(c.cx - baseX) < Math.abs(best.cx - baseX)) best = c;
+  }
+  return best?.id ?? null;
+}
+
+function buildSeams(): Seam[] {
+  const centroids = productCentroids();
+  const [vx, vy] = FLOOR_VP;
+  const radial: Seam[] = SEAM_BASE_X.map((bx) => ({
+    d: `M${vx} ${vy}L${bx} ${FLOOR_BASE_Y}`,
+    owner: nearestOwner(bx, centroids),
+  }));
+  const left = SEAM_BASE_X[0];
+  const right = SEAM_BASE_X[SEAM_BASE_X.length - 1];
+  // Transverse courses span the fanned width and belong to no single product —
+  // they carry the ambient network pulse only.
+  const transverse: Seam[] = SEAM_COURSES.map((t) => {
+    const y = vy + (FLOOR_BASE_Y - vy) * t;
+    const lx = vx + (left - vx) * t;
+    const rx = vx + (right - vx) * t;
+    return {d: `M${lx} ${y}L${rx} ${y}`, owner: null};
+  });
+  return [...radial, ...transverse];
+}
+
+// Pure, deterministic, no browser globals → SSR-safe at module load.
+const SEAMS: Seam[] = buildSeams();
+
+/**
+ * The luminous stone-floor seams. Driven by the same `activeId` that drives the
+ * constellations, so pointer hover and keyboard focus light the floor
+ * identically (accessibility parity). Idle → a slow travelling pulse; active →
+ * the seams nearest the focused constellation flare (lead for the primary,
+ * a cooler subtler flare for the rest).
+ */
+function FloorSeams({
+  activeId,
+}: {
+  activeId: string | null;
+}): React.ReactElement {
+  return (
+    <g className={styles.floor} aria-hidden="true">
+      {SEAMS.map((seam, i) => {
+        const owned = seam.owner != null && seam.owner === activeId;
+        const state =
+          activeId == null
+            ? styles.idle
+            : owned
+              ? seam.owner === PRIMARY_ID
+                ? clsx(styles.flare, styles.lead)
+                : clsx(styles.flare, styles.cool)
+              : styles.quiet;
+        return (
+          <g key={i} className={clsx(styles.seam, state)}>
+            <path className={styles.seamBase} d={seam.d} pathLength={100} />
+            <path
+              className={styles.seamPulse}
+              d={seam.d}
+              pathLength={100}
+              // Stagger phase so the light appears to travel across the network.
+              style={{animationDelay: `${-(i * 0.9)}s`}}
+            />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 export default function ConstellationMap({
   activeId,
   onActivate,
@@ -218,6 +322,8 @@ export default function ConstellationMap({
       focusable="false"
       role="group"
       aria-label="Product constellations">
+      {/* Stone-floor seams, painted first so they sit BENEATH the sky. */}
+      <FloorSeams activeId={resolvedActiveId} />
       {PRODUCTS.map((p) => (
         <Constellation
           key={p.id}
