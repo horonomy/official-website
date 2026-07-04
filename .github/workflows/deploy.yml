@@ -28,7 +28,7 @@ permissions:
   contents: read
 
 env:
-  PAGES_PROJECT: horonomy-official-website
+  PAGES_PROJECT: horonomy-site
 
 jobs:
   deploy:
