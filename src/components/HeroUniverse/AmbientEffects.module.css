@@ -8,6 +8,11 @@
   --hn-amb-px: 0;
   --hn-amb-py: 0;
   --hn-amb-sy: 0;
+  /* Ambient breeze strength, written by the gust driver in JS. Calm baseline
+     ~0.18, easing up to occasional gusts (max 1.0) and back. Declared here so
+     the dust drift calc()s are valid before the first frame — and so the layer
+     holds at this calm value when the driver is skipped (reduced motion). */
+  --wind: 0.18;
 }
 
 /* Canvas star field: dense twinkling starfield. Parallax drifts it opposite the
@@ -84,6 +89,48 @@
   }
 }
 
+/* Wind-driven star-dust. A small field of tiny motes that fade in, drift across
+   the scene, and fade out. Each mote's own drift vector (--hn-dust-dx/dy, set
+   inline per node) is scaled by the live `--wind` breeze, so the whole field
+   speeds up and reaches further during a gust and settles during the calm.
+   Positioned inline; only transform/opacity animate, so they stay on the
+   compositor. Palette matches the scene — soft gold / purple / starlight. */
+.dust {
+  position: absolute;
+  width: var(--hn-dust-size, 2px);
+  height: var(--hn-dust-size, 2px);
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    var(--hn-dust-color, rgba(226, 232, 240, 0.9)),
+    rgba(226, 232, 240, 0) 70%
+  );
+  animation: hn-dust-drift var(--hn-dust-dur, 20s) ease-in-out
+    var(--hn-dust-delay, 0s) infinite;
+}
+
+@keyframes hn-dust-drift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  18%,
+  82% {
+    opacity: var(--hn-dust-peak, 0.5);
+  }
+  100% {
+    opacity: 0;
+    /* Base drift plus a wind-scaled component: calm still carries the mote a
+       little, a gust pushes it the full distance. */
+    transform: translate3d(
+      calc(var(--hn-dust-dx, 70px) * (0.45 + var(--wind))),
+      calc(var(--hn-dust-dy, 0px) * (0.45 + var(--wind))),
+      0
+    );
+  }
+}
+
 /* Reduced motion: no drift, no parallax, no canvas animation (the star field
    draws a single static frame in JS). Everything holds perfectly still. */
 @media (prefers-reduced-motion: reduce) {
@@ -98,5 +145,14 @@
   .hazeA,
   .hazeB {
     transform: none;
+  }
+
+  /* Dust holds a single quiet frame: no drift, faintly present, not animating.
+     The gust driver is not attached in JS, so `--wind` stays at its calm
+     baseline and nothing moves. */
+  .dust {
+    animation: none;
+    transform: none;
+    opacity: var(--hn-dust-peak, 0.5);
   }
 }
