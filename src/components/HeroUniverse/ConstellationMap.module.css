@@ -220,6 +220,121 @@
   opacity: 1;
 }
 
+/* ---- Stone-floor seams (HORO-21) ------------------------------------------
+   A faint perspective grid of terrace-floor joints painted BENEATH the
+   constellations (earlier in document order). At rest a slow gold light travels
+   the seam network on a "fixing frequency" cadence. Hovering/focusing a
+   constellation runs gold light along the seams nearest it — brightest and
+   warmest for the primary (Argo Navis), a subtler cooler flare for the rest.
+   Purely stroke / opacity / drop-shadow driven; no layout-affecting properties. */
+
+/* Terrace-anchored overlay box. REPLICATES the ground raster's on-screen box
+   (matching `SceneLayers.module.css .ground` and the HORO-20 glow wrapper: same
+   left / bottom / transform / width + the image's 1916x649 ratio) so the paving
+   circle authored in image-pixel space lands exactly on the baked floor. Sits
+   at the environment layer — above the ground raster, below the observer — so
+   the keeper stands on the lit floor. */
+.floorRoot {
+  position: absolute;
+  left: 47%;
+  bottom: -12%;
+  transform: translateX(-50%);
+  width: min(1280px, 66%);
+  aspect-ratio: 1916 / 649;
+  pointer-events: none;
+  overflow: visible;
+}
+
+@media (max-width: 996px) {
+  .floorRoot {
+    left: 46%;
+    bottom: -6%;
+    width: min(640px, 118%);
+  }
+}
+
+.floor {
+  pointer-events: none;
+}
+
+.seam {
+  pointer-events: none;
+}
+
+/* The resting joint: a barely-there stone seam. */
+.seamBase {
+  fill: none;
+  stroke: var(--hn-gold);
+  stroke-width: 0.6;
+  opacity: 0.1;
+  transition: opacity 240ms ease, stroke 240ms ease;
+}
+
+/* The travelling light. A short bright dash chases the length of the
+   pathLength-normalised seam; invisible at rest, revealed by the states below. */
+.seamPulse {
+  fill: none;
+  stroke: var(--hn-gold-bright);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-dasharray: 14 86;
+  stroke-dashoffset: 100;
+  opacity: 0;
+  filter: drop-shadow(0 0 3px rgba(224, 185, 120, 0.55));
+  transition: opacity 260ms ease;
+}
+
+@keyframes hn-seam-travel {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Idle — nothing hovered: the whole network breathes on a slow cadence and the
+   seams stay barely visible. */
+.idle .seamPulse {
+  opacity: 0.42;
+  animation: hn-seam-travel 9s linear infinite;
+}
+
+/* Active — a constellation is hovered/focused: light the whole paving circle.
+   The base joints lift too, so the floor reads as lit rather than merely
+   chased. */
+.flare .seamBase {
+  opacity: 0.5;
+  stroke: var(--hn-gold-bright);
+}
+
+.flare .seamPulse {
+  animation: hn-seam-travel 3s linear infinite;
+}
+
+/* Lead — the primary product (Argo Navis): brightest, warmest, fastest. */
+.lead .seamPulse {
+  opacity: 1;
+  stroke: var(--hn-gold-bright);
+  stroke-width: 1.6;
+  stroke-dasharray: 24 76;
+  filter: drop-shadow(0 0 6px rgba(224, 185, 120, 0.95));
+  animation-duration: 2.6s;
+}
+
+.lead .seamBase {
+  opacity: 0.6;
+}
+
+/* Cool — the secondary products: subtler and cooler than the lead. */
+.cool .seamPulse {
+  opacity: 0.7;
+  stroke: var(--hn-gold);
+  stroke-width: 1.2;
+  filter: drop-shadow(0 0 4px rgba(200, 214, 255, 0.4));
+  animation-duration: 3.4s;
+}
+
 /* Reduced motion: no line-draw animation. Lines rest fully drawn (static glow)
    and state changes apply instantly. */
 @media (prefers-reduced-motion: reduce) {
@@ -235,6 +350,18 @@
   .name,
   .sky,
   .tagline {
+    transition: none;
+  }
+
+  /* Disable the travelling seam pulse entirely; keep only the faint static
+     stone seam. (`.floor .seamPulse` matches the state selectors' specificity
+     and, being last in source, wins.) */
+  .floor .seamPulse {
+    animation: none;
+    opacity: 0;
+  }
+
+  .seamBase {
     transition: none;
   }
 }
