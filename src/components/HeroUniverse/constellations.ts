@@ -3,82 +3,119 @@
  *
  * One {@link Constellation} shape per product id, expressed in the SVG viewBox
  * space (0..1000 x, 0..520 y) used by the map. Kept out of the component so the
- * geometry is a plain, testable data module: `nodes` draw as connected stars,
- * `chords` are optional internal star-map lines (index pairs into `nodes`), and
- * `label` anchors the text block beside the cluster.
+ * geometry is a plain, testable data module:
+ *   - `nodes`   — every star, drawn as a circle;
+ *   - `figures` — connected stick-figure paths, each a list of indices into
+ *                 `nodes` drawn as one polyline (a constellation can have
+ *                 several disjoint figures — e.g. the parts of Argo Navis);
+ *   - `chords`  — extra closing lines (index pairs into `nodes`);
+ *   - `regions` — optional sub-labels naming parts of a large constellation;
+ *   - `label`   — anchors the product text block beside the cluster.
  *
  * HORO-19 gives each product a real astronomical identity (Epic AAASM-4084,
  * visual / brand only — no engineering names change):
  *
  * | product id         | sky name  | asterism                                  |
  * |--------------------|-----------|-------------------------------------------|
- * | `ai-agent-assembly`| Argo Navis| the primary — **true star positions** (see below), anchored on Canopus |
+ * | `ai-agent-assembly`| Argo Navis| the primary — the COMPLETE ship in **true star positions**, drawn as its four modern constellations (Puppis, Vela, Carina, Pyxis), anchored on Canopus |
  * | `archeweave`       | Reticulum | the net / reticle — an emblematic woven rhombus |
  * | `harbinger`        | Sagitta   | the arrow — an emblematic herald's shaft + head |
  * | `more`             | Pleiades  | a small forming star cluster — "new stars are forming" |
  *
  * The hero constellation (`ai-agent-assembly` = Argo Navis) uses the **real
- * relative positions** of its brightest stars — Canopus, the Vela sail, the
- * Puppis stern, and the recognisable "False Cross" — from an equirectangular
- * projection of their catalogue right-ascension / declination (RA increases to
- * the left, north up), scaled uniformly so the pattern's true shape is
- * preserved. The three secondary clusters remain emblematic brand asterisms,
- * not surveyed positions.
+ * relative positions** of its brightest stars. Argo Navis is enormous — so
+ * large it was broken up into the modern constellations Carina, Puppis, Vela
+ * and Pyxis — so the whole ship is plotted from an equirectangular projection
+ * of catalogue right-ascension / declination (RA increasing to the left, north
+ * up), scaled uniformly so the pattern's true shape is preserved, with each of
+ * the four parts labelled where it sits. The three secondary clusters remain
+ * emblematic brand asterisms, not surveyed positions.
  *
- * Layout: Argo Navis stands as the hero pattern right of centre; Reticulum sits
- * off its upper-left, Sagitta points from the upper-right, and Pleiades
- * glimmers faintly off the lower-right. Every cluster sits in the upper / right
- * sky so it never overlaps the hero copy anchored to the lower-left.
+ * Layout: Argo Navis fills the right sky as the hero; the three secondary
+ * products sit smaller and dimmer down the left of the sky map, clear of both
+ * the ship and the hero copy anchored to the lower-left.
  */
+
+export type ConstellationRegion = {
+  /** Sub-constellation name, e.g. "Carina". */
+  name: string;
+  /** Label anchor in viewBox space. */
+  at: [number, number];
+};
 
 export type Constellation = {
   nodes: Array<[number, number]>;
-  /** Optional internal star-map chords (index pairs into `nodes`). */
+  /** Connected stick-figure paths; each is a list of indices into `nodes`. */
+  figures?: Array<Array<number>>;
+  /** Extra closing lines, as index pairs into `nodes`. */
   chords?: Array<[number, number]>;
   /** Index into `nodes` of the brightest anchor star (e.g. Canopus). */
   anchor?: number;
   /** Real constellation name shown as an astronomical sub-label. */
   sky: string;
+  /** Optional sub-region labels (the modern parts of a large constellation). */
+  regions?: Array<ConstellationRegion>;
   label: [number, number];
   labelAlign: 'start' | 'end';
 };
 
 export const CONSTELLATIONS: Record<string, Constellation> = {
-  // Argo Navis — the primary constellation: brightest, gold, anchored on
-  // Canopus (α Carinae). Unlike the emblematic clusters below, these are the
-  // REAL stars at their true relative positions: an equirectangular projection
-  // of catalogue RA/Dec (RA increasing to the left, north up), scaled uniformly
-  // into the viewBox so the pattern is astronomically faithful, not a drawn
-  // ship. The polyline traces the conventional figure — Puppis stern/prow (0–3)
-  // down the Vela sail (4–7) and along the Carina keel (8–11) — and the two
-  // chords close the sail and the recognisable "False Cross".
+  // Argo Navis — the primary, and the whole ship. These are the REAL stars at
+  // their true relative positions (equirectangular projection of catalogue
+  // RA/Dec, RA increasing left, north up, uniform scale), grouped into the four
+  // modern constellations Argo was split into:
+  //   Puppis (the stern)  nodes 0–6
+  //   Vela   (the sail)   nodes 7–11
+  //   Carina (the keel)   nodes 12–17, anchored on Canopus (node 12)
+  //   Pyxis  (the compass / old mast) nodes 18–20
   'ai-agent-assembly': {
     sky: 'Argo Navis',
     nodes: [
-      [706, 288], // 0  Canopus (α Car) — brightest anchor, the keel/prow star
-      [684, 277], // 1  τ Pup
-      [662, 207], // 2  π Pup
-      [619, 140], // 3  ρ Pup — stern
-      [623, 222], // 4  ζ Pup (Naos)
-      [618, 260], // 5  γ Vel (Regor) — sail corner
-      [569, 240], // 6  λ Vel (Suhail) — sail corner
-      [557, 300], // 7  κ Vel (Markeb) — False Cross
-      [588, 298], // 8  δ Vel (Alsephina) — False Cross
-      [607, 323], // 9  ε Car (Avior) — False Cross
-      [561, 322], // 10 ι Car (Aspidiske) — False Cross
-      [565, 376], // 11 β Car (Miaplacidus) — keel
+      [808, 70], // 0  ρ Pup
+      [806, 74], // 1  ξ Pup
+      [872, 171], // 2  π Pup
+      [857, 221], // 3  σ Pup
+      [813, 195], // 4  ζ Pup (Naos)
+      [907, 279], // 5  τ Pup
+      [922, 220], // 6  ν Pup
+      [805, 253], // 7  γ Vel (Regor)
+      [761, 311], // 8  δ Vel (Alsephina)
+      [731, 222], // 9  λ Vel (Suhail)
+      [713, 314], // 10 κ Vel (Markeb)
+      [605, 269], // 11 μ Vel
+      [940, 295], // 12 α Car — Canopus (brightest anchor, the keel)
+      [789, 349], // 13 ε Car (Avior)
+      [719, 347], // 14 ι Car (Aspidiske)
+      [724, 430], // 15 β Car (Miaplacidus)
+      [681, 393], // 16 υ Car
+      [610, 388], // 17 θ Car
+      [762, 140], // 18 α Pyx
+      [767, 157], // 19 β Pyx
+      [753, 97], // 20 γ Pyx
+    ],
+    figures: [
+      [0, 1, 4, 3, 5, 6, 2], // Puppis — the stern
+      [9, 7, 8, 10], // Vela — the sail (three sides)
+      [10, 11], //          — the sail's western spar out to μ Vel
+      [12, 13, 14, 16, 17], // Carina — the keel, from Canopus westward
+      [14, 15], //          — down to β Car (Miaplacidus)
+      [20, 18, 19], // Pyxis — the compass / old mast
     ],
     chords: [
-      [5, 8], // close the Vela sail (γ–δ)
-      [7, 10], // close the False Cross (κ–ι)
+      [9, 10], // close the Vela sail (λ–κ)
     ],
-    anchor: 0,
-    label: [724, 300],
+    anchor: 12,
+    regions: [
+      {name: 'Puppis', at: [905, 52]},
+      {name: 'Pyxis', at: [690, 92]},
+      {name: 'Vela', at: [598, 236]},
+      {name: 'Carina', at: [560, 402]},
+    ],
+    label: [600, 470],
     labelAlign: 'start',
   },
-  // Reticulum — the net / reticle. A woven rhombus (0–3) with two cross-threads
-  // meeting at a central star (4), reading as knotted fabric. Off the ship's
-  // upper-left bow.
+  // Reticulum — the net / reticle. Emblematic: a woven rhombus (0–3) with two
+  // cross-threads meeting at a central star (4). Upper-left of the sky map.
   archeweave: {
     sky: 'Reticulum',
     nodes: [
@@ -88,56 +125,56 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
       [168, 206], // 3  south
       [168, 157], // 4  woven centre
     ],
+    figures: [[0, 1, 2, 3, 0]],
     chords: [
       [0, 4],
-      [4, 2], // west–east thread through the centre
+      [4, 2],
       [1, 4],
-      [4, 3], // north–south thread through the centre
+      [4, 3],
     ],
     label: [252, 150],
     labelAlign: 'start',
   },
-  // Sagitta — the arrow / herald. Shaft (0–1–2) from nock to head, with
-  // fletching feathers off the nock and barbs off the head, pointing up toward
-  // the future. Upper-right sky.
+  // Sagitta — the arrow / herald. Emblematic: a shaft (0–1–2) from nock to head,
+  // with fletching off the nock and barbs off the head. Mid-left of the sky map.
   harbinger: {
     sky: 'Sagitta',
     nodes: [
-      [784, 140], // 0  nock
-      [842, 112], // 1  shaft mid
-      [908, 76], // 2  head tip
-      [768, 118], // 3  fletch (upper feather)
-      [800, 158], // 4  fletch (lower feather)
-      [886, 88], // 5  barb (upper)
-      [912, 100], // 6  barb (lower)
+      [104, 320], // 0  nock
+      [162, 292], // 1  shaft mid
+      [228, 256], // 2  head tip
+      [88, 298], // 3  fletch (upper)
+      [120, 338], // 4  fletch (lower)
+      [206, 268], // 5  barb (upper)
+      [232, 280], // 6  barb (lower)
     ],
+    figures: [[0, 1, 2]],
     chords: [
-      [0, 3], // fletching
+      [0, 3],
       [0, 4],
-      [2, 5], // arrowhead barbs
+      [2, 5],
       [2, 6],
     ],
-    label: [760, 100],
-    labelAlign: 'end',
+    label: [248, 250],
+    labelAlign: 'start',
   },
-  // Pleiades — a small forming star cluster. Loosely strung stars, still
-  // gathering; faint hint off the lower-right stern, clearly separated from the
-  // primary label.
+  // Pleiades — a small forming star cluster. Emblematic: loosely strung stars,
+  // still gathering. Lower-left of the sky map, clearly separate from Argo.
   more: {
     sky: 'Pleiades',
     nodes: [
-      [852, 396], // 0
-      [900, 378], // 1
-      [944, 402], // 2
-      [916, 440], // 3
-      [864, 442], // 4
-      [898, 412], // 5  cluster centre
+      [60, 398], // 0
+      [108, 380], // 1
+      [152, 404], // 2
+      [124, 442], // 3
+      [72, 444], // 4
+      [106, 414], // 5  cluster centre
     ],
     chords: [
       [5, 1],
-      [5, 3], // faint threads hinting stars are drawing together
+      [5, 3],
     ],
-    label: [832, 420],
-    labelAlign: 'end',
+    label: [175, 428],
+    labelAlign: 'start',
   },
 };
