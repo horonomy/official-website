@@ -20,20 +20,50 @@
   gap: 14px;
   padding: 22px 20px;
   border-radius: 14px;
-  background: rgba(14, 16, 22, 0.78);
+  /* Dark translucent "glass": a soft top-lit gradient over a blurred base,
+     hairline inset highlight for the pane edge. */
+  background: linear-gradient(
+      165deg,
+      rgba(28, 32, 42, 0.72) 0%,
+      rgba(14, 16, 22, 0.82) 100%
+    );
   border: 1px solid var(--hn-line-strong);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 28px rgba(6, 8, 16, 0.45);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
   text-decoration: none;
-  transition: border-color 0.15s ease, transform 0.15s ease,
-    background 0.15s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.card:hover {
+.card:hover,
+.card.active {
   text-decoration: none;
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   border-color: var(--hn-gold);
-  background: rgba(22, 25, 33, 0.88);
+  background: linear-gradient(
+      165deg,
+      rgba(36, 40, 52, 0.82) 0%,
+      rgba(20, 23, 31, 0.9) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 16px 40px rgba(6, 8, 16, 0.55),
+    0 0 22px rgba(201, 164, 92, 0.28);
+}
+
+/* Visible keyboard focus ring — distinct from hover, always shown on
+   keyboard focus even where hover glow is suppressed. */
+.card:focus-visible {
+  outline: none;
+  border-color: var(--hn-gold-bright);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 2px var(--hn-graphite),
+    0 0 0 4px var(--hn-gold-bright),
+    0 16px 40px rgba(6, 8, 16, 0.55);
 }
 
 /* Gold diamond connectors join the cards into one constellation path. */
@@ -52,8 +82,11 @@
 
 /* The primary product carries a standing gold accent. */
 .primary {
-  border-color: rgba(201, 164, 92, 0.5);
-  box-shadow: inset 0 0 0 1px var(--hn-gold-soft);
+  border-color: rgba(201, 164, 92, 0.55);
+  box-shadow:
+    inset 0 0 0 1px var(--hn-gold-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 28px rgba(6, 8, 16, 0.45);
 }
 
 /* Small constellation glyph on the left of each card. */
@@ -62,6 +95,13 @@
   width: 40px;
   height: 40px;
   margin-top: 2px;
+  transition: transform 0.2s ease;
+}
+
+.card:hover .glyph,
+.card:focus-visible .glyph,
+.card.active .glyph {
+  transform: scale(1.08);
 }
 
 .glyphLink {
@@ -90,6 +130,7 @@
   margin: 0;
   font-size: 17px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--hn-ink);
 }
 
@@ -114,8 +155,21 @@
   color: var(--hn-gold);
 }
 
-.card:hover .more {
+.card:hover .more,
+.card:focus-visible .more,
+.card.active .more {
   color: var(--hn-gold-bright);
+}
+
+/* Arrow nudges forward on interaction to signal the link affordance. */
+.arrow {
+  transition: transform 0.2s ease;
+}
+
+.card:hover .arrow,
+.card:focus-visible .arrow,
+.card.active .arrow {
+  transform: translateX(3px);
 }
 
 @media (max-width: 996px) {
@@ -136,5 +190,26 @@
 @media (max-width: 560px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Respect reduced-motion: keep color/border feedback, drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .glyph,
+  .arrow {
+    transition: border-color 0.2s ease, background 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .card:hover,
+  .card.active,
+  .card:hover .glyph,
+  .card:focus-visible .glyph,
+  .card.active .glyph,
+  .card:hover .arrow,
+  .card:focus-visible .arrow,
+  .card.active .arrow {
+    transform: none;
   }
 }

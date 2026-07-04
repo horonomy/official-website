@@ -10,7 +10,7 @@ export default function HeroCtaGroup(): React.ReactElement {
   return (
     <div className={styles.root}>
       <Link className={styles.solid} to="#products">
-        Explore Products <span aria-hidden="true">→</span>
+        Explore Products <span className={styles.arrow} aria-hidden="true">→</span>
       </Link>
       <Link className={styles.ghost} to="/docs/intro">
         Read the Docs

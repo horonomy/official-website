@@ -63,25 +63,53 @@ function Glyph({id}: {id: string}): React.ReactElement | null {
   );
 }
 
-function ProductCard({product}: {product: Product}): React.ReactElement {
+function ProductCard({
+  product,
+  active,
+  onActivate,
+}: {
+  product: Product;
+  active?: boolean;
+  onActivate?: (id: string) => void;
+}): React.ReactElement {
+  // Pointer/focus enter emits the product id so a future shared parent can echo
+  // the highlight into the sky map. Self-contained today: without `onActivate`
+  // wired in `index.tsx`, this is a no-op and the card just styles its own state.
+  const emit = onActivate ? () => onActivate(product.id) : undefined;
   return (
     <Link
-      className={clsx(styles.card, styles[product.tone])}
+      className={clsx(styles.card, styles[product.tone], active && styles.active)}
       to={product.href}
-      aria-label={`${product.name} — learn more`}>
+      aria-label={`${product.name} — learn more`}
+      onMouseEnter={emit}
+      onFocus={emit}>
       <Glyph id={product.id} />
       <div className={styles.cardBody}>
         <h3 className={styles.name}>{product.name}</h3>
         <p className={styles.blurb}>{product.blurb}</p>
         <span className={styles.more}>
-          Learn more <span aria-hidden="true">→</span>
+          Learn more <span className={styles.arrow} aria-hidden="true">→</span>
         </span>
       </div>
     </Link>
   );
 }
 
-export default function ProductCards(): React.ReactElement {
+/**
+ * @property activeId   Currently-highlighted product id (mirrors the sky map).
+ * @property onActivate Emitted on card hover/focus with the product id.
+ *
+ * Both props are optional and exist for a future shared active-state sync with
+ * the ConstellationMap (HORO-4). Cross-component wiring lives in `index.tsx` and
+ * is intentionally deferred — this component stays fully self-contained until then.
+ */
+export default function ProductCards({
+  activeId,
+  onActivate,
+}: {
+  activeId?: string;
+  onActivate?: (id: string) => void;
+} = {}): React.ReactElement {
   return (
     <section
       id="products"
@@ -90,7 +118,12 @@ export default function ProductCards(): React.ReactElement {
       aria-label="Products">
       <div className={clsx('hn-shell', styles.grid)}>
         {PRODUCTS.map((p) => (
-          <ProductCard key={p.id} product={p} />
+          <ProductCard
+            key={p.id}
+            product={p}
+            active={activeId === p.id}
+            onActivate={onActivate}
+          />
         ))}
       </div>
     </section>
