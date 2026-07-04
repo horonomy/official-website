@@ -57,10 +57,45 @@ export default function ObserverSpider(): React.ReactElement {
 
     window.addEventListener('pointermove', onPointerMove, {passive: true});
 
+    // Wind sway: ease a 0..1 gust value (`--obs-wind`) so the keeper and its
+    // cloak silhouette lean when a gust passes. Gusts arrive on a randomized
+    // cadence (calm ~0.15, gust up to ~1.0) so the sway never feels mechanical.
+    const WIND_CALM = 0.15;
+    let wind = WIND_CALM;
+    let gustPeak = WIND_CALM;
+    let gusting = false;
+    let nextEventAt = 0;
+    let windRaf = 0;
+
+    const windLoop = (t: number): void => {
+      if (nextEventAt === 0) {
+        nextEventAt = t + 3000 + Math.random() * 5000;
+      }
+      if (t >= nextEventAt) {
+        if (gusting) {
+          gusting = false;
+          nextEventAt = t + 4000 + Math.random() * 6000;
+        } else {
+          gusting = true;
+          gustPeak = 0.45 + Math.random() * 0.55;
+          nextEventAt = t + 900 + Math.random() * 1600;
+        }
+      }
+      const target = gusting ? gustPeak : WIND_CALM;
+      // Ease toward the target so gusts rise and fall smoothly.
+      wind += (target - wind) * 0.045;
+      root.style.setProperty('--obs-wind', wind.toFixed(3));
+      windRaf = window.requestAnimationFrame(windLoop);
+    };
+    windRaf = window.requestAnimationFrame(windLoop);
+
     return () => {
       window.removeEventListener('pointermove', onPointerMove);
       if (rafId !== 0) {
         window.cancelAnimationFrame(rafId);
+      }
+      if (windRaf !== 0) {
+        window.cancelAnimationFrame(windRaf);
       }
     };
   }, []);
@@ -71,14 +106,20 @@ export default function ObserverSpider(): React.ReactElement {
       className={styles.root}
       style={{zIndex: LAYERS.observer}}
       aria-hidden="true">
+      {/* Soft contact shadow cast on the dais, so the keeper reads as standing
+          on the stone rather than floating above it. */}
+      <div className={styles.contactShadow} />
       <div className={styles.gaze}>
-        <img
-          className={styles.observer}
-          src={observer}
-          alt=""
-          loading="eager"
-          decoding="async"
-        />
+        {/* Wind sway: leans with the `--obs-wind` gust value written above. */}
+        <div className={styles.sway}>
+          <img
+            className={styles.observer}
+            src={observer}
+            alt=""
+            loading="eager"
+            decoding="async"
+          />
+        </div>
       </div>
     </div>
   );
