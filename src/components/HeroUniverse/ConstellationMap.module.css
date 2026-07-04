@@ -67,11 +67,32 @@
   transition: fill 200ms ease, opacity 200ms ease, filter 200ms ease;
 }
 
+/* The brightest anchor star (e.g. Canopus, the keel of Argo Navis): larger and
+   burning with a stronger glow than every other star in the sky. */
+.anchor {
+  fill: var(--hn-gold-bright);
+  opacity: 1;
+  filter: drop-shadow(0 0 9px rgba(224, 185, 120, 1));
+}
+
 .name {
   fill: var(--hn-ink);
   font-family: var(--hn-font-sans);
   font-size: 20px;
   font-weight: 600;
+  transition: fill 200ms ease, opacity 200ms ease;
+}
+
+/* Astronomical sub-label — the real constellation name (e.g. "Argo Navis"),
+   sitting between the product name and its tagline. */
+.sky {
+  fill: var(--hn-gold);
+  font-family: var(--hn-font-sans);
+  font-size: 12px;
+  font-style: italic;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.85;
   transition: fill 200ms ease, opacity 200ms ease;
 }
 
@@ -88,7 +109,8 @@
   filter: drop-shadow(0 0 4px rgba(224, 185, 120, 0.9));
 }
 
-.primary .name {
+.primary .name,
+.primary .sky {
   fill: var(--hn-gold-bright);
 }
 
@@ -103,6 +125,7 @@
 }
 
 .muted .name,
+.muted .sky,
 .muted .tagline {
   opacity: 0.75;
 }
@@ -141,6 +164,13 @@
   font-weight: 700;
 }
 
+.constellation:hover .sky,
+.constellation:focus-visible .sky,
+.active .sky {
+  fill: var(--hn-gold-bright);
+  opacity: 1;
+}
+
 .constellation:hover .tagline,
 .constellation:focus-visible .tagline,
 .active .tagline {
@@ -159,7 +189,9 @@
 
   .focusRing,
   .node,
+  .anchor,
   .name,
+  .sky,
   .tagline {
     transition: none;
   }
@@ -177,6 +209,10 @@
 
   .name {
     font-size: 26px;
+  }
+
+  .sky {
+    font-size: 15px;
   }
 
   .tagline {
