@@ -227,6 +227,32 @@
    constellation runs gold light along the seams nearest it — brightest and
    warmest for the primary (Argo Navis), a subtler cooler flare for the rest.
    Purely stroke / opacity / drop-shadow driven; no layout-affecting properties. */
+
+/* Terrace-anchored overlay box. REPLICATES the ground raster's on-screen box
+   (matching `SceneLayers.module.css .ground` and the HORO-20 glow wrapper: same
+   left / bottom / transform / width + the image's 1916x649 ratio) so the paving
+   circle authored in image-pixel space lands exactly on the baked floor. Sits
+   at the environment layer — above the ground raster, below the observer — so
+   the keeper stands on the lit floor. */
+.floorRoot {
+  position: absolute;
+  left: 47%;
+  bottom: -12%;
+  transform: translateX(-50%);
+  width: min(1280px, 66%);
+  aspect-ratio: 1916 / 649;
+  pointer-events: none;
+  overflow: visible;
+}
+
+@media (max-width: 996px) {
+  .floorRoot {
+    left: 46%;
+    bottom: -6%;
+    width: min(640px, 118%);
+  }
+}
+
 .floor {
   pointer-events: none;
 }
@@ -274,18 +300,9 @@
   animation: hn-seam-travel 9s linear infinite;
 }
 
-/* A product is active but this seam belongs elsewhere — quiet it right down. */
-.quiet .seamPulse {
-  opacity: 0;
-  animation: none;
-}
-
-.quiet .seamBase {
-  opacity: 0.06;
-}
-
-/* Active + nearest to the hovered/focused constellation: light the seam. The
-   base joint lifts too, so it reads as lit rather than merely chased. */
+/* Active — a constellation is hovered/focused: light the whole paving circle.
+   The base joints lift too, so the floor reads as lit rather than merely
+   chased. */
 .flare .seamBase {
   opacity: 0.5;
   stroke: var(--hn-gold-bright);

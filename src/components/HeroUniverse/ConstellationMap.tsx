@@ -189,106 +189,98 @@ function Constellation({
 }
 
 /* ---- Stone-floor seams (HORO-21) -----------------------------------------
- * A small perspective grid of terrace-floor joints drawn beneath the sky. Radial
- * seams fan from a horizon vanishing point down to the terrace front edge, with
- * a few transverse courses; the whole set ties the constellations to the floor.
+ * The luminous joints of the observatory terrace — the concentric "magic
+ * circle" (rings + radial spokes) baked into `ground.webp`, retraced as a live
+ * overlay so it can light up. This SVG is anchored over the TERRACE (same box
+ * as the ground raster), NOT inside the sky constellation map, so the light
+ * appears on the stone floor where the keeper stands — never in the sky.
  *
- * Geometry lives here (viewBox space), and each radial seam's owner is DERIVED
- * from the shared constellation data (nearest cluster centroid) rather than
- * duplicated into it — so seam ownership tracks the sky automatically. */
-const FLOOR_VP: readonly [number, number] = [500, 300];
-const FLOOR_BASE_Y = 520;
-/** Front-edge x anchors of the terrace slabs, left → right. */
-const SEAM_BASE_X = [60, 150, 300, 520, 700, 860, 1000] as const;
-/** Transverse courses, as depth fractions from the horizon (0) to the front (1). */
-const SEAM_COURSES = [0.5, 0.75, 1] as const;
-
+ * Geometry is authored in the ground image's own pixel space (viewBox
+ * 1916x649) and the overlay box matches the raster 1:1, so the rings sit on the
+ * baked paving. Foreshortened by FLOOR_K to sit flat in perspective. */
 const PRIMARY_ID = PRODUCTS.find((p) => p.tone === 'primary')?.id ?? null;
 
-type Seam = {d: string; owner: string | null};
+/** Centre of the paving circle in ground-image pixels, and its perspective squash. */
+const FLOOR_CENTER: readonly [number, number] = [772, 386];
+const FLOOR_K = 0.4;
+/** Concentric ring radii (horizontal), inner → outer, in image pixels. */
+const RING_RX = [150, 250, 370, 500] as const;
+const SPOKE_COUNT = 16;
+const SPOKE_IN = 120;
+const SPOKE_OUT = 520;
 
-/** Centroid x of each product's constellation, from the shared geometry. */
-function productCentroids(): Array<{id: string; cx: number}> {
-  return PRODUCTS.map((p) => {
-    const nodes = CONSTELLATIONS[p.id]?.nodes ?? [];
-    const cx = nodes.reduce((sum, [x]) => sum + x, 0) / (nodes.length || 1);
-    return {id: p.id, cx};
-  });
+/** A flat-on-the-ground ellipse (perspective circle) as an SVG path. */
+function ellipse(cx: number, cy: number, rx: number, ry: number): string {
+  return (
+    `M${(cx - rx).toFixed(1)} ${cy.toFixed(1)}` +
+    `A${rx} ${ry} 0 1 0 ${(cx + rx).toFixed(1)} ${cy.toFixed(1)}` +
+    `A${rx} ${ry} 0 1 0 ${(cx - rx).toFixed(1)} ${cy.toFixed(1)}`
+  );
 }
 
-/** The product whose constellation sits nearest (horizontally) above a seam. */
-function nearestOwner(
-  baseX: number,
-  centroids: Array<{id: string; cx: number}>,
-): string | null {
-  let best: {id: string; cx: number} | null = null;
-  for (const c of centroids) {
-    if (!best || Math.abs(c.cx - baseX) < Math.abs(best.cx - baseX)) best = c;
+/** Concentric rings + radial spokes tracing the baked terrace paving circle. */
+function buildFloor(): string[] {
+  const [cx, cy] = FLOOR_CENTER;
+  const rings = RING_RX.map((rx) => ellipse(cx, cy, rx, rx * FLOOR_K));
+  const spokes: string[] = [];
+  for (let i = 0; i < SPOKE_COUNT; i++) {
+    const a = (i / SPOKE_COUNT) * Math.PI * 2;
+    const x1 = cx + SPOKE_IN * Math.cos(a);
+    const y1 = cy + SPOKE_IN * FLOOR_K * Math.sin(a);
+    const x2 = cx + SPOKE_OUT * Math.cos(a);
+    const y2 = cy + SPOKE_OUT * FLOOR_K * Math.sin(a);
+    spokes.push(`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`);
   }
-  return best?.id ?? null;
-}
-
-function buildSeams(): Seam[] {
-  const centroids = productCentroids();
-  const [vx, vy] = FLOOR_VP;
-  const radial: Seam[] = SEAM_BASE_X.map((bx) => ({
-    d: `M${vx} ${vy}L${bx} ${FLOOR_BASE_Y}`,
-    owner: nearestOwner(bx, centroids),
-  }));
-  const left = SEAM_BASE_X[0];
-  const right = SEAM_BASE_X[SEAM_BASE_X.length - 1];
-  // Transverse courses span the fanned width and belong to no single product —
-  // they carry the ambient network pulse only.
-  const transverse: Seam[] = SEAM_COURSES.map((t) => {
-    const y = vy + (FLOOR_BASE_Y - vy) * t;
-    const lx = vx + (left - vx) * t;
-    const rx = vx + (right - vx) * t;
-    return {d: `M${lx} ${y}L${rx} ${y}`, owner: null};
-  });
-  return [...radial, ...transverse];
+  return [...rings, ...spokes];
 }
 
 // Pure, deterministic, no browser globals → SSR-safe at module load.
-const SEAMS: Seam[] = buildSeams();
+const FLOOR_PATHS: string[] = buildFloor();
 
 /**
- * The luminous stone-floor seams. Driven by the same `activeId` that drives the
+ * The luminous stone-floor paving. Driven by the same `activeId` that drives the
  * constellations, so pointer hover and keyboard focus light the floor
- * identically (accessibility parity). Idle → a slow travelling pulse; active →
- * the seams nearest the focused constellation flare (lead for the primary,
- * a cooler subtler flare for the rest).
+ * identically (accessibility parity). Idle → a slow travelling pulse ("fixing
+ * frequency"); AI Agent Assembly (the primary) hovered → the whole circle burns
+ * gold (lead); any other product → a subtler, cooler flare.
+ *
+ * Rendered as its own terrace-anchored SVG (see `.floorRoot`) below the observer
+ * so the keeper stands on the lit floor.
  */
 function FloorSeams({
   activeId,
 }: {
   activeId: string | null;
 }): React.ReactElement {
+  const state =
+    activeId == null
+      ? styles.idle
+      : activeId === PRIMARY_ID
+        ? clsx(styles.flare, styles.lead)
+        : clsx(styles.flare, styles.cool);
   return (
-    <g className={styles.floor} aria-hidden="true">
-      {SEAMS.map((seam, i) => {
-        const owned = seam.owner != null && seam.owner === activeId;
-        const state =
-          activeId == null
-            ? styles.idle
-            : owned
-              ? seam.owner === PRIMARY_ID
-                ? clsx(styles.flare, styles.lead)
-                : clsx(styles.flare, styles.cool)
-              : styles.quiet;
-        return (
-          <g key={i} className={clsx(styles.seam, state)}>
-            <path className={styles.seamBase} d={seam.d} pathLength={100} />
+    <svg
+      className={styles.floorRoot}
+      style={{zIndex: LAYERS.environment}}
+      viewBox="0 0 1916 649"
+      preserveAspectRatio="none"
+      focusable="false"
+      aria-hidden="true">
+      <g className={clsx(styles.floor, state)}>
+        {FLOOR_PATHS.map((d, i) => (
+          <g key={i} className={styles.seam}>
+            <path className={styles.seamBase} d={d} pathLength={100} />
             <path
               className={styles.seamPulse}
-              d={seam.d}
+              d={d}
               pathLength={100}
               // Stagger phase so the light appears to travel across the network.
-              style={{animationDelay: `${-(i * 0.9)}s`}}
+              style={{animationDelay: `${-(i * 0.6)}s`}}
             />
           </g>
-        );
-      })}
-    </g>
+        ))}
+      </g>
+    </svg>
   );
 }
 
@@ -314,24 +306,27 @@ export default function ConstellationMap({
   );
 
   return (
-    <svg
-      className={styles.root}
-      style={{zIndex: LAYERS.constellations}}
-      viewBox="0 0 1000 520"
-      preserveAspectRatio="xMidYMin meet"
-      focusable="false"
-      role="group"
-      aria-label="Product constellations">
-      {/* Stone-floor seams, painted first so they sit BENEATH the sky. */}
+    <>
+      {/* Terrace floor paving — anchored over the ground raster (see
+          `.floorRoot`), NOT in the sky SVG, so the light lands on the stone. */}
       <FloorSeams activeId={resolvedActiveId} />
-      {PRODUCTS.map((p) => (
-        <Constellation
-          key={p.id}
-          product={p}
-          active={resolvedActiveId === p.id}
-          onActivate={handleActivate}
-        />
-      ))}
-    </svg>
+      <svg
+        className={styles.root}
+        style={{zIndex: LAYERS.constellations}}
+        viewBox="0 0 1000 520"
+        preserveAspectRatio="xMidYMin meet"
+        focusable="false"
+        role="group"
+        aria-label="Product constellations">
+        {PRODUCTS.map((p) => (
+          <Constellation
+            key={p.id}
+            product={p}
+            active={resolvedActiveId === p.id}
+            onActivate={handleActivate}
+          />
+        ))}
+      </svg>
+    </>
   );
 }
