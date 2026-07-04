@@ -77,7 +77,7 @@ function Constellation({
       })}
       tabIndex={0}
       role="button"
-      aria-label={product.name}
+      aria-label={`${product.name}, the ${shape.sky} constellation`}
       onMouseEnter={() => onActivate?.(product.id)}
       onMouseLeave={() => onActivate?.(null)}
       onFocus={() => onActivate?.(product.id)}
@@ -126,16 +126,19 @@ function Constellation({
           aria-hidden="true"
         />
       ))}
-      {shape.nodes.map(([x, y], i) => (
-        <circle
-          key={i}
-          className={styles.node}
-          cx={x}
-          cy={y}
-          r={isPrimary ? 4.5 : 3}
-          aria-hidden="true"
-        />
-      ))}
+      {shape.nodes.map(([x, y], i) => {
+        const isAnchor = i === shape.anchor;
+        return (
+          <circle
+            key={i}
+            className={clsx(styles.node, {[styles.anchor]: isAnchor})}
+            cx={x}
+            cy={y}
+            r={isAnchor ? 6.5 : isPrimary ? 4.5 : 3}
+            aria-hidden="true"
+          />
+        );
+      })}
       <text
         className={styles.name}
         x={lx}
@@ -145,9 +148,17 @@ function Constellation({
         {product.name}
       </text>
       <text
+        className={styles.sky}
+        x={lx}
+        y={ly + 18}
+        textAnchor={shape.labelAlign}
+        aria-hidden="true">
+        {shape.sky}
+      </text>
+      <text
         className={styles.tagline}
         x={lx}
-        y={ly + 20}
+        y={ly + 37}
         textAnchor={shape.labelAlign}
         aria-hidden="true">
         {product.tagline}
