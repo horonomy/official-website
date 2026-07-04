@@ -1,18 +1,18 @@
 /**
- * Ambient canvas star field for the HeroUniverse hero (HORO-5).
+ * Ambient canvas star field for the HeroUniverse hero (HORO-5, HORO-18).
  *
- * A device-pixel-ratio–aware 2D canvas that layers *subtle* motion over the
- * already-painted sky backdrop: gentle per-star twinkle plus occasional,
- * low-frequency shooting stars. Deliberately sparse — the SceneLayers backdrop
- * already carries the bulk of the stars, so this engine only adds life, it does
- * not re-paint a whole sky.
+ * A device-pixel-ratio–aware 2D canvas that layers *subtle* twinkle over the
+ * already-painted sky backdrop. There are no shooting stars or meteors — just a
+ * field of stars that gently breathe. Deliberately sparse — the SceneLayers
+ * backdrop already carries the bulk of the stars, so this engine only adds life,
+ * it does not re-paint a whole sky.
  *
  * Palette matches the scene: cool white, gold, and soft purple.
  *
  * Client-only: callers must instantiate inside a `useEffect` (it touches
  * `window`, `canvas`, and `requestAnimationFrame`). Honors
  * `prefers-reduced-motion: reduce` by drawing a single static frame and never
- * starting the animation loop or spawning meteors.
+ * starting the animation loop.
  */
 
 type Star = {
@@ -26,16 +26,6 @@ type Star = {
   phase: number; // twinkle phase offset
 };
 
-type Meteor = {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  life: number; // 0..1 remaining
-  len: number;
-  color: string; // "r,g,b"
-};
-
 // Scene palette: navy backdrop, gold accents, soft purple glow.
 const STAR_COLORS = [
   {c: '229,231,235', w: 0.5}, // cool white — most common
@@ -43,9 +33,6 @@ const STAR_COLORS = [
   {c: '168,146,208', w: 0.18}, // soft purple
   {c: '201,164,92', w: 0.08}, // deep gold — rare
 ];
-
-// Shooting stars pull from the warm end of the palette so they read as gold.
-const METEOR_COLORS = ['244,245,247', '224,185,120', '201,164,92'];
 
 function pickWeighted(
   rand: () => number,
@@ -89,10 +76,8 @@ export function createStarField(canvas: HTMLCanvasElement): StarField {
   let height = 0;
   let dpr = 1;
   let stars: Star[] = [];
-  let meteors: Meteor[] = [];
   let raf = 0;
   let start = 0;
-  let nextMeteor = 0;
 
   function buildStars(): void {
     // Sparse: the backdrop already carries most stars, so density here is a
@@ -154,22 +139,6 @@ export function createStarField(canvas: HTMLCanvasElement): StarField {
     }
   }
 
-  function spawnMeteor(): void {
-    // Enter from the top edge, drift down-left or down-right.
-    const fromLeft = rand() > 0.5;
-    const speed = 220 + rand() * 170;
-    const angle = (fromLeft ? 0.32 : 0.68) * Math.PI + (rand() - 0.5) * 0.28;
-    meteors.push({
-      x: rand() * width,
-      y: -20,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      life: 1,
-      len: 64 + rand() * 80,
-      color: METEOR_COLORS[Math.floor(rand() * METEOR_COLORS.length)],
-    });
-  }
-
   function frame(t: number): void {
     if (!start) start = t;
     const elapsed = (t - start) / 1000;
@@ -178,31 +147,6 @@ export function createStarField(canvas: HTMLCanvasElement): StarField {
     for (const s of stars) {
       const a = s.base + s.amp * Math.sin(elapsed * s.speed + s.phase);
       drawStar(s, Math.max(0, Math.min(1, a)));
-    }
-
-    // Low-frequency shooting stars: long, randomized gaps.
-    if (t > nextMeteor) {
-      spawnMeteor();
-      nextMeteor = t + 7000 + rand() * 11000;
-    }
-    const dt = 1 / 60;
-    meteors = meteors.filter((m) => m.life > 0 && m.y < height + 40);
-    for (const m of meteors) {
-      m.x += m.vx * dt;
-      m.y += m.vy * dt;
-      m.life -= dt * 0.5;
-      const tailX = m.x - (m.vx / 360) * m.len;
-      const tailY = m.y - (m.vy / 360) * m.len;
-      const grad = ctx!.createLinearGradient(m.x, m.y, tailX, tailY);
-      const a = Math.max(0, m.life);
-      grad.addColorStop(0, `rgba(${m.color},${(a * 0.85).toFixed(3)})`);
-      grad.addColorStop(1, `rgba(${m.color},0)`);
-      ctx!.strokeStyle = grad;
-      ctx!.lineWidth = 1.3;
-      ctx!.beginPath();
-      ctx!.moveTo(m.x, m.y);
-      ctx!.lineTo(tailX, tailY);
-      ctx!.stroke();
     }
 
     raf = window.requestAnimationFrame(frame);
@@ -218,7 +162,6 @@ export function createStarField(canvas: HTMLCanvasElement): StarField {
     destroy: () => {
       if (raf) window.cancelAnimationFrame(raf);
       stars = [];
-      meteors = [];
     },
   };
 }
