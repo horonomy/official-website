@@ -200,16 +200,42 @@ function Constellation({
  * baked paving. Foreshortened by FLOOR_K to sit flat in perspective. */
 const PRIMARY_ID = PRODUCTS.find((p) => p.tone === 'primary')?.id ?? null;
 
-/** Centre of the paving circle in ground-image pixels, and its perspective squash. */
-const FLOOR_CENTER: readonly [number, number] = [772, 386];
-const FLOOR_K = 0.4;
-/** Concentric ring radii (horizontal), inner → outer, in image pixels. */
-const RING_RX = [150, 250, 370, 500] as const;
-const SPOKE_COUNT = 16;
-const SPOKE_IN = 120;
-const SPOKE_OUT = 520;
+/* Baked terrace geometry, measured in the ground image's own pixel space
+ * (viewBox 1916x649). The overlay box replicates the ground raster 1:1, so these
+ * coordinates land on the real baked stone. Two concentric sets trace the actual
+ * paving: the fine zodiac wheel on the raised dais, and the larger magic circle
+ * spread across the front tiles. All geometry stays below the terrace's back
+ * edge (y ~= 130) so nothing is ever drawn over the sky. */
+const FLOOR_CX = 764;
 
-/** A flat-on-the-ground ellipse (perspective circle) as an SVG path. */
+/** Raised-dais zodiac wheel — full perspective ellipses. [cy, rx, ry] */
+const DAIS_RINGS: ReadonlyArray<readonly [number, number, number]> = [
+  [206, 92, 22],
+  [206, 170, 40],
+  [207, 248, 58],
+  [208, 312, 74],
+];
+
+/** Larger ground circle — only the FRONT (lower) arc is drawn; its back half is
+ * occluded by the dais and would otherwise fall above the terrace line. [cy, rx, ry] */
+const GROUND_ARCS: ReadonlyArray<readonly [number, number, number]> = [
+  [246, 430, 148],
+  [250, 560, 198],
+  [252, 690, 242],
+];
+
+/** Radial spokes fan from the circle centre across the front tiles only. */
+const SPOKE_CX = 764;
+const SPOKE_CY = 214;
+const SPOKE_INNER = 60;
+const SPOKE_OUT_CY = 252;
+const SPOKE_OUT_RX = 690;
+const SPOKE_OUT_RY = 242;
+const SPOKE_COUNT = 18;
+const SPOKE_A0 = -0.28; // ~ -16deg (front-right, just above the horizon plane)
+const SPOKE_A1 = Math.PI + 0.28; // ~196deg (front-left) — sweeps through the front
+
+/** A full flat-on-the-ground ellipse (perspective circle) as an SVG path. */
 function ellipse(cx: number, cy: number, rx: number, ry: number): string {
   return (
     `M${(cx - rx).toFixed(1)} ${cy.toFixed(1)}` +
@@ -218,20 +244,28 @@ function ellipse(cx: number, cy: number, rx: number, ry: number): string {
   );
 }
 
-/** Concentric rings + radial spokes tracing the baked terrace paving circle. */
+/** The lower (front) half-arc of an ellipse, left point sweeping under to right. */
+function bottomArc(cx: number, cy: number, rx: number, ry: number): string {
+  return (
+    `M${(cx - rx).toFixed(1)} ${cy.toFixed(1)}` +
+    `A${rx} ${ry} 0 0 0 ${(cx + rx).toFixed(1)} ${cy.toFixed(1)}`
+  );
+}
+
+/** Dais wheel + ground front-arcs + radial spokes, tracing the baked paving. */
 function buildFloor(): string[] {
-  const [cx, cy] = FLOOR_CENTER;
-  const rings = RING_RX.map((rx) => ellipse(cx, cy, rx, rx * FLOOR_K));
-  const spokes: string[] = [];
+  const paths: string[] = [];
+  for (const [cy, rx, ry] of DAIS_RINGS) paths.push(ellipse(FLOOR_CX, cy, rx, ry));
+  for (const [cy, rx, ry] of GROUND_ARCS) paths.push(bottomArc(FLOOR_CX, cy, rx, ry));
   for (let i = 0; i < SPOKE_COUNT; i++) {
-    const a = (i / SPOKE_COUNT) * Math.PI * 2;
-    const x1 = cx + SPOKE_IN * Math.cos(a);
-    const y1 = cy + SPOKE_IN * FLOOR_K * Math.sin(a);
-    const x2 = cx + SPOKE_OUT * Math.cos(a);
-    const y2 = cy + SPOKE_OUT * FLOOR_K * Math.sin(a);
-    spokes.push(`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`);
+    const a = SPOKE_A0 + (SPOKE_A1 - SPOKE_A0) * (i / (SPOKE_COUNT - 1));
+    const x1 = SPOKE_CX + SPOKE_INNER * Math.cos(a);
+    const y1 = SPOKE_CY + SPOKE_INNER * 0.32 * Math.sin(a);
+    const x2 = SPOKE_CX + SPOKE_OUT_RX * Math.cos(a);
+    const y2 = SPOKE_OUT_CY + SPOKE_OUT_RY * Math.sin(a);
+    paths.push(`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`);
   }
-  return [...rings, ...spokes];
+  return paths;
 }
 
 // Pure, deterministic, no browser globals → SSR-safe at module load.
