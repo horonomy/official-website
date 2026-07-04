@@ -7,8 +7,9 @@ import styles from './ObserverSpider.module.css';
  * The First Horologer — the hero spider observer, rendered on the stone
  * platform. Decorative (`aria-hidden`); the headline carries the semantics.
  *
- * STUB SLOT — renders `observer.webp` as one static layer for now.
- * // HORO-7 fills in layered animation states (idle sway, head/astrolabe motion).
+ * Renders `observer.webp` as a single layer with a calm, pure-CSS idle
+ * animation (slow breathing bob/sway + a soft astrolabe glow pulse). The
+ * motion is disabled under `prefers-reduced-motion: reduce`.
  */
 export default function ObserverSpider(): React.ReactElement {
   const observer = useBaseUrl('/img/hero/observer.webp');

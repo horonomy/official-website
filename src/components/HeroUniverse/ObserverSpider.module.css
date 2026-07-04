@@ -15,11 +15,52 @@
   bottom: 11%;
   width: clamp(76px, 7vw, 112px);
   height: auto;
+  /* translateX(-50%) centers the cutout on its anchor; the idle keyframes fold
+     that offset into each step so the horizontal centering is preserved. */
   transform: translateX(-50%);
   /* Cool + slightly darker so the cutout sits in the same night light as the
-     sky, plus a soft contact shadow to ground it on the terrace dais. */
+     sky, plus a soft contact shadow to ground it on the terrace dais. A slow
+     glow pulse behind the drop-shadow suggests the astrolabe's light. */
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6)) brightness(0.95)
     saturate(0.93) contrast(1.02);
+  /* Calm idle life: a very slow breathing bob/sway plus a soft light pulse.
+     Two independent loops on prime-ish periods so the motion never repeats
+     mechanically. */
+  animation:
+    observerIdle 9s ease-in-out infinite,
+    observerGlow 7s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+/* Slow breathing bob + a whisper of sway/rotation, a few px and well under a
+   degree, so the keeper feels alive but never draws the eye. translateX(-50%)
+   is repeated in every step to keep the observer horizontally centered. */
+@keyframes observerIdle {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-3px) rotate(-0.6deg) scale(1.008);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+/* Soft light pulse: lift the contact shadow slightly and layer a faint warm
+   astrolabe glow, breathing in and out. Keeps the base cool grade intact. */
+@keyframes observerGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6))
+      drop-shadow(0 0 6px rgba(180, 200, 255, 0.12)) brightness(0.95)
+      saturate(0.93) contrast(1.02);
+  }
+  50% {
+    filter: drop-shadow(0 5px 12px rgba(0, 0, 0, 0.62))
+      drop-shadow(0 0 12px rgba(190, 205, 255, 0.26)) brightness(0.98)
+      saturate(0.95) contrast(1.02);
+  }
 }
 
 @media (max-width: 996px) {
@@ -27,5 +68,16 @@
     left: 45%;
     bottom: 9%;
     width: clamp(60px, 15vw, 96px);
+  }
+}
+
+/* Respect reduced-motion: hold the observer fully static — no bob, no glow
+   pulse — while preserving its resting placement, grade, and contact shadow. */
+@media (prefers-reduced-motion: reduce) {
+  .observer {
+    animation: none;
+    transform: translateX(-50%);
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6)) brightness(0.95)
+      saturate(0.93) contrast(1.02);
   }
 }
