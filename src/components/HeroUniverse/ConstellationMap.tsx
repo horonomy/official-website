@@ -67,13 +67,17 @@ function Constellation({
   if (!shape) return null;
 
   const isPrimary = product.tone === 'primary';
+  // Products still in development (no real destination yet) are faded but kept.
+  const comingSoon = product.href === '#';
   const [lx, ly] = shape.label;
   const box = bbox(shape.nodes);
+  const figures = shape.figures ?? [shape.nodes.map((_, i) => i)];
 
   return (
     <g
       className={clsx(styles.constellation, TONE_CLASS[product.tone], {
         [styles.active]: active,
+        [styles.comingSoon]: comingSoon,
       })}
       tabIndex={0}
       role="button"
@@ -108,12 +112,15 @@ function Constellation({
         aria-hidden="true"
       />
 
-      <polyline
-        className={styles.link}
-        points={points(shape.nodes)}
-        pathLength={1}
-        aria-hidden="true"
-      />
+      {figures.map((idx, i) => (
+        <polyline
+          key={i}
+          className={styles.link}
+          points={points(idx.map((n) => shape.nodes[n]))}
+          pathLength={1}
+          aria-hidden="true"
+        />
+      ))}
       {shape.chords?.map(([a, b], i) => (
         <line
           key={i}
@@ -134,11 +141,21 @@ function Constellation({
             className={clsx(styles.node, {[styles.anchor]: isAnchor})}
             cx={x}
             cy={y}
-            r={isAnchor ? 6.5 : isPrimary ? 4.5 : 3}
+            r={isAnchor ? 5.5 : isPrimary ? 3.2 : 2.4}
             aria-hidden="true"
           />
         );
       })}
+      {shape.regions?.map((r, i) => (
+        <text
+          key={i}
+          className={styles.region}
+          x={r.at[0]}
+          y={r.at[1]}
+          aria-hidden="true">
+          {r.name}
+        </text>
+      ))}
       <text
         className={styles.name}
         x={lx}

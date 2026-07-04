@@ -103,6 +103,27 @@
   transition: fill 200ms ease, opacity 200ms ease;
 }
 
+/* Sub-region labels naming the parts of a large constellation (e.g. the four
+   modern constellations — Puppis, Vela, Carina, Pyxis — that make up Argo
+   Navis). Faint by default; lift with the rest of the cluster when active. */
+.region {
+  fill: var(--hn-gold);
+  font-family: var(--hn-font-sans);
+  font-size: 11px;
+  font-style: italic;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  transition: opacity 200ms ease, fill 200ms ease;
+}
+
+.constellation:hover .region,
+.constellation:focus-visible .region,
+.active .region {
+  fill: var(--hn-gold-bright);
+  opacity: 0.9;
+}
+
 /* ---- Resting tone hierarchy: the primary burns brightest by default. ---- */
 .primary .node {
   fill: var(--hn-gold-bright);
@@ -128,6 +149,21 @@
 .muted .sky,
 .muted .tagline {
   opacity: 0.75;
+}
+
+/* ---- In-development products (no live destination yet): faded but kept, so
+   the roadmap still reads as part of the sky. They lift toward full strength on
+   hover / focus so they stay discoverable. Only the released product
+   (AI Agent Assembly = Argo Navis) burns at full strength by default. ---- */
+.comingSoon {
+  opacity: 0.4;
+  transition: opacity 240ms ease;
+}
+
+.comingSoon:hover,
+.comingSoon:focus-visible,
+.comingSoon.active {
+  opacity: 0.9;
 }
 
 /* ---- Active: hover, keyboard focus, or externally-driven `active` class.
