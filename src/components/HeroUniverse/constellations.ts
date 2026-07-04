@@ -8,21 +8,27 @@
  * `label` anchors the text block beside the cluster.
  *
  * HORO-19 gives each product a real astronomical identity (Epic AAASM-4084,
- * visual / brand only — no engineering names change). The clusters now read as
- * genuine star patterns arranged as one coherent slice of sky:
+ * visual / brand only — no engineering names change):
  *
  * | product id         | sky name  | asterism                                  |
  * |--------------------|-----------|-------------------------------------------|
- * | `ai-agent-assembly`| Argo Navis| the mythic ship — curved hull + masted sail, anchored on Canopus (the primary, brightest cluster) |
- * | `archeweave`       | Reticulum | the net / reticle — a woven rhombus with cross-threads |
- * | `harbinger`        | Sagitta   | the arrow — a herald's shaft, fletching, and barbed head |
+ * | `ai-agent-assembly`| Argo Navis| the primary — **true star positions** (see below), anchored on Canopus |
+ * | `archeweave`       | Reticulum | the net / reticle — an emblematic woven rhombus |
+ * | `harbinger`        | Sagitta   | the arrow — an emblematic herald's shaft + head |
  * | `more`             | Pleiades  | a small forming star cluster — "new stars are forming" |
  *
- * Layout: Argo Navis sails through the centre of the sky as the hero pattern;
- * Reticulum sits off its upper-left bow, Sagitta points from the upper-right,
- * and the Pleiades cluster glimmers faintly off the lower-right stern. Every
- * cluster sits in the upper / right sky so it never overlaps the hero copy
- * anchored to the lower-left.
+ * The hero constellation (`ai-agent-assembly` = Argo Navis) uses the **real
+ * relative positions** of its brightest stars — Canopus, the Vela sail, the
+ * Puppis stern, and the recognisable "False Cross" — from an equirectangular
+ * projection of their catalogue right-ascension / declination (RA increases to
+ * the left, north up), scaled uniformly so the pattern's true shape is
+ * preserved. The three secondary clusters remain emblematic brand asterisms,
+ * not surveyed positions.
+ *
+ * Layout: Argo Navis stands as the hero pattern right of centre; Reticulum sits
+ * off its upper-left, Sagitta points from the upper-right, and Pleiades
+ * glimmers faintly off the lower-right. Every cluster sits in the upper / right
+ * sky so it never overlaps the hero copy anchored to the lower-left.
  */
 
 export type Constellation = {
@@ -38,32 +44,36 @@ export type Constellation = {
 };
 
 export const CONSTELLATIONS: Record<string, Constellation> = {
-  // Argo Navis — the mythic ship, sailing through the centre of the sky. The
-  // primary constellation: biggest, brightest, gold, anchored on Canopus (the
-  // keel star, node 2). The polyline traces the hull (0–4), up the stern rail
-  // (4–5), the aft sail edge (5–6) to the mast-top (7), the fore sail edge to
-  // the fore rail (8–9); chords close the bow, run the deck, and raise the mast.
+  // Argo Navis — the primary constellation: brightest, gold, anchored on
+  // Canopus (α Carinae). Unlike the emblematic clusters below, these are the
+  // REAL stars at their true relative positions: an equirectangular projection
+  // of catalogue RA/Dec (RA increasing to the left, north up), scaled uniformly
+  // into the viewBox so the pattern is astronomically faithful, not a drawn
+  // ship. The polyline traces the conventional figure — Puppis stern/prow (0–3)
+  // down the Vela sail (4–7) and along the Carina keel (8–11) — and the two
+  // chords close the sail and the recognisable "False Cross".
   'ai-agent-assembly': {
     sky: 'Argo Navis',
     nodes: [
-      [388, 286], // 0  bow
-      [452, 324], // 1  fore hull
-      [536, 348], // 2  keel — Canopus (brightest anchor)
-      [624, 332], // 3  aft hull
-      [706, 292], // 4  stern
-      [672, 236], // 5  stern rail
-      [628, 196], // 6  aft sail corner
-      [548, 150], // 7  mast top
-      [470, 198], // 8  fore sail corner
-      [430, 240], // 9  fore rail
+      [706, 288], // 0  Canopus (α Car) — brightest anchor, the keel/prow star
+      [684, 277], // 1  τ Pup
+      [662, 207], // 2  π Pup
+      [619, 140], // 3  ρ Pup — stern
+      [623, 222], // 4  ζ Pup (Naos)
+      [618, 260], // 5  γ Vel (Regor) — sail corner
+      [569, 240], // 6  λ Vel (Suhail) — sail corner
+      [557, 300], // 7  κ Vel (Markeb) — False Cross
+      [588, 298], // 8  δ Vel (Alsephina) — False Cross
+      [607, 323], // 9  ε Car (Avior) — False Cross
+      [561, 322], // 10 ι Car (Aspidiske) — False Cross
+      [565, 376], // 11 β Car (Miaplacidus) — keel
     ],
     chords: [
-      [9, 0], // close the bow
-      [9, 5], // deck line across the hull
-      [7, 2], // the mast, rising from the keel star
+      [5, 8], // close the Vela sail (γ–δ)
+      [7, 10], // close the False Cross (κ–ι)
     ],
-    anchor: 2,
-    label: [726, 338],
+    anchor: 0,
+    label: [724, 300],
     labelAlign: 'start',
   },
   // Reticulum — the net / reticle. A woven rhombus (0–3) with two cross-threads
