@@ -5,6 +5,23 @@
   pointer-events: none;
 }
 
+/* Interim cursor "gaze": a thin layer over the observer that leans it toward
+   the pointer. It reads the normalized cursor offset (--gaze-x / --gaze-y,
+   -1..1, written to the root element by the component) and turns it into a
+   small, tightly clamped rotate + translate. The pivot sits at the observer's
+   base so the lean reads as an aware tilt, not the whole sprite sliding. The
+   transition eases the follow so it never snaps; the idle bob lives on the img
+   underneath and composes cleanly because it is a separate element. */
+.gaze {
+  position: absolute;
+  inset: 0;
+  transform-origin: 40.5% 89%;
+  transform: rotate(calc(var(--gaze-x, 0) * 2deg))
+    translate(calc(var(--gaze-x, 0) * 3px), calc(var(--gaze-y, 0) * 3px));
+  transition: transform 220ms ease-out;
+  will-change: transform;
+}
+
 /* Stand the observer on the astrolabe dais, reading its instrument. It is
    human-scale against the terrace world — about the height of a person,
    sized against the altar and braziers baked into the panorama — a small
@@ -69,6 +86,11 @@
     bottom: 9%;
     width: clamp(60px, 15vw, 96px);
   }
+
+  /* Keep the gaze pivot on the observer's base at its mobile placement. */
+  .gaze {
+    transform-origin: 45% 91%;
+  }
 }
 
 /* Respect reduced-motion: hold the observer fully static — no bob, no glow
@@ -79,5 +101,12 @@
     transform: translateX(-50%);
     filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6)) brightness(0.95)
       saturate(0.93) contrast(1.02);
+  }
+
+  /* Disable the cursor gaze entirely and hold the resting pose. The component
+     also skips attaching the pointer listener under reduced motion. */
+  .gaze {
+    transform: none;
+    transition: none;
   }
 }
