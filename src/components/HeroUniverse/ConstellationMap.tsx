@@ -271,12 +271,20 @@ function buildFloor(): string[] {
 // Pure, deterministic, no browser globals → SSR-safe at module load.
 const FLOOR_PATHS: string[] = buildFloor();
 
+/** Full-ellipse ring paths the orbiting "border-trail" light beads travel. */
+const ORBIT_RINGS: string[] = [
+  ellipse(FLOOR_CX, DAIS_RINGS[3][0], DAIS_RINGS[3][1], DAIS_RINGS[3][2]),
+  ellipse(FLOOR_CX, DAIS_RINGS[2][0], DAIS_RINGS[2][1], DAIS_RINGS[2][2]),
+];
+
 /**
  * The luminous stone-floor paving. Driven by the same `activeId` that drives the
  * constellations, so pointer hover and keyboard focus light the floor
- * identically (accessibility parity). Idle → a slow travelling pulse ("fixing
- * frequency"); AI Agent Assembly (the primary) hovered → the whole circle burns
- * gold (lead); any other product → a subtler, cooler flare.
+ * identically (accessibility parity). The paving reads as soft warm *light*
+ * (Glow-Effect style: a blurred bloom on the continuous joints), and a couple of
+ * glowing beads orbit the main ring (Border-Trail style, via CSS motion-path).
+ * Idle → a gentle breathe + slow orbit; AI Agent Assembly (the primary) hovered
+ * → the whole circle burns gold (lead); any other product → a cooler flare.
  *
  * Rendered as its own terrace-anchored SVG (see `.floorRoot`) below the observer
  * so the keeper stands on the lit floor.
@@ -301,17 +309,18 @@ function FloorSeams({
       focusable="false"
       aria-hidden="true">
       <g className={clsx(styles.floor, state)}>
+        {/* Continuous glowing joints — soft light on the stone, not dashes. */}
         {FLOOR_PATHS.map((d, i) => (
-          <g key={i} className={styles.seam}>
-            <path className={styles.seamBase} d={d} pathLength={100} />
-            <path
-              className={styles.seamPulse}
-              d={d}
-              pathLength={100}
-              // Stagger phase so the light appears to travel across the network.
-              style={{animationDelay: `${-(i * 0.6)}s`}}
-            />
-          </g>
+          <path key={i} className={styles.seamBase} d={d} />
+        ))}
+        {/* Border-trail: glowing beads orbiting the main rings via motion-path. */}
+        {ORBIT_RINGS.map((ring, i) => (
+          <circle
+            key={`bead-${i}`}
+            className={styles.orbitBead}
+            r={i === 0 ? 4 : 3}
+            style={{offsetPath: `path('${ring}')`, animationDelay: `${-i * 3.5}s`}}
+          />
         ))}
       </g>
     </svg>
