@@ -8,6 +8,11 @@
   --hn-amb-px: 0;
   --hn-amb-py: 0;
   --hn-amb-sy: 0;
+  /* Ambient breeze strength, written by the gust driver in JS. Calm baseline
+     ~0.18, easing up to occasional gusts (max 1.0) and back. Declared here so
+     the dust drift calc()s are valid before the first frame — and so the layer
+     holds at this calm value when the driver is skipped (reduced motion). */
+  --wind: 0.18;
 }
 
 /* Canvas star field: dense twinkling starfield. Parallax drifts it opposite the

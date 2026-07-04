@@ -75,10 +75,42 @@ export default function AmbientEffects(): React.ReactElement {
       window.addEventListener('scroll', onScroll, {passive: true});
     }
 
+    // Ambient breeze: a slow gust driver that eases the `--wind` custom property
+    // up to an occasional gust and lets it decay back to the calm baseline. The
+    // dust drift (CSS) scales its travel by this value, so the field breathes
+    // with the breeze. Cadence is randomized (~5–12s) so it never feels
+    // mechanical. Skipped entirely for reduced motion — `--wind` then holds at
+    // the calm baseline declared in CSS and the scene stays static.
+    const WIND_CALM = 0.18;
+    let windValue = WIND_CALM; // eased, written to CSS each frame
+    let windTarget = WIND_CALM; // gust peak, decays back toward calm
+    let windFrame = 0;
+    let nextGustAt = 0;
+    const scheduleGust = (now: number): void => {
+      nextGustAt = now + 5000 + Math.random() * 7000; // ~5–12s
+    };
+    const windTick = (now: number): void => {
+      windFrame = window.requestAnimationFrame(windTick);
+      if (now >= nextGustAt) {
+        windTarget = 0.35 + Math.random() * 0.65; // gust 0.35–1.0
+        scheduleGust(now);
+      }
+      // Gust target decays back to calm; the written value eases toward it, so
+      // each gust reads as an organic rise and fall rather than a step.
+      windTarget += (WIND_CALM - windTarget) * 0.012;
+      windValue += (windTarget - windValue) * 0.05;
+      root.style.setProperty('--wind', windValue.toFixed(3));
+    };
+    if (!reduceMotion) {
+      scheduleGust(window.performance?.now?.() ?? 0);
+      windFrame = window.requestAnimationFrame(windTick);
+    }
+
     return () => {
       field.destroy();
       if (observer) observer.disconnect();
       if (frame) window.cancelAnimationFrame(frame);
+      if (windFrame) window.cancelAnimationFrame(windFrame);
       if (!reduceMotion) {
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('scroll', onScroll);
