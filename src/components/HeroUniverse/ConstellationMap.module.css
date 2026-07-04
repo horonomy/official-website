@@ -75,6 +75,12 @@
   filter: drop-shadow(0 0 9px rgba(224, 185, 120, 1));
 }
 
+/* Subordinate stars (e.g. Pyxis, the small compass off the hull): dimmer, so
+   they read as a minor side instrument rather than part of the main ship. */
+.minorNode {
+  opacity: 0.55;
+}
+
 .name {
   fill: var(--hn-ink);
   font-family: var(--hn-font-sans);

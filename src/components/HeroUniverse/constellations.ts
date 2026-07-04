@@ -51,6 +51,9 @@ export type Constellation = {
   chords?: Array<[number, number]>;
   /** Index into `nodes` of the brightest anchor star (e.g. Canopus). */
   anchor?: number;
+  /** Indices of subordinate stars, drawn smaller/fainter (e.g. Pyxis, the
+   * small navigational instrument off the main hull). */
+  minor?: Array<number>;
   /** Real constellation name shown as an astronomical sub-label. */
   sky: string;
   /** Optional sub-region labels (the modern parts of a large constellation). */
@@ -62,12 +65,14 @@ export type Constellation = {
 export const CONSTELLATIONS: Record<string, Constellation> = {
   // Argo Navis — the primary, and the whole ship. These are the REAL stars at
   // their true relative positions (equirectangular projection of catalogue
-  // RA/Dec, RA increasing left, north up, uniform scale), grouped into the four
-  // modern constellations Argo was split into:
-  //   Puppis (the stern)  nodes 0–6
-  //   Vela   (the sail)   nodes 7–11
-  //   Carina (the keel)   nodes 12–17, anchored on Canopus (node 12)
-  //   Pyxis  (the compass / old mast) nodes 18–20
+  // RA/Dec, RA increasing left, north up, uniform scale). The three modern
+  // constellations Argo was split into carry the hull, plus Pyxis (the compass)
+  // as a small side instrument:
+  //   Carina (the keel)  — anchored on Canopus (node 10), the deep backbone
+  //   Vela   (the sail)  — the quadrilateral above the keel
+  //   Puppis (the stern) — up top, kept clear of Canopus so the anchor reads
+  //                        unambiguously as Carina's, not Puppis's
+  //   Pyxis  (the compass) — a small, faint instrument off the hull (minor)
   'ai-agent-assembly': {
     sky: 'Argo Navis',
     nodes: [
@@ -75,41 +80,40 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
       [806, 74], // 1  ξ Pup
       [872, 171], // 2  π Pup
       [857, 221], // 3  σ Pup
-      [813, 195], // 4  ζ Pup (Naos)
-      [907, 279], // 5  τ Pup
-      [922, 220], // 6  ν Pup
-      [805, 253], // 7  γ Vel (Regor)
-      [761, 311], // 8  δ Vel (Alsephina)
-      [731, 222], // 9  λ Vel (Suhail)
-      [713, 314], // 10 κ Vel (Markeb)
-      [605, 269], // 11 μ Vel
-      [940, 295], // 12 α Car — Canopus (brightest anchor, the keel)
-      [789, 349], // 13 ε Car (Avior)
-      [719, 347], // 14 ι Car (Aspidiske)
-      [724, 430], // 15 β Car (Miaplacidus)
-      [681, 393], // 16 υ Car
-      [610, 388], // 17 θ Car
-      [762, 140], // 18 α Pyx
-      [767, 157], // 19 β Pyx
-      [753, 97], // 20 γ Pyx
+      [813, 195], // 4  ζ Pup (Naos) — Puppis's own brightest
+      [805, 253], // 5  γ Vel (Regor)
+      [761, 311], // 6  δ Vel (Alsephina)
+      [731, 222], // 7  λ Vel (Suhail)
+      [713, 314], // 8  κ Vel (Markeb)
+      [605, 269], // 9  μ Vel
+      [940, 295], // 10 α Car — Canopus, the keel-head (brightest anchor)
+      [789, 349], // 11 ε Car (Avior)
+      [719, 347], // 12 ι Car (Aspidiske)
+      [724, 430], // 13 β Car (Miaplacidus)
+      [681, 393], // 14 υ Car
+      [610, 388], // 15 θ Car
+      [762, 140], // 16 α Pyx
+      [767, 157], // 17 β Pyx
+      [753, 97], // 18 γ Pyx
     ],
     figures: [
-      [0, 1, 4, 3, 5, 6, 2], // Puppis — the stern
-      [9, 7, 8, 10], // Vela — the sail (three sides)
-      [10, 11], //          — the sail's western spar out to μ Vel
-      [12, 13, 14, 16, 17], // Carina — the keel, from Canopus westward
-      [14, 15], //          — down to β Car (Miaplacidus)
-      [20, 18, 19], // Pyxis — the compass / old mast
+      [0, 1, 4, 3, 2], // Puppis — the stern (up top, clear of Canopus)
+      [7, 5, 6, 8], // Vela — the sail
+      [8, 9], //          — the sail's western spar out to μ Vel
+      [10, 11, 12, 14, 15], // Carina — the keel, sweeping from Canopus westward
+      [12, 13], //          — the deep keel down to β Car (Miaplacidus)
+      [18, 16, 17], // Pyxis — the compass, a small instrument
     ],
     chords: [
-      [9, 10], // close the Vela sail (λ–κ)
+      [7, 8], // close the Vela sail (λ–κ)
     ],
-    anchor: 12,
+    anchor: 10,
+    minor: [16, 17, 18], // Pyxis reads as a small side node, not part of the hull
     regions: [
       {name: 'Puppis', at: [905, 52]},
-      {name: 'Pyxis', at: [690, 92]},
       {name: 'Vela', at: [598, 236]},
-      {name: 'Carina', at: [560, 402]},
+      {name: 'Carina', at: [858, 312]}, // beside Canopus, so the anchor reads as Carina's
+      {name: 'Pyxis', at: [690, 96]},
     ],
     label: [600, 470],
     labelAlign: 'start',

@@ -135,13 +135,17 @@ function Constellation({
       ))}
       {shape.nodes.map(([x, y], i) => {
         const isAnchor = i === shape.anchor;
+        const isMinor = shape.minor?.includes(i) ?? false;
         return (
           <circle
             key={i}
-            className={clsx(styles.node, {[styles.anchor]: isAnchor})}
+            className={clsx(styles.node, {
+              [styles.anchor]: isAnchor,
+              [styles.minorNode]: isMinor,
+            })}
             cx={x}
             cy={y}
-            r={isAnchor ? 5.5 : isPrimary ? 3.2 : 2.4}
+            r={isAnchor ? 5.5 : isMinor ? 1.8 : isPrimary ? 3.2 : 2.4}
             aria-hidden="true"
           />
         );
