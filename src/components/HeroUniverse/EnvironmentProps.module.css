@@ -11,3 +11,212 @@
 .hourglass {
   display: none;
 }
+
+/* ---------------------------------------------------------------------------
+   Baked-light glow overlays (HORO-20)
+
+   The observatory terrace (astrolabe dais, braziers, armillary sphere, altar)
+   is a fully static raster in `static/img/hero/ground.webp`. To make its light
+   sources breathe, this wrapper REPLICATES the exact on-screen box of the
+   ground image (matching `SceneLayers.module.css .ground`: same left/bottom/
+   transform/width, plus the image's intrinsic 1916x649 aspect ratio). Because
+   the box matches the raster 1:1 at every breakpoint, percentage-anchored glows
+   inside it track the baked light sources as the image scales.
+
+   The heavy props never move — only these light overlays animate. Each glow is
+   a soft radial-gradient disc with `mix-blend-mode: screen`, so it reads as
+   emitted light on the stone rather than a flat coloured circle.
+--------------------------------------------------------------------------- */
+.groundGlows {
+  position: absolute;
+  left: 47%;
+  bottom: -12%;
+  transform: translateX(-50%);
+  width: min(1280px, 66%);
+  aspect-ratio: 1916 / 649;
+  pointer-events: none;
+}
+
+@media (max-width: 996px) {
+  .groundGlows {
+    left: 46%;
+    bottom: -6%;
+    width: min(640px, 118%);
+  }
+}
+
+/* Shared glow disc. Anchored by its centre (translate(-50%, -50%)) on a
+   percentage point over the raster; `aspect-ratio: 1` keeps every disc round
+   as the wrapper scales. transform/opacity/filter only — no layout properties
+   animate, so there is never any reflow or layout shift. */
+.glow {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+}
+
+/* Warm brazier flames — irregular flicker on two non-harmonic periods so the
+   two bowls never pulse in lock-step. Gold/amber fire. */
+.brazierA {
+  left: 56.3%;
+  top: 5.5%;
+  width: 6%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 196, 104, 0.6) 0%,
+    rgba(255, 152, 66, 0.32) 34%,
+    rgba(255, 120, 40, 0) 70%
+  );
+  animation: brazierFlickerA 2.6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.brazierB {
+  left: 75.8%;
+  top: 11.5%;
+  width: 5.6%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 190, 96, 0.56) 0%,
+    rgba(255, 146, 60, 0.3) 34%,
+    rgba(255, 116, 38, 0) 70%
+  );
+  animation: brazierFlickerB 3.7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Altar lamp on the back-centre shrine — a gentle, slow warm pulse, calmer
+   than the open brazier flames. */
+.altarLamp {
+  left: 36%;
+  top: 3.6%;
+  width: 4.5%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 208, 132, 0.44) 0%,
+    rgba(255, 172, 92, 0.22) 36%,
+    rgba(255, 150, 70, 0) 72%
+  );
+  animation: altarPulse 5.5s ease-in-out infinite;
+}
+
+/* Armillary sphere — a slow, cool blue breathe, the longest cycle of all so it
+   drifts out of phase with every warm source. */
+.armillary {
+  left: 80%;
+  top: 9%;
+  width: 5.4%;
+  background: radial-gradient(
+    circle,
+    rgba(154, 202, 255, 0.5) 0%,
+    rgba(112, 170, 255, 0.26) 35%,
+    rgba(90, 150, 255, 0) 72%
+  );
+  animation: armillaryBreathe 8s ease-in-out infinite;
+}
+
+/* Irregular flame flicker A: uneven opacity steps + a whisper of scale so the
+   fire never reads as a smooth sine wave. translate(-50%, -50%) is repeated in
+   every step to preserve the centre anchor. */
+@keyframes brazierFlickerA {
+  0% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  31% {
+    opacity: 0.72;
+    transform: translate(-50%, -50%) scale(0.98);
+  }
+  47% {
+    opacity: 0.96;
+    transform: translate(-50%, -50%) scale(1.03);
+  }
+  63% {
+    opacity: 0.68;
+    transform: translate(-50%, -50%) scale(0.97);
+  }
+  81% {
+    opacity: 0.92;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+  100% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Irregular flame flicker B: a different step pattern from A so the two
+   braziers never sync even where their periods briefly align. */
+@keyframes brazierFlickerB {
+  0% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  22% {
+    opacity: 0.66;
+    transform: translate(-50%, -50%) scale(0.97);
+  }
+  38% {
+    opacity: 0.98;
+    transform: translate(-50%, -50%) scale(1.04);
+  }
+  54% {
+    opacity: 0.74;
+    transform: translate(-50%, -50%) scale(0.99);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  86% {
+    opacity: 0.78;
+    transform: translate(-50%, -50%) scale(0.98);
+  }
+  100% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Gentle warm pulse for the altar lamp. */
+@keyframes altarPulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.04);
+  }
+}
+
+/* Slow cool breathe for the armillary sphere. */
+@keyframes armillaryBreathe {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(0.97);
+  }
+  50% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+/* Respect reduced-motion: hold every glow at a calm, static mid state — no
+   flicker, no breathe — while keeping each light lit and centred on its
+   baked source. */
+@media (prefers-reduced-motion: reduce) {
+  .glow {
+    animation: none;
+    opacity: 0.82;
+    transform: translate(-50%, -50%);
+  }
+}
