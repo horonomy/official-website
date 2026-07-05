@@ -5,197 +5,51 @@
   pointer-events: none;
 }
 
-/* Interim cursor "gaze": a thin layer over the observer that leans it toward
-   the pointer. It reads the normalized cursor offset (--gaze-x / --gaze-y,
-   -1..1, written to the root element by the component) and turns it into a
-   small, tightly clamped rotate + translate. The pivot sits at the observer's
-   base so the lean reads as an aware tilt, not the whole sprite sliding. The
-   transition eases the follow so it never snaps; the idle bob lives on the img
-   underneath and composes cleanly because it is a separate element. */
-.gaze {
-  position: absolute;
-  inset: 0;
-  transform-origin: 40.5% 89%;
-  transform: rotate(calc(var(--gaze-x, 0) * 2deg))
-    translate(calc(var(--gaze-x, 0) * 3px), calc(var(--gaze-y, 0) * 3px));
-  transition: transform 220ms ease-out;
-  will-change: transform;
-}
-
-/* Wind sway: leans the keeper (and its cloak silhouette) as gusts pass. Reads
-   the eased `--obs-wind` gust value (0..1) written by the component and turns it
-   into a small lean, pivoting at the base so it reads as the wind pushing the
-   body, not the sprite sliding. The JS already eases `--obs-wind` per frame, so
-   no CSS transition is needed here. */
-.sway {
-  position: absolute;
-  inset: 0;
-  transform-origin: 40.5% 92%;
-  transform: rotate(calc(var(--obs-wind, 0) * 1.4deg))
-    translateX(calc(var(--obs-wind, 0) * 3px));
-  will-change: transform;
-}
-
-/* Soft contact shadow on the dais directly under the keeper, so it reads as
-   standing on the stone. A very slow breathe keeps it alive without drawing the
-   eye; it never moves position. */
+/* Soft contact shadow on the dais under the keeper, so it stands on the stone
+   rather than floating. Static — no animation. */
 .contactShadow {
   position: absolute;
-  left: 40.5%;
-  bottom: 8.5%;
-  width: clamp(60px, 5.6vw, 92px);
-  height: clamp(12px, 1.1vw, 18px);
+  left: 41%;
+  bottom: 8%;
+  width: clamp(48px, 4.4vw, 76px);
+  height: clamp(9px, 0.8vw, 13px);
   transform: translateX(-50%);
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
-    rgba(0, 0, 0, 0.55) 0%,
-    rgba(0, 0, 0, 0.32) 42%,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.3) 42%,
     rgba(0, 0, 0, 0) 72%
   );
   filter: blur(3px);
-  animation: observerShadow 9s ease-in-out infinite;
+  opacity: 0.8;
 }
 
-/* Stand the observer on the astrolabe dais, reading its instrument. It is
-   human-scale against the terrace world — about the height of a person,
-   sized against the altar and braziers baked into the panorama — a small
-   keeper under an enormous sky, not a giant. */
-.observer {
+/* The keeper — a single fixed image on the dais. Cool night grade + a soft
+   contact drop-shadow so it sits in the scene. No motion. */
+.keeper {
   position: absolute;
-  left: 40.5%;
-  bottom: 9%;
-  width: clamp(76px, 7vw, 112px);
+  left: 41%;
+  bottom: 8%;
+  /* Human-scale against the terrace — a little smaller than a person beside the
+     baked altar/braziers, not a giant. */
+  width: clamp(92px, 8.6vw, 148px);
   height: auto;
-  /* translateX(-50%) centers the cutout on its anchor; the idle keyframes fold
-     that offset into each step so the horizontal centering is preserved. */
   transform: translateX(-50%);
-  /* Cool + slightly darker so the cutout sits in the same night light as the
-     sky, plus a soft contact shadow to ground it on the terrace dais. A slow
-     glow pulse behind the drop-shadow suggests the astrolabe's light. */
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6)) brightness(0.95)
-    saturate(0.93) contrast(1.02);
-  /* Living idle: a slow multi-beat "observing" performance (breathe → glance at
-     the astrolabe → look around → settle) plus a soft light pulse. Long,
-     prime-ish periods so it never reads as a mechanical loop. */
-  animation:
-    observerIdle 17s ease-in-out infinite,
-    observerGlow 7s ease-in-out infinite;
-  will-change: transform, filter;
-}
-
-/* The keeper's idle performance. Whole-sprite rotation/translation only (the
-   single baked sprite can't turn its head — that's the Rive task), kept subtle
-   so it reads as a thoughtful observer shifting attention, not a wobble. Beats:
-   settle → breathe → study the astrolabe (down-right) → glance left → look up →
-   settle. translateX(-50%) is repeated in every step to hold the centering. */
-@keyframes observerIdle {
-  0% {
-    transform: translateX(-50%) translateY(0) rotate(0deg) scale(1);
-  }
-  14% {
-    transform: translateX(-50%) translateY(-2px) rotate(0.2deg) scale(1.008);
-  }
-  30% {
-    /* study the astrolabe it holds (down + slightly toward it) */
-    transform: translateX(-50%) translateY(1px) rotate(1deg) scale(1.004);
-  }
-  44% {
-    transform: translateX(-50%) translateY(0) rotate(0.8deg) scale(1);
-  }
-  60% {
-    /* glance to the left, away from the instrument */
-    transform: translateX(-50%) translateY(-1px) rotate(-1.1deg) scale(1.006);
-  }
-  76% {
-    /* look up toward the sky */
-    transform: translateX(-50%) translateY(-3px) rotate(-0.3deg) scale(1.01);
-  }
-  90% {
-    transform: translateX(-50%) translateY(-1px) rotate(0.1deg) scale(1.004);
-  }
-  100% {
-    transform: translateX(-50%) translateY(0) rotate(0deg) scale(1);
-  }
-}
-
-/* Contact-shadow breathe — a barely-there swell so the ground contact feels
-   alive; the shadow never changes position. */
-@keyframes observerShadow {
-  0%,
-  100% {
-    opacity: 0.85;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    opacity: 0.62;
-    transform: translateX(-50%) scale(0.9);
-  }
-}
-
-/* Soft light pulse: lift the contact shadow slightly and layer a faint warm
-   astrolabe glow, breathing in and out. Keeps the base cool grade intact. */
-@keyframes observerGlow {
-  0%,
-  100% {
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6))
-      drop-shadow(0 0 6px rgba(180, 200, 255, 0.12)) brightness(0.95)
-      saturate(0.93) contrast(1.02);
-  }
-  50% {
-    filter: drop-shadow(0 5px 12px rgba(0, 0, 0, 0.62))
-      drop-shadow(0 0 12px rgba(190, 205, 255, 0.26)) brightness(0.98)
-      saturate(0.95) contrast(1.02);
-  }
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6)) brightness(0.97)
+    saturate(0.97) contrast(1.02);
 }
 
 @media (max-width: 996px) {
-  .observer {
+  .keeper {
     left: 45%;
-    bottom: 7.5%;
-    width: clamp(60px, 15vw, 96px);
-  }
-
-  /* Keep the gaze + sway pivots on the observer's base at its mobile placement. */
-  .gaze {
-    transform-origin: 45% 91%;
-  }
-
-  .sway {
-    transform-origin: 45% 93%;
+    bottom: 6.5%;
+    width: clamp(78px, 18vw, 124px);
   }
 
   .contactShadow {
     left: 45%;
-    bottom: 7%;
-    width: clamp(48px, 12vw, 78px);
-  }
-}
-
-/* Respect reduced-motion: hold the observer fully static — no bob, no glow
-   pulse — while preserving its resting placement, grade, and contact shadow. */
-@media (prefers-reduced-motion: reduce) {
-  .observer {
-    animation: none;
-    transform: translateX(-50%);
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6)) brightness(0.95)
-      saturate(0.93) contrast(1.02);
-  }
-
-  /* Disable the cursor gaze + wind sway entirely and hold the resting pose. The
-     component also skips attaching the pointer/wind loops under reduced motion. */
-  .gaze {
-    transform: none;
-    transition: none;
-  }
-
-  .sway {
-    transform: none;
-  }
-
-  /* Keep the contact shadow (grounding cue) but hold it perfectly still. */
-  .contactShadow {
-    animation: none;
-    opacity: 0.72;
+    bottom: 6%;
+    width: clamp(40px, 9vw, 64px);
   }
 }
