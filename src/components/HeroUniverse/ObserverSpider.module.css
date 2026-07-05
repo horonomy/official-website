@@ -47,7 +47,7 @@
      stays centred on the platform across the whole range instead of drifting
      onto its right edge. */
   .keeper {
-    left: calc(46% - min(56px, 7vw));
+    left: calc(35.6% + 29px);
     bottom: 6.5%;
     /* Scale with the terrace (≈12% of the ground width) instead of a fixed
        floor, so the keeper stays human-scale on the smaller dais and never
@@ -56,7 +56,7 @@
   }
 
   .contactShadow {
-    left: calc(46% - min(56px, 7vw));
+    left: calc(35.6% + 29px);
     bottom: 6%;
     width: min(44px, 8vw);
   }
