@@ -18,18 +18,18 @@
  * | product id         | sky name  | asterism                                  |
  * |--------------------|-----------|-------------------------------------------|
  * | `ai-agent-assembly`| Argo Navis| the primary — the COMPLETE ship in **true star positions**, drawn as its four modern constellations (Puppis, Vela, Carina, Pyxis), anchored on Canopus |
- * | `archeweave`       | Reticulum | the net / reticle — an emblematic woven rhombus |
- * | `harbinger`        | Sagitta   | the arrow — an emblematic herald's shaft + head |
- * | `more`             | Pleiades  | a small forming star cluster — "new stars are forming" |
+ * | `archeweave`       | Reticulum | the net / reticle — α β γ δ ε Reticuli in **true star positions**, anchored on α Ret |
+ * | `harbinger`        | Sagitta   | the arrow — α β γ δ η Sagittae in **true star positions**, anchored on γ Sge |
+ * | `more`             | Pleiades  | the M45 cluster — eight brightest members in **true star positions**, anchored on Alcyone |
  *
- * The hero constellation (`ai-agent-assembly` = Argo Navis) uses the **real
- * relative positions** of its brightest stars. Argo Navis is enormous — so
- * large it was broken up into the modern constellations Carina, Puppis, Vela
- * and Pyxis — so the whole ship is plotted from an equirectangular projection
- * of catalogue right-ascension / declination (RA increasing to the left, north
- * up), scaled uniformly so the pattern's true shape is preserved, with each of
- * the four parts labelled where it sits. The three secondary clusters remain
- * emblematic brand asterisms, not surveyed positions.
+ * **Every** constellation uses the **real relative positions** of its catalogue
+ * stars, plotted the same way: an equirectangular projection of catalogue
+ * right-ascension / declination (RA increasing to the left, north up), scaled
+ * uniformly per constellation so the true shape of the pattern is preserved,
+ * then anchored on-canvas where that product sits in the sky map. Argo Navis is
+ * enormous — so large it was broken up into the modern constellations Carina,
+ * Puppis, Vela and Pyxis — so the whole ship additionally labels each of its
+ * four parts where it sits.
  *
  * Layout: Argo Navis fills the right sky as the hero; the three secondary
  * products sit smaller and dimmer down the left of the sky map, clear of both
@@ -118,66 +118,74 @@ export const CONSTELLATIONS: Record<string, Constellation> = {
     label: [600, 470],
     labelAlign: 'start',
   },
-  // Reticulum — the net / reticle. Emblematic: a woven rhombus (0–3) with two
-  // cross-threads meeting at a central star (4). Upper-left of the sky map.
+  // Reticulum — the net / reticle. The REAL stars at their true relative
+  // positions (equirectangular projection of catalogue RA/Dec, RA increasing
+  // left, north up, uniform scale), placed upper-left of the sky map. The four
+  // outer stars (ε δ β α) frame the net; γ falls almost exactly at the centre
+  // of the frame, so it reads as the woven centre with threads to each corner —
+  // the same reticle motif, now from surveyed positions. Anchored on α Ret.
   archeweave: {
     sky: 'Reticulum',
     nodes: [
-      [96, 158], // 0  west
-      [168, 108], // 1  north
-      [240, 156], // 2  east
-      [168, 206], // 3  south
-      [168, 157], // 4  woven centre
+      [144, 165], // 0  α Ret — brightest anchor
+      [208, 207], // 1  β Ret
+      [172, 159], // 2  γ Ret — the woven centre (near the frame's centroid)
+      [177, 146], // 3  δ Ret
+      [139, 108], // 4  ε Ret
     ],
-    figures: [[0, 1, 2, 3, 0]],
+    figures: [[4, 3, 1, 0, 4]], // ε–δ–β–α — the net frame
     chords: [
-      [0, 4],
-      [4, 2],
-      [1, 4],
-      [4, 3],
+      [0, 2], // α ↔ γ  threads meeting at the woven centre
+      [1, 2], // β ↔ γ
+      [3, 2], // δ ↔ γ
+      [4, 2], // ε ↔ γ
     ],
+    anchor: 0,
     label: [252, 150],
     labelAlign: 'start',
   },
-  // Sagitta — the arrow / herald. Emblematic: a shaft (0–1–2) from nock to head,
-  // with fletching off the nock and barbs off the head. Mid-left of the sky map.
+  // Sagitta — the arrow / herald. The REAL stars at their true relative
+  // positions (same projection as above), placed mid-left of the sky map. The
+  // shaft flies η–γ–δ–α from the arrow's point to the nock, with β the second
+  // nock feather branching off δ. Anchored on γ Sge, the brightest.
   harbinger: {
     sky: 'Sagitta',
     nodes: [
-      [104, 320], // 0  nock
-      [162, 292], // 1  shaft mid
-      [228, 256], // 2  head tip
-      [88, 298], // 3  fletch (upper)
-      [120, 338], // 4  fletch (lower)
-      [206, 268], // 5  barb (upper)
-      [232, 280], // 6  barb (lower)
+      [214, 312], // 0  α Sge (Sham) — nock feather
+      [209, 324], // 1  β Sge — second nock feather
+      [117, 280], // 2  γ Sge — the head; brightest anchor
+      [176, 301], // 3  δ Sge — mid-shaft
+      [84, 269], // 4  η Sge — the arrow's point
     ],
-    figures: [[0, 1, 2]],
+    figures: [[4, 2, 3, 0]], // η–γ–δ–α — point → head → shaft → nock
     chords: [
-      [0, 3],
-      [0, 4],
-      [2, 5],
-      [2, 6],
+      [3, 1], // δ ↔ β  the second nock feather
     ],
+    anchor: 2,
     label: [248, 250],
     labelAlign: 'start',
   },
-  // Pleiades — a small forming star cluster. Emblematic: loosely strung stars,
-  // still gathering. Lower-left of the sky map, clearly separate from Argo.
+  // Pleiades (M45) — a small forming star cluster. The REAL member stars at
+  // their true relative positions (same projection as above), strung as the
+  // cluster's familiar little-dipper asterism, placed lower-left of the sky map,
+  // clearly separate from Argo. Anchored on Alcyone, the brightest member.
   more: {
     sky: 'Pleiades',
     nodes: [
-      [60, 398], // 0
-      [108, 380], // 1
-      [152, 404], // 2
-      [124, 442], // 3
-      [72, 444], // 4
-      [106, 414], // 5  cluster centre
+      [89, 421], // 0  Alcyone (η Tau) — brightest anchor
+      [57, 425], // 1  Atlas (27 Tau)
+      [140, 420], // 2  Electra (17 Tau)
+      [121, 398], // 3  Maia (20 Tau)
+      [111, 434], // 4  Merope (23 Tau)
+      [133, 390], // 5  Taygeta (19 Tau)
+      [56, 418], // 6  Pleione (28 Tau)
+      [141, 405], // 7  Celaeno (16 Tau)
     ],
+    figures: [[2, 7, 5, 3, 0, 1, 6]], // the little-dipper bowl + handle
     chords: [
-      [5, 1],
-      [5, 3],
+      [0, 4], // Alcyone ↔ Merope, the member hanging below the bowl
     ],
+    anchor: 0,
     label: [175, 428],
     labelAlign: 'start',
   },

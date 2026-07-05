@@ -11,11 +11,12 @@ import styles from './ConstellationMap.module.css';
  * gold lines, with a label + tagline anchored beside each cluster. The
  * `primary` product burns brighter than the rest at rest.
  *
- * Interactive (HORO-4): each constellation is a focusable target. On hover or
- * keyboard focus its connecting lines draw in, its nodes brighten, and its
- * label is emphasised, while the others stay dim. Fully self-contained — the
- * hover/focus visual is driven by CSS (`:hover` / `:focus-visible`), so it
- * works standalone with no wiring.
+ * Interactive (HORO-4): the shipped product (real `href`) is a focusable
+ * target — on hover or keyboard focus its connecting lines draw in, its nodes
+ * brighten, and its label is emphasised. In-development products (`href` ===
+ * '#') are non-interactive: they keep their stars but stay faint and cannot be
+ * hovered, focused, or clicked. The hover/focus visual is driven by CSS
+ * (`:hover` / `:focus-visible`), so it works standalone with no wiring.
  *
  * Shared active-state with the product cards (HORO-9) is deferred: it needs the
  * shared parent (`index.tsx`) which is owned elsewhere. This component instead
@@ -73,44 +74,64 @@ function Constellation({
   const box = bbox(shape.nodes);
   const figures = shape.figures ?? [shape.nodes.map((_, i) => i)];
 
+  // Only shipped products are interactive. In-development products (no real
+  // destination) render as faint, non-clickable roadmap markers: they keep
+  // their stars but cannot be hovered/focused/clicked and never brighten, so
+  // the sky clearly signals what is and isn't ready.
+  const interactive = !comingSoon;
+
+  const interactiveProps = interactive
+    ? {
+        tabIndex: 0,
+        role: 'button',
+        onMouseEnter: () => onActivate?.(product.id),
+        onMouseLeave: () => onActivate?.(null),
+        onFocus: () => onActivate?.(product.id),
+        onBlur: () => onActivate?.(null),
+        onClick: () => onActivate?.(product.id),
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onActivate?.(product.id);
+          }
+        },
+      }
+    : {'aria-disabled': true as const};
+
   return (
     <g
       className={clsx(styles.constellation, TONE_CLASS[product.tone], {
         [styles.active]: active,
         [styles.comingSoon]: comingSoon,
       })}
-      tabIndex={0}
-      role="button"
-      aria-label={`${product.name}, the ${shape.sky} constellation`}
-      onMouseEnter={() => onActivate?.(product.id)}
-      onMouseLeave={() => onActivate?.(null)}
-      onFocus={() => onActivate?.(product.id)}
-      onBlur={() => onActivate?.(null)}
-      onClick={() => onActivate?.(product.id)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onActivate?.(product.id);
-        }
-      }}>
-      {/* Transparent hit area so the whole cluster is hoverable/clickable. */}
-      <rect
-        className={styles.hit}
-        x={box.x}
-        y={box.y}
-        width={box.width}
-        height={box.height}
-      />
-      {/* Keyboard focus ring — revealed via :focus-visible in CSS. */}
-      <rect
-        className={styles.focusRing}
-        x={box.x}
-        y={box.y}
-        width={box.width}
-        height={box.height}
-        rx={12}
-        aria-hidden="true"
-      />
+      aria-label={
+        interactive
+          ? `${product.name}, the ${shape.sky} constellation`
+          : `${product.name}, the ${shape.sky} constellation — in development`
+      }
+      {...interactiveProps}>
+      {interactive && (
+        <>
+          {/* Transparent hit area so the whole cluster is hoverable/clickable. */}
+          <rect
+            className={styles.hit}
+            x={box.x}
+            y={box.y}
+            width={box.width}
+            height={box.height}
+          />
+          {/* Keyboard focus ring — revealed via :focus-visible in CSS. */}
+          <rect
+            className={styles.focusRing}
+            x={box.x}
+            y={box.y}
+            width={box.width}
+            height={box.height}
+            rx={12}
+            aria-hidden="true"
+          />
+        </>
+      )}
 
       {figures.map((idx, i) => (
         <polyline
