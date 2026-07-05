@@ -70,7 +70,7 @@
 [data-theme='light'] {
   --ifm-background-color: #0f1115;
   --ifm-background-surface-color: #13171d;
-  --ifm-navbar-background-color: rgba(15, 17, 21, 0.72);
+  --ifm-navbar-background-color: rgba(15, 17, 21, 0.4);
   --ifm-navbar-link-color: var(--hn-muted);
   --ifm-navbar-link-hover-color: var(--hn-text);
   --ifm-footer-background-color: #0b0d10;
@@ -103,7 +103,8 @@ body {
      which modern Chromium ignores (glass renders as `none`). Autoprefixer
      re-adds the `-webkit-` prefix at build time for Safari. */
   backdrop-filter: blur(16px) saturate(150%);
-  border-bottom: 1px solid var(--hn-glass-border);
+  /* Light glass border like the ghost "Read the Docs" button. */
+  border-bottom: 1px solid rgba(229, 231, 235, 0.25);
   box-shadow: var(--hn-glass-highlight);
 }
 
