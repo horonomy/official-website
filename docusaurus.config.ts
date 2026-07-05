@@ -109,7 +109,7 @@ const config: Config = {
           items: [
             {
               label: 'AI agent assembly',
-              href: 'https://github.com/AI-agent-assembly',
+              href: 'https://agent-assembly.com',
             },
             {label: 'Research tracks', to: '/#products'},
           ],
