@@ -61,3 +61,19 @@
     width: min(44px, 8vw);
   }
 }
+
+/* Tablet / small window (≥600px): the dais is large enough to seat the keeper
+   up on the raised astrolabe platform (not at its front lip). Nudge it up and
+   slightly left onto the platform centre. On true phones (<600px) the dais is
+   too small for this — the keeper stays centred on it via the block above. */
+@media (min-width: 600px) and (max-width: 996px) {
+  .keeper {
+    left: calc(35.6% + 10px);
+    bottom: 13.5%;
+  }
+
+  .contactShadow {
+    left: calc(35.6% + 10px);
+    bottom: 13%;
+  }
+}
