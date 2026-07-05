@@ -1,6 +1,7 @@
 import React from 'react';
 import {LAYERS} from './layers';
 import {createStarField} from './starfield';
+import {createMeteorShower} from './meteors';
 import styles from './AmbientEffects.module.css';
 
 /**
@@ -8,8 +9,10 @@ import styles from './AmbientEffects.module.css';
  *
  * Enhances — rather than repaints — the already-starred sky backdrop with a few
  * subtle, GPU-friendly effects:
- *   - a dense, gently twinkling canvas star field (`./starfield.ts`) — no
- *     shooting stars or meteors, just a living field of stars that breathe;
+ *   - a dense, gently twinkling canvas star field (`./starfield.ts`) — a
+ *     living field of stars that breathe;
+ *   - occasional meteors / shooting stars that streak across the sky
+ *     (`./meteors.ts`), on their own canvas layered above the star field;
  *   - two slow-drifting haze clouds (navy / gold / soft purple gradients);
  *   - a wind-driven star-dust field of tiny motes that fade in, drift, and fade
  *     out, their travel scaled by an ambient breeze (`--wind`, HORO-8);
@@ -71,6 +74,7 @@ const DUST: readonly DustMote[] = [
 export default function AmbientEffects(): React.ReactElement {
   const rootRef = React.useRef<HTMLDivElement>(null);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const meteorCanvasRef = React.useRef<HTMLCanvasElement>(null);
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
@@ -78,11 +82,16 @@ export default function AmbientEffects(): React.ReactElement {
     if (!canvas || !root || typeof window === 'undefined') return;
 
     const field = createStarField(canvas);
+    const meteorCanvas = meteorCanvasRef.current;
+    const shower = meteorCanvas ? createMeteorShower(meteorCanvas) : null;
 
     const parent = canvas.parentElement;
     const observer =
       parent && typeof ResizeObserver !== 'undefined'
-        ? new ResizeObserver(() => field.resize())
+        ? new ResizeObserver(() => {
+            field.resize();
+            shower?.resize();
+          })
         : null;
     if (observer && parent) observer.observe(parent);
 
@@ -154,6 +163,7 @@ export default function AmbientEffects(): React.ReactElement {
 
     return () => {
       field.destroy();
+      shower?.destroy();
       if (observer) observer.disconnect();
       if (frame) window.cancelAnimationFrame(frame);
       if (windFrame) window.cancelAnimationFrame(windFrame);
@@ -171,6 +181,7 @@ export default function AmbientEffects(): React.ReactElement {
       style={{zIndex: LAYERS.ambient}}
       aria-hidden="true">
       <canvas ref={canvasRef} className={styles.canvas} />
+      <canvas ref={meteorCanvasRef} className={styles.meteorCanvas} />
       <div className={`${styles.haze} ${styles.hazeA}`} />
       <div className={`${styles.haze} ${styles.hazeB}`} />
       {DUST.map((mote, i) => (
