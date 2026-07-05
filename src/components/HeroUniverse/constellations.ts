@@ -18,18 +18,18 @@
  * | product id         | sky name  | asterism                                  |
  * |--------------------|-----------|-------------------------------------------|
  * | `ai-agent-assembly`| Argo Navis| the primary — the COMPLETE ship in **true star positions**, drawn as its four modern constellations (Puppis, Vela, Carina, Pyxis), anchored on Canopus |
- * | `archeweave`       | Reticulum | the net / reticle — an emblematic woven rhombus |
- * | `harbinger`        | Sagitta   | the arrow — an emblematic herald's shaft + head |
- * | `more`             | Pleiades  | a small forming star cluster — "new stars are forming" |
+ * | `archeweave`       | Reticulum | the net / reticle — α β γ δ ε Reticuli in **true star positions**, anchored on α Ret |
+ * | `harbinger`        | Sagitta   | the arrow — α β γ δ η Sagittae in **true star positions**, anchored on γ Sge |
+ * | `more`             | Pleiades  | the M45 cluster — eight brightest members in **true star positions**, anchored on Alcyone |
  *
- * The hero constellation (`ai-agent-assembly` = Argo Navis) uses the **real
- * relative positions** of its brightest stars. Argo Navis is enormous — so
- * large it was broken up into the modern constellations Carina, Puppis, Vela
- * and Pyxis — so the whole ship is plotted from an equirectangular projection
- * of catalogue right-ascension / declination (RA increasing to the left, north
- * up), scaled uniformly so the pattern's true shape is preserved, with each of
- * the four parts labelled where it sits. The three secondary clusters remain
- * emblematic brand asterisms, not surveyed positions.
+ * **Every** constellation uses the **real relative positions** of its catalogue
+ * stars, plotted the same way: an equirectangular projection of catalogue
+ * right-ascension / declination (RA increasing to the left, north up), scaled
+ * uniformly per constellation so the true shape of the pattern is preserved,
+ * then anchored on-canvas where that product sits in the sky map. Argo Navis is
+ * enormous — so large it was broken up into the modern constellations Carina,
+ * Puppis, Vela and Pyxis — so the whole ship additionally labels each of its
+ * four parts where it sits.
  *
  * Layout: Argo Navis fills the right sky as the hero; the three secondary
  * products sit smaller and dimmer down the left of the sky map, clear of both
