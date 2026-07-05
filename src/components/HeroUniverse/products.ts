@@ -31,7 +31,7 @@ export const PRODUCTS: Product[] = [
     name: 'AI Agent Assembly',
     tagline: 'Assemble. Orchestrate. Scale.',
     blurb: 'The assembly line for intelligent agents.',
-    href: 'https://github.com/AI-agent-assembly',
+    href: 'https://agent-assembly.com',
     tone: 'primary',
   },
   {
