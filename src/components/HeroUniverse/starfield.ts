@@ -2,8 +2,9 @@
  * Ambient canvas star field for the HeroUniverse hero (HORO-5, HORO-18).
  *
  * A device-pixel-ratio–aware 2D canvas that layers a *dense but subtle*
- * twinkling starfield over the already-painted sky backdrop. There are no
- * shooting stars or meteors — just a living field of stars that breathe.
+ * twinkling starfield over the already-painted sky backdrop — a living field of
+ * stars that breathe. (Meteors / shooting stars are a separate layer; see
+ * `./meteors.ts`.)
  *
  * The field is intentionally dense so the sky reads as alive, with varied size,
  * brightness, and colour temperature (cool white / soft gold / faint blue, plus

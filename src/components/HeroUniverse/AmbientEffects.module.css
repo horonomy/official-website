@@ -32,6 +32,16 @@
   will-change: transform;
 }
 
+/* Meteor layer: shooting stars streak across on their own canvas above the star
+   field. The meteors self-animate in JS, so this canvas takes no parallax — it
+   just fills the scene. Under reduced motion it holds a single static streak. */
+.meteorCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 /* Two soft haze clouds in the scene palette (navy / gold / soft purple). They
    drift slowly on their own gentle orbit — the canvas carries the parallax, the
    haze carries the ambient drift, so the two read as different depths. */
