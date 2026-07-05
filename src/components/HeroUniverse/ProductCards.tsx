@@ -76,6 +76,26 @@ function ProductCard({
   // the highlight into the sky map. Self-contained today: without `onActivate`
   // wired in `index.tsx`, this is a no-op and the card just styles its own state.
   const emit = onActivate ? () => onActivate(product.id) : undefined;
+
+  // Products still in design/estimation render as a non-interactive roadmap
+  // entry: a plain <div> (no link, no pointer, no navigation, no focus stop),
+  // with a "Coming soon" label instead of the "Learn more →" affordance.
+  if (product.comingSoon) {
+    return (
+      <div
+        className={clsx(styles.card, styles[product.tone], styles.comingSoon)}
+        aria-disabled="true"
+        tabIndex={-1}>
+        <Glyph id={product.id} />
+        <div className={styles.cardBody}>
+          <h3 className={styles.name}>{product.name}</h3>
+          <p className={styles.blurb}>{product.blurb}</p>
+          <span className={styles.badge}>Coming soon</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Link
       className={clsx(styles.card, styles[product.tone], active && styles.active)}
