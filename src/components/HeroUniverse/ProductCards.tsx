@@ -3,6 +3,7 @@ import Link from '@docusaurus/Link';
 import clsx from 'clsx';
 import {LAYERS} from './layers';
 import {PRODUCTS, type Product} from './products';
+import {CONSTELLATIONS} from './constellations';
 import styles from './ProductCards.module.css';
 
 /**
@@ -13,51 +14,64 @@ import styles from './ProductCards.module.css';
  * "constellation path" per the v1 mock. The `primary` product is gold-accented.
  */
 
-// Miniature constellation glyphs (24x24 viewBox) — one per product id, echoing
-// the sky map shapes at card scale. Purely decorative.
-const GLYPHS: Record<string, Array<[number, number]>> = {
-  'ai-agent-assembly': [
-    [4, 13],
-    [8, 5],
-    [15, 4],
-    [20, 9],
-    [18, 17],
-    [10, 20],
-  ],
-  archeweave: [
-    [5, 8],
-    [12, 4],
-    [19, 8],
-    [16, 16],
-    [8, 16],
-    [5, 8],
-  ],
-  harbinger: [
-    [4, 16],
-    [9, 6],
-    [15, 12],
-    [20, 4],
-  ],
-  more: [
-    [12, 4],
-    [20, 12],
-    [12, 20],
-    [4, 12],
-    [12, 4],
-  ],
-};
+// Miniature constellation glyphs — projected from the REAL catalogue star
+// positions in {@link CONSTELLATIONS} into a 24x24 icon viewBox, so each card's
+// icon matches its true sky-map shape at card scale (not an emblematic stand-in).
+const GLYPH_SIZE = 24;
+const GLYPH_PAD = 3;
+
+/** Fit a constellation's real node cloud into the padded icon box, uniform
+ *  scale (preserves true relative star positions), centered. */
+function projectGlyph(
+  nodes: Array<[number, number]>,
+): Array<[number, number]> {
+  const xs = nodes.map(([x]) => x);
+  const ys = nodes.map(([, y]) => y);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const w = Math.max(...xs) - minX || 1;
+  const h = Math.max(...ys) - minY || 1;
+  const scale = (GLYPH_SIZE - GLYPH_PAD * 2) / Math.max(w, h);
+  const ox = (GLYPH_SIZE - w * scale) / 2;
+  const oy = (GLYPH_SIZE - h * scale) / 2;
+  return nodes.map(([x, y]) => [
+    +(ox + (x - minX) * scale).toFixed(2),
+    +(oy + (y - minY) * scale).toFixed(2),
+  ]);
+}
 
 function Glyph({id}: {id: string}): React.ReactElement | null {
-  const nodes = GLYPHS[id];
-  if (!nodes) return null;
+  const shape = CONSTELLATIONS[id];
+  if (!shape) return null;
+  const pts = projectGlyph(shape.nodes);
+  const figures = shape.figures ?? [shape.nodes.map((_, i) => i)];
   return (
     <svg className={styles.glyph} viewBox="0 0 24 24" aria-hidden="true">
-      <polyline
-        className={styles.glyphLink}
-        points={nodes.map(([x, y]) => `${x},${y}`).join(' ')}
-      />
-      {nodes.map(([x, y], i) => (
-        <circle key={i} className={styles.glyphNode} cx={x} cy={y} r={1.6} />
+      {figures.map((idx, i) => (
+        <polyline
+          key={`f${i}`}
+          className={styles.glyphLink}
+          points={idx.map((n) => `${pts[n][0]},${pts[n][1]}`).join(' ')}
+        />
+      ))}
+      {shape.chords?.map(([a, b], i) => (
+        <line
+          key={`c${i}`}
+          className={styles.glyphLink}
+          x1={pts[a][0]}
+          y1={pts[a][1]}
+          x2={pts[b][0]}
+          y2={pts[b][1]}
+        />
+      ))}
+      {pts.map(([x, y], i) => (
+        <circle
+          key={i}
+          className={styles.glyphNode}
+          cx={x}
+          cy={y}
+          r={i === shape.anchor ? 1.8 : shape.minor?.includes(i) ? 0.9 : 1.3}
+        />
       ))}
     </svg>
   );
