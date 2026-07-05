@@ -47,7 +47,7 @@ function Lore(): React.ReactElement {
         <div className={styles.legend}>
           <a
             className={styles.legendRow}
-            href="https://github.com/AI-agent-assembly"
+            href="https://agent-assembly.com"
             target="_blank"
             rel="noreferrer">
             <span className={`${styles.dot} ${styles.dotActive}`} />
@@ -102,7 +102,7 @@ function Products(): React.ReactElement {
           </div>
           <a
             className={styles.allProducts}
-            href="https://github.com/AI-agent-assembly"
+            href="https://agent-assembly.com"
             target="_blank"
             rel="noreferrer">
             ALL PRODUCTS →
@@ -181,11 +181,7 @@ function Manifesto(): React.ReactElement {
           becomes drift. Horonomy builds the systems that make autonomy{' '}
           <span className={styles.cyan}>explicit, governable, and safe to scale.</span>
         </p>
-        <a
-          className={styles.manifestoLink}
-          href="https://github.com/AI-agent-assembly"
-          target="_blank"
-          rel="noreferrer">
+        <a className={styles.manifestoLink} href="/#manifesto">
           READ THE FULL MANIFESTO →
         </a>
       </div>
