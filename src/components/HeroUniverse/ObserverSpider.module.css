@@ -41,14 +41,19 @@
 }
 
 @media (max-width: 996px) {
+  /* Track the terrace dais as the ground image reframes below the desktop
+     breakpoint. The dais centre = the ground's `left: 46%` anchor minus a
+     fixed fraction of the ground width (`min(640px, 118vw)`), so the keeper
+     stays centred on the platform across the whole range instead of drifting
+     onto its right edge. */
   .keeper {
-    left: 45%;
+    left: calc(46% - min(60px, 11vw));
     bottom: 6.5%;
     width: clamp(78px, 18vw, 124px);
   }
 
   .contactShadow {
-    left: 45%;
+    left: calc(46% - min(60px, 11vw));
     bottom: 6%;
     width: clamp(40px, 9vw, 64px);
   }
