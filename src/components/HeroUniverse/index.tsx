@@ -26,7 +26,8 @@ import styles from './HeroUniverse.module.css';
 export default function HeroUniverse(): React.ReactElement {
   return (
     <div className={styles.universe}>
-      <div className={styles.scene}>
+      {/* The observatory star-map scene — target of the `/#observatory` nav/footer link. */}
+      <div id="observatory" className={styles.scene}>
         {/* back → front */}
         <SceneLayers />
         <AmbientEffects />
