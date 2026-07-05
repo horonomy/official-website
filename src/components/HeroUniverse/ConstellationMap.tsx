@@ -11,11 +11,12 @@ import styles from './ConstellationMap.module.css';
  * gold lines, with a label + tagline anchored beside each cluster. The
  * `primary` product burns brighter than the rest at rest.
  *
- * Interactive (HORO-4): each constellation is a focusable target. On hover or
- * keyboard focus its connecting lines draw in, its nodes brighten, and its
- * label is emphasised, while the others stay dim. Fully self-contained — the
- * hover/focus visual is driven by CSS (`:hover` / `:focus-visible`), so it
- * works standalone with no wiring.
+ * Interactive (HORO-4): the shipped product (real `href`) is a focusable
+ * target — on hover or keyboard focus its connecting lines draw in, its nodes
+ * brighten, and its label is emphasised. In-development products (`href` ===
+ * '#') are non-interactive: they keep their stars but stay faint and cannot be
+ * hovered, focused, or clicked. The hover/focus visual is driven by CSS
+ * (`:hover` / `:focus-visible`), so it works standalone with no wiring.
  *
  * Shared active-state with the product cards (HORO-9) is deferred: it needs the
  * shared parent (`index.tsx`) which is owned elsewhere. This component instead

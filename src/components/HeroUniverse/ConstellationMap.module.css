@@ -158,9 +158,10 @@
 }
 
 /* ---- In-development products (no live destination yet): faded but kept, so
-   the roadmap still reads as part of the sky. They lift toward full strength on
-   hover / focus so they stay discoverable. Only the released product
-   (AI Agent Assembly = Argo Navis) burns at full strength by default. ---- */
+   the roadmap still reads as part of the sky. They stay faint and are
+   non-interactive — they never brighten and cannot be hovered or clicked.
+   Only the released product (AI Agent Assembly = Argo Navis) is interactive
+   and burns at full strength. ---- */
 .comingSoon {
   /* In-development products: keep their stars visible but faint and
      non-interactive — they never brighten and cannot be hovered/clicked,
