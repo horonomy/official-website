@@ -95,7 +95,7 @@ const config: Config = {
         {to: '/#observatory', label: 'Observatory', position: 'right'},
         {to: '/#manifesto', label: 'Manifesto', position: 'right'},
         {
-          href: 'https://github.com/AI-agent-assembly',
+          href: 'https://github.com/horonomy',
           label: 'GitHub',
           position: 'right',
         },
@@ -109,7 +109,7 @@ const config: Config = {
           items: [
             {
               label: 'AI agent assembly',
-              href: 'https://github.com/AI-agent-assembly',
+              href: 'https://agent-assembly.com',
             },
             {label: 'Research tracks', to: '/#products'},
           ],
