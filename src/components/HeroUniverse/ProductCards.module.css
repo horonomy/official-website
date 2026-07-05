@@ -80,6 +80,30 @@
   box-shadow: 0 0 6px rgba(224, 185, 120, 0.6);
 }
 
+/* Coming-soon products are still in design/estimation: shown as a dimmed
+   roadmap entry, never interactive. No pointer, no navigation, no hover lift —
+   `pointer-events: none` also neutralizes the shared `.card:hover` rules. */
+.comingSoon {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.55;
+}
+
+/* "Coming soon" label replacing the "Learn more →" affordance on roadmap cards. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--hn-line-strong);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--hn-muted);
+}
+
 /* The primary product carries a standing gold accent. */
 .primary {
   border-color: rgba(201, 164, 92, 0.55);
