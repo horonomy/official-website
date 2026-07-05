@@ -162,14 +162,11 @@
    hover / focus so they stay discoverable. Only the released product
    (AI Agent Assembly = Argo Navis) burns at full strength by default. ---- */
 .comingSoon {
-  opacity: 0.4;
-  transition: opacity 240ms ease;
-}
-
-.comingSoon:hover,
-.comingSoon:focus-visible,
-.comingSoon.active {
-  opacity: 0.9;
+  /* In-development products: keep their stars visible but faint and
+     non-interactive — they never brighten and cannot be hovered/clicked,
+     so the sky signals clearly what is not yet ready. */
+  opacity: 0.32;
+  pointer-events: none;
 }
 
 /* ---- Active: hover, keyboard focus, or externally-driven `active` class.
