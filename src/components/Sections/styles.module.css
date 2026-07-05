@@ -184,8 +184,14 @@ a.legendRow:hover {
   text-decoration: none;
 }
 .productCard {
-  background: var(--hn-panel);
-  border: 1px solid rgba(229, 231, 235, 0.1);
+  /* Glass surface — translucent gradient over the graphite base, frosted blur,
+     light border and inset top highlight (shared glass system). */
+  background: var(--hn-glass-bg);
+  /* Unprefixed only — see custom.css note (minifier drops the standard prop
+     when a -webkit- twin is present; autoprefixer re-adds webkit at build). */
+  backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid var(--hn-glass-border);
+  box-shadow: var(--hn-glass-highlight);
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 .productCard:hover {
@@ -193,8 +199,17 @@ a.legendRow:hover {
   transform: translateY(-2px);
 }
 .productCardResearch {
-  background: transparent;
+  /* Same frosted glass, but fainter and keeping the dashed "research" edge. */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(19, 23, 29, 0.32)
+  );
+  /* Unprefixed only — see custom.css note (minifier drops the standard prop
+     when a -webkit- twin is present; autoprefixer re-adds webkit at build). */
+  backdrop-filter: blur(16px) saturate(150%);
   border: 1px dashed rgba(229, 231, 235, 0.18);
+  box-shadow: var(--hn-glass-highlight);
 }
 
 .productCardTop {
