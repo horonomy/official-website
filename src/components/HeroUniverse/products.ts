@@ -17,6 +17,12 @@ export type Product = {
   blurb: string;
   href: string;
   tone: ProductTone;
+  /**
+   * When true the product is still in design/estimation and has not shipped.
+   * Its card renders as a non-interactive roadmap entry (no link, no pointer,
+   * no "Learn more") with a "Coming soon" label.
+   */
+  comingSoon?: boolean;
 };
 
 export const PRODUCTS: Product[] = [
@@ -35,6 +41,7 @@ export const PRODUCTS: Product[] = [
     blurb: 'The knowledge fabric of your organization.',
     href: '#',
     tone: 'secondary',
+    comingSoon: true,
   },
   {
     id: 'harbinger',
@@ -43,6 +50,7 @@ export const PRODUCTS: Product[] = [
     blurb: 'Monitoring and prediction for AI-native systems.',
     href: '#',
     tone: 'secondary',
+    comingSoon: true,
   },
   {
     id: 'more',
@@ -51,5 +59,6 @@ export const PRODUCTS: Product[] = [
     blurb: 'The universe is still expanding.',
     href: '#',
     tone: 'muted',
+    comingSoon: true,
   },
 ];
