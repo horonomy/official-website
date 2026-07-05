@@ -47,14 +47,17 @@
      stays centred on the platform across the whole range instead of drifting
      onto its right edge. */
   .keeper {
-    left: calc(46% - min(60px, 11vw));
+    left: calc(46% - min(56px, 7vw));
     bottom: 6.5%;
-    width: clamp(78px, 18vw, 124px);
+    /* Scale with the terrace (≈12% of the ground width) instead of a fixed
+       floor, so the keeper stays human-scale on the smaller dais and never
+       looks oversized on thin windows — matching its desktop proportion. */
+    width: min(80px, 14.5vw);
   }
 
   .contactShadow {
-    left: calc(46% - min(60px, 11vw));
+    left: calc(46% - min(56px, 7vw));
     bottom: 6%;
-    width: clamp(40px, 9vw, 64px);
+    width: min(44px, 8vw);
   }
 }
