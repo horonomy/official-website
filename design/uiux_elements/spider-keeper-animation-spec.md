@@ -25,24 +25,14 @@ transparent WebP under `static/img/hero/keeper/`.
 
 ## Implemented — the keeper (HORO-30)
 
-The observer is a **whole-pose crossfade** built from the complete,
-registration-matched frames of sheets 10 + 11 (`slice-keeper-poses.py` →
-`static/img/hero/keeper/*.webp`, feet-registered so crossfades never jump):
+Per the cost/scope decision, the observer is a **single fixed image**, not an
+animation: `static/img/hero/keeper/keeper.webp` (the keeper standing on the dais,
+holding + studying its gold astrolabe — sliced from the registration reference
+art). A soft static contact shadow grounds it. Contained to `ObserverSpider`.
 
-- 6 `examine-*` frames (idle head/astrolabe study) + `rest`/`reach`/`touch`.
-- The keeper **holds the gold astrolabe** and runs an autonomous loop: study →
-  reach → touch/adjust (**astrolabe glows** via `.working`) → settle.
-- Grounded with a soft contact shadow; sways with `--obs-wind` gusts.
-- Reduced-motion → a single static resting pose; contained to `ObserverSpider`.
+The stone-floor light animation (the terrace magic-circle glow/orbit overlay) was
+**removed**; the floor's gold paving remains as it is baked into `ground.webp`.
 
-Why whole-pose (not a layer rig): the layered catalog (sheet 5) can't be
-code-assembled (missing 7 legs, unregistered). Sheets 6–11 make a true layer rig
-*feasible*, but the complete registered poses in 10/11 deliver the astrolabe
-interaction robustly today.
-
-## Open (optional next)
-
-Independent **cloak-cloth flutter** decoupled from the pose — needs the sheet 7–9
-layers composited as a real rig (body + legs + cloak-main/edge + head + foreleg +
-astrolabe), driven by `--obs-wind`. The shared registration in sheets 6–11 makes
-this buildable if the extra fidelity is wanted.
+The full frame set + layer rig remain feasible from sheets 6–11 (registered, all
+legs) if richer animation is ever wanted — this build intentionally keeps it
+static and low-cost.

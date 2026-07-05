@@ -5,20 +5,8 @@
   pointer-events: none;
 }
 
-/* Wind sway: leans the keeper as gusts pass. Reads the eased `--obs-wind` gust
-   value (0..1) written by the component; the JS eases it per frame, so no CSS
-   transition is needed here. Pivots at the base so it reads as the wind pushing
-   the body, not the sprite sliding. */
-.sway {
-  position: absolute;
-  inset: 0;
-  transform-origin: 41% 92%;
-  transform: rotate(calc(var(--obs-wind, 0) * 1.3deg))
-    translateX(calc(var(--obs-wind, 0) * 3px));
-  will-change: transform;
-}
-
-/* Soft contact shadow on the dais under the keeper, so it stands on the stone. */
+/* Soft contact shadow on the dais under the keeper, so it stands on the stone
+   rather than floating. Static — no animation. */
 .contactShadow {
   position: absolute;
   left: 41%;
@@ -29,114 +17,37 @@
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
-    rgba(0, 0, 0, 0.55) 0%,
-    rgba(0, 0, 0, 0.32) 42%,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.3) 42%,
     rgba(0, 0, 0, 0) 72%
   );
   filter: blur(3px);
-  animation: observerShadow 9s ease-in-out infinite;
+  opacity: 0.8;
 }
 
-/* The keeper frame stack. Every frame is the full character (all legs, cloak,
-   astrolabe), feet-registered, so opacity crossfades never jump. A gentle bob +
-   cool grade live on the container; when the keeper works the astrolabe a warm
-   glow fades in (`.working`). */
-.poses {
+/* The keeper — a single fixed image on the dais. Cool night grade + a soft
+   contact drop-shadow so it sits in the scene. No motion. */
+.keeper {
   position: absolute;
   left: 41%;
   bottom: 8%;
   width: clamp(152px, 14.5vw, 244px);
-  aspect-ratio: 440 / 500;
+  height: auto;
   transform: translateX(-50%);
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6)) brightness(0.97)
     saturate(0.97) contrast(1.02);
-  transition: filter 520ms ease;
-  animation: observerIdle 8s ease-in-out infinite;
-  will-change: transform, filter;
-}
-
-/* The astrolabe "activates" (warm bloom) while the keeper reaches/adjusts it. */
-.working {
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6))
-    drop-shadow(0 0 10px rgba(224, 185, 120, 0.55))
-    drop-shadow(0 0 22px rgba(224, 185, 120, 0.3)) brightness(1) saturate(1)
-    contrast(1.02);
-}
-
-/* Each frame fills the container; crossfaded via opacity. */
-.pose {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
-  opacity: 0;
-  transition: opacity 420ms ease;
-}
-
-.pose.visible {
-  opacity: 1;
-}
-
-/* Gentle breathing bob. translateX(-50%) repeated so the centering holds. */
-@keyframes observerIdle {
-  0%,
-  100% {
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    transform: translateX(-50%) translateY(-2px);
-  }
-}
-
-/* Contact-shadow breathe — a barely-there swell; the shadow never moves. */
-@keyframes observerShadow {
-  0%,
-  100% {
-    opacity: 0.85;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    opacity: 0.62;
-    transform: translateX(-50%) scale(0.9);
-  }
 }
 
 @media (max-width: 996px) {
-  .poses {
+  .keeper {
     left: 45%;
     bottom: 6.5%;
     width: clamp(128px, 30vw, 200px);
-  }
-
-  .sway {
-    transform-origin: 45% 93%;
   }
 
   .contactShadow {
     left: 45%;
     bottom: 6%;
     width: clamp(64px, 22vw, 104px);
-  }
-}
-
-/* Reduced motion: hold a single static resting pose — no loop, sway, or glow.
-   The component also skips its loops. The contact shadow stays as a still cue. */
-@media (prefers-reduced-motion: reduce) {
-  .poses {
-    animation: none;
-    transform: translateX(-50%);
-    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6)) brightness(0.97)
-      saturate(0.97) contrast(1.02);
-  }
-
-  .sway {
-    transform: none;
-  }
-
-  .contactShadow {
-    animation: none;
-    opacity: 0.72;
   }
 }

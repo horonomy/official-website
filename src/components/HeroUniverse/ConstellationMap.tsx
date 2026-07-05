@@ -188,145 +188,6 @@ function Constellation({
   );
 }
 
-/* ---- Stone-floor seams (HORO-21) -----------------------------------------
- * The luminous joints of the observatory terrace — the concentric "magic
- * circle" (rings + radial spokes) baked into `ground.webp`, retraced as a live
- * overlay so it can light up. This SVG is anchored over the TERRACE (same box
- * as the ground raster), NOT inside the sky constellation map, so the light
- * appears on the stone floor where the keeper stands — never in the sky.
- *
- * Geometry is authored in the ground image's own pixel space (viewBox
- * 1916x649) and the overlay box matches the raster 1:1, so the rings sit on the
- * baked paving. Foreshortened by FLOOR_K to sit flat in perspective. */
-const PRIMARY_ID = PRODUCTS.find((p) => p.tone === 'primary')?.id ?? null;
-
-/* Baked terrace geometry, measured in the ground image's own pixel space
- * (viewBox 1916x649). The overlay box replicates the ground raster 1:1, so these
- * coordinates land on the real baked stone. Two concentric sets trace the actual
- * paving: the fine zodiac wheel on the raised dais, and the larger magic circle
- * spread across the front tiles. All geometry stays below the terrace's back
- * edge (y ~= 130) so nothing is ever drawn over the sky. */
-const FLOOR_CX = 764;
-
-/** Raised-dais zodiac wheel — full perspective ellipses. [cy, rx, ry] */
-const DAIS_RINGS: ReadonlyArray<readonly [number, number, number]> = [
-  [206, 92, 22],
-  [206, 170, 40],
-  [207, 248, 58],
-  [208, 312, 74],
-];
-
-/** Larger ground circle — only the FRONT (lower) arc is drawn; its back half is
- * occluded by the dais and would otherwise fall above the terrace line. [cy, rx, ry] */
-const GROUND_ARCS: ReadonlyArray<readonly [number, number, number]> = [
-  [246, 430, 148],
-  [250, 560, 198],
-  [252, 690, 242],
-];
-
-/** Radial spokes fan from the circle centre across the front tiles only. */
-const SPOKE_CX = 764;
-const SPOKE_CY = 214;
-const SPOKE_INNER = 60;
-const SPOKE_OUT_CY = 252;
-const SPOKE_OUT_RX = 690;
-const SPOKE_OUT_RY = 242;
-const SPOKE_COUNT = 18;
-const SPOKE_A0 = -0.28; // ~ -16deg (front-right, just above the horizon plane)
-const SPOKE_A1 = Math.PI + 0.28; // ~196deg (front-left) — sweeps through the front
-
-/** A full flat-on-the-ground ellipse (perspective circle) as an SVG path. */
-function ellipse(cx: number, cy: number, rx: number, ry: number): string {
-  return (
-    `M${(cx - rx).toFixed(1)} ${cy.toFixed(1)}` +
-    `A${rx} ${ry} 0 1 0 ${(cx + rx).toFixed(1)} ${cy.toFixed(1)}` +
-    `A${rx} ${ry} 0 1 0 ${(cx - rx).toFixed(1)} ${cy.toFixed(1)}`
-  );
-}
-
-/** The lower (front) half-arc of an ellipse, left point sweeping under to right. */
-function bottomArc(cx: number, cy: number, rx: number, ry: number): string {
-  return (
-    `M${(cx - rx).toFixed(1)} ${cy.toFixed(1)}` +
-    `A${rx} ${ry} 0 0 0 ${(cx + rx).toFixed(1)} ${cy.toFixed(1)}`
-  );
-}
-
-/** Dais wheel + ground front-arcs + radial spokes, tracing the baked paving. */
-function buildFloor(): string[] {
-  const paths: string[] = [];
-  for (const [cy, rx, ry] of DAIS_RINGS) paths.push(ellipse(FLOOR_CX, cy, rx, ry));
-  for (const [cy, rx, ry] of GROUND_ARCS) paths.push(bottomArc(FLOOR_CX, cy, rx, ry));
-  for (let i = 0; i < SPOKE_COUNT; i++) {
-    const a = SPOKE_A0 + (SPOKE_A1 - SPOKE_A0) * (i / (SPOKE_COUNT - 1));
-    const x1 = SPOKE_CX + SPOKE_INNER * Math.cos(a);
-    const y1 = SPOKE_CY + SPOKE_INNER * 0.32 * Math.sin(a);
-    const x2 = SPOKE_CX + SPOKE_OUT_RX * Math.cos(a);
-    const y2 = SPOKE_OUT_CY + SPOKE_OUT_RY * Math.sin(a);
-    paths.push(`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`);
-  }
-  return paths;
-}
-
-// Pure, deterministic, no browser globals → SSR-safe at module load.
-const FLOOR_PATHS: string[] = buildFloor();
-
-/** Full-ellipse ring paths the orbiting "border-trail" light beads travel. */
-const ORBIT_RINGS: string[] = [
-  ellipse(FLOOR_CX, DAIS_RINGS[3][0], DAIS_RINGS[3][1], DAIS_RINGS[3][2]),
-  ellipse(FLOOR_CX, DAIS_RINGS[2][0], DAIS_RINGS[2][1], DAIS_RINGS[2][2]),
-];
-
-/**
- * The luminous stone-floor paving. Driven by the same `activeId` that drives the
- * constellations, so pointer hover and keyboard focus light the floor
- * identically (accessibility parity). The paving reads as soft warm *light*
- * (Glow-Effect style: a blurred bloom on the continuous joints), and a couple of
- * glowing beads orbit the main ring (Border-Trail style, via CSS motion-path).
- * Idle → a gentle breathe + slow orbit; AI Agent Assembly (the primary) hovered
- * → the whole circle burns gold (lead); any other product → a cooler flare.
- *
- * Rendered as its own terrace-anchored SVG (see `.floorRoot`) below the observer
- * so the keeper stands on the lit floor.
- */
-function FloorSeams({
-  activeId,
-}: {
-  activeId: string | null;
-}): React.ReactElement {
-  const state =
-    activeId == null
-      ? styles.idle
-      : activeId === PRIMARY_ID
-        ? clsx(styles.flare, styles.lead)
-        : clsx(styles.flare, styles.cool);
-  return (
-    <svg
-      className={styles.floorRoot}
-      style={{zIndex: LAYERS.environment}}
-      viewBox="0 0 1916 649"
-      preserveAspectRatio="none"
-      focusable="false"
-      aria-hidden="true">
-      <g className={clsx(styles.floor, state)}>
-        {/* Continuous glowing joints — soft light on the stone, not dashes. */}
-        {FLOOR_PATHS.map((d, i) => (
-          <path key={i} className={styles.seamBase} d={d} />
-        ))}
-        {/* Border-trail: glowing beads orbiting the main rings via motion-path. */}
-        {ORBIT_RINGS.map((ring, i) => (
-          <circle
-            key={`bead-${i}`}
-            className={styles.orbitBead}
-            r={i === 0 ? 4 : 3}
-            style={{offsetPath: `path('${ring}')`, animationDelay: `${-i * 3.5}s`}}
-          />
-        ))}
-      </g>
-    </svg>
-  );
-}
-
 export default function ConstellationMap({
   activeId,
   onActivate,
@@ -349,27 +210,22 @@ export default function ConstellationMap({
   );
 
   return (
-    <>
-      {/* Terrace floor paving — anchored over the ground raster (see
-          `.floorRoot`), NOT in the sky SVG, so the light lands on the stone. */}
-      <FloorSeams activeId={resolvedActiveId} />
-      <svg
-        className={styles.root}
-        style={{zIndex: LAYERS.constellations}}
-        viewBox="0 0 1000 520"
-        preserveAspectRatio="xMidYMin meet"
-        focusable="false"
-        role="group"
-        aria-label="Product constellations">
-        {PRODUCTS.map((p) => (
-          <Constellation
-            key={p.id}
-            product={p}
-            active={resolvedActiveId === p.id}
-            onActivate={handleActivate}
-          />
-        ))}
-      </svg>
-    </>
+    <svg
+      className={styles.root}
+      style={{zIndex: LAYERS.constellations}}
+      viewBox="0 0 1000 520"
+      preserveAspectRatio="xMidYMin meet"
+      focusable="false"
+      role="group"
+      aria-label="Product constellations">
+      {PRODUCTS.map((p) => (
+        <Constellation
+          key={p.id}
+          product={p}
+          active={resolvedActiveId === p.id}
+          onActivate={handleActivate}
+        />
+      ))}
+    </svg>
   );
 }
