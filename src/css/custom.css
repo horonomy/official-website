@@ -22,6 +22,19 @@
   --hn-line: rgba(229, 231, 235, 0.09);
   --hn-line-strong: rgba(229, 231, 235, 0.15);
 
+  /* Glass tokens — one system for every translucent surface (navbar, footer,
+     Sections cards). Subtle refraction: a light top-edge highlight over a
+     blurred, layered translucency. */
+  --hn-glass-bg: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.045),
+    rgba(19, 23, 29, 0.55) 42%,
+    rgba(11, 13, 16, 0.62)
+  );
+  --hn-glass-blur: blur(16px) saturate(150%);
+  --hn-glass-border: var(--hn-line-strong);
+  --hn-glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
   --hn-font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
   --hn-font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 
@@ -72,12 +85,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* --- Navbar: translucent, blurred, hairline boundary --- */
+/* --- Navbar: glassmorphism — layered translucency, blur, edge refraction --- */
 .navbar {
-  backdrop-filter: saturate(140%) blur(12px);
-  -webkit-backdrop-filter: saturate(140%) blur(12px);
-  border-bottom: 1px solid var(--hn-line);
-  box-shadow: none;
+  /* Layer a faint top highlight over the translucent base var so the bar reads
+     as frosted glass catching light along its upper edge. */
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0) 60%
+  );
+  backdrop-filter: var(--hn-glass-blur);
+  -webkit-backdrop-filter: var(--hn-glass-blur);
+  border-bottom: 1px solid var(--hn-glass-border);
+  box-shadow: var(--hn-glass-highlight);
 }
 
 .navbar__title {
@@ -95,9 +115,19 @@ body {
   color: var(--hn-text);
 }
 
-/* --- Footer --- */
+/* --- Footer: glass surface matching the navbar system --- */
 .footer {
-  border-top: 1px solid var(--hn-line);
+  /* Translucent so the graphite base shows through the frosted blur. */
+  background-color: rgba(11, 13, 16, 0.6);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0) 40%
+  );
+  backdrop-filter: var(--hn-glass-blur);
+  -webkit-backdrop-filter: var(--hn-glass-blur);
+  border-top: 1px solid var(--hn-glass-border);
+  box-shadow: var(--hn-glass-highlight);
 }
 
 .footer__title {
