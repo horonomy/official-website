@@ -31,6 +31,10 @@
     rgba(19, 23, 29, 0.55) 42%,
     rgba(11, 13, 16, 0.62)
   );
+  /* NOTE: backdrop-filter cannot read a CSS custom property in Chromium
+     (invalid at computed-value time → renders as `none`), so the blur is
+     inlined literally at each surface. This token documents the canonical
+     value; keep the inlined literals in sync with it. */
   --hn-glass-blur: blur(16px) saturate(150%);
   --hn-glass-border: var(--hn-line-strong);
   --hn-glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -94,8 +98,11 @@ body {
     rgba(255, 255, 255, 0.05),
     rgba(255, 255, 255, 0) 60%
   );
-  backdrop-filter: var(--hn-glass-blur);
-  -webkit-backdrop-filter: var(--hn-glass-blur);
+  /* Unprefixed only: the production CSS minifier drops the standard
+     `backdrop-filter` when a `-webkit-` twin is present, leaving webkit-only —
+     which modern Chromium ignores (glass renders as `none`). Autoprefixer
+     re-adds the `-webkit-` prefix at build time for Safari. */
+  backdrop-filter: blur(16px) saturate(150%);
   border-bottom: 1px solid var(--hn-glass-border);
   box-shadow: var(--hn-glass-highlight);
 }
@@ -124,8 +131,11 @@ body {
     rgba(255, 255, 255, 0.03),
     rgba(255, 255, 255, 0) 40%
   );
-  backdrop-filter: var(--hn-glass-blur);
-  -webkit-backdrop-filter: var(--hn-glass-blur);
+  /* Unprefixed only: the production CSS minifier drops the standard
+     `backdrop-filter` when a `-webkit-` twin is present, leaving webkit-only —
+     which modern Chromium ignores (glass renders as `none`). Autoprefixer
+     re-adds the `-webkit-` prefix at build time for Safari. */
+  backdrop-filter: blur(16px) saturate(150%);
   border-top: 1px solid var(--hn-glass-border);
   box-shadow: var(--hn-glass-highlight);
 }
