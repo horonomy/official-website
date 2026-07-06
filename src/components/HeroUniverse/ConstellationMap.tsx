@@ -11,12 +11,17 @@ import styles from './ConstellationMap.module.css';
  * gold lines, with a label + tagline anchored beside each cluster. The
  * `primary` product burns brighter than the rest at rest.
  *
- * Interactive (HORO-4): the shipped product (real `href`) is a focusable
- * target — on hover or keyboard focus its connecting lines draw in, its nodes
- * brighten, and its label is emphasised. In-development products (`href` ===
- * '#') are non-interactive: they keep their stars but stay faint and cannot be
- * hovered, focused, or clicked. The hover/focus visual is driven by CSS
- * (`:hover` / `:focus-visible`), so it works standalone with no wiring.
+ * Interactive (HORO-4, navigation fixed in HORO-38): the shipped product
+ * (real `href`) renders as a real SVG `<a href>` — not a synthetic
+ * `role="button"` element — so clicking (or Enter on keyboard focus)
+ * actually opens `product.href`, matching the external-link convention
+ * `ProductCards.tsx` already uses for the same product. On hover or keyboard
+ * focus its connecting lines draw in, its nodes brighten, and its label is
+ * emphasised. In-development products (`href` === '#') are non-interactive:
+ * they keep their stars but stay faint and cannot be hovered, focused, or
+ * clicked — rendered as a plain `<g>`. The hover/focus visual is driven by
+ * CSS (`:hover` / `:focus-visible`) keyed on the shared `.constellation`
+ * class, so it works identically regardless of which element renders it.
  *
  * Shared active-state with the product cards (HORO-9) is deferred: it needs the
  * shared parent (`index.tsx`) which is owned elsewhere. This component instead
@@ -80,36 +85,24 @@ function Constellation({
   // the sky clearly signals what is and isn't ready.
   const interactive = !comingSoon;
 
-  const interactiveProps = interactive
-    ? {
-        tabIndex: 0,
-        role: 'button',
-        onMouseEnter: () => onActivate?.(product.id),
-        onMouseLeave: () => onActivate?.(null),
-        onFocus: () => onActivate?.(product.id),
-        onBlur: () => onActivate?.(null),
-        onClick: () => onActivate?.(product.id),
-        onKeyDown: (e: React.KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onActivate?.(product.id);
-          }
-        },
-      }
-    : {'aria-disabled': true as const};
+  // Hover/focus still drive the shared glow state regardless of which
+  // element renders the constellation. Click-to-navigate and keyboard
+  // activation are handled natively by the <a> wrapper below (HORO-38) — no
+  // manual onClick/onKeyDown needed.
+  const glowHandlers = {
+    onMouseEnter: () => onActivate?.(product.id),
+    onMouseLeave: () => onActivate?.(null),
+    onFocus: () => onActivate?.(product.id),
+    onBlur: () => onActivate?.(null),
+  };
 
-  return (
-    <g
-      className={clsx(styles.constellation, TONE_CLASS[product.tone], {
-        [styles.active]: active,
-        [styles.comingSoon]: comingSoon,
-      })}
-      aria-label={
-        interactive
-          ? `${product.name}, the ${shape.sky} constellation`
-          : `${product.name}, the ${shape.sky} constellation — in development`
-      }
-      {...interactiveProps}>
+  const groupClassName = clsx(styles.constellation, TONE_CLASS[product.tone], {
+    [styles.active]: active,
+    [styles.comingSoon]: comingSoon,
+  });
+
+  const content = (
+    <>
       {interactive && (
         <>
           {/* Transparent hit area so the whole cluster is hoverable/clickable. */}
@@ -205,7 +198,30 @@ function Constellation({
         aria-hidden="true">
         {product.tagline}
       </text>
-    </g>
+    </>
+  );
+
+  if (!interactive) {
+    return (
+      <g
+        className={groupClassName}
+        aria-label={`${product.name}, the ${shape.sky} constellation — in development`}
+        aria-disabled>
+        {content}
+      </g>
+    );
+  }
+
+  return (
+    <a
+      className={groupClassName}
+      href={product.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${product.name}, the ${shape.sky} constellation — opens ${product.href.replace(/^https?:\/\//, '')}`}
+      {...glowHandlers}>
+      {content}
+    </a>
   );
 }
 
