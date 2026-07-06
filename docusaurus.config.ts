@@ -2,6 +2,17 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+// Google Analytics + GDPR consent gating (HORO-37, matching the pattern
+// already shipped on node-sdk/python-sdk/go-sdk/core docs — AAASM-3552/3554).
+// We self-manage the gtag init instead of using preset-classic's `gtag`
+// option so the Consent-Mode default-denied state is guaranteed to be in
+// place BEFORE the first GA hit. See ./src/analytics/consentInit.ts.
+import {
+  GA_MEASUREMENT_ID,
+  consentDefaultScript,
+  gtagConfigScript,
+} from './src/analytics/consentInit';
+
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
@@ -47,6 +58,65 @@ const config: Config = {
         href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap',
       },
     },
+
+    // Self-managed Google Analytics with Consent Mode v2 (HORO-37).
+    //
+    // These scripts are injected in array order at the position of
+    // `<%~ it.headTags %>` in the SSG template — i.e. before the deferred app
+    // bundle and before any GA hit:
+    //
+    //   1. consentDefaultScript — defines `dataLayer`/`gtag`, sets
+    //      Consent-Mode default to DENIED for analytics + ads storage, then
+    //      restores a stored opt-in. This MUST run first so GA writes no
+    //      cookie until opt-in.
+    //   2. the gtag.js loader (async) + gtagConfigScript — loads gtag and
+    //      fires `gtag('config', ...)` (the first hit), which now respects
+    //      the already-denied default above.
+    //
+    // Owning the whole init (rather than relying on `config.headTags`, which
+    // Docusaurus appends AFTER plugin head tags) is what guarantees the
+    // deny-before-hit ordering. The opt-in banner lives in clientModules
+    // below.
+    {
+      tagName: 'script',
+      attributes: {},
+      innerHTML: consentDefaultScript,
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://www.google-analytics.com',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://www.googletagmanager.com',
+      },
+    },
+    {
+      tagName: 'script',
+      attributes: {
+        // headTags config validation requires string attribute values.
+        async: 'true',
+        src: `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`,
+      },
+    },
+    {
+      tagName: 'script',
+      attributes: {},
+      innerHTML: gtagConfigScript,
+    },
+  ],
+
+  // Vanilla-JS opt-in cookie-consent banner + SPA page-view tracker
+  // (HORO-37). The tracker replaces the route tracking we lose by not using
+  // the preset `gtag` plugin.
+  clientModules: [
+    require.resolve('./src/analytics/gtagRouteTracker.ts'),
+    require.resolve('./src/analytics/consentBanner.ts'),
   ],
 
   presets: [
