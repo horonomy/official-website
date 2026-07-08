@@ -247,7 +247,85 @@ with the primary "next step in quickstart" CTA.
 
 ## 4. Page-level messaging principles
 
-_TBD — see following commits._
+These principles apply across all three surfaces. They are how we
+decide whether a proposed page or copy change is aligned with the plan.
+
+### 4.1 The 10-second rule (Agent Assembly landing page)
+
+A first-time visitor must be able to answer, without scrolling and
+without reading long paragraphs:
+
+- **What is Agent Assembly?** — a governance runtime for AI agents.
+- **What problem does it solve?** — agents can act, but frameworks do
+  not define production-grade boundaries.
+- **Who is it for?** — developers, platform engineers, security
+  engineers.
+- **How do I try it now?** — the OSS install path (copy command,
+  quickstart).
+- **Where does Cloud fit?** — early access / design partner (not GA).
+
+If any of these five questions requires scrolling past the fold to
+answer, the hero copy needs to be tightened before adding new sections.
+
+### 4.2 Developer value comes before brand poetry
+
+The astronomy / worldbuilding theme is a positioning asset for Horonomy,
+not a substitute for concrete developer value on Agent Assembly and
+docs. On Horonomy, brand-first copy is appropriate; on Agent Assembly
+and docs, brand takes a background role.
+
+Concretely:
+
+- Horonomy hero: brand-first, product-referring.
+- Agent Assembly hero: value-first, brand-referring.
+- Docs pages: functional-first, no brand poetry at the top.
+
+### 4.3 CTA per page, not CTA per section
+
+Every page has **one dominant CTA** matching that page's job (see
+Section 2). Secondary CTAs are allowed but must not visually compete
+with the dominant one. If a page appears to need two competing CTAs,
+it is probably two pages.
+
+### 4.4 Concrete over abstract
+
+Prefer concrete examples over abstract descriptions:
+
+- Not: "Enterprise-grade governance for AI agents."
+- Yes: "Every agent call passes through an identity check, a policy
+  check, and a budget check. If any check fails, the tool call never
+  runs."
+
+Prefer diagrams over prose when explaining enforcement layers.
+
+### 4.5 Trust before ask
+
+For product-selling pages (Agent Assembly landing, early access), the
+visitor must encounter a trust signal (GitHub, docs link, version
+status, open-source posture) before the primary CTA. A visitor who
+does not know if the project is real will not submit an early-access
+form.
+
+### 4.6 No fake doors
+
+The Cloud path must always describe itself as early access / design
+partner. Copy must never imply the SaaS console is available now.
+Users who submit the early-access form must be routed to next steps
+that are real today (OSS install, docs, GitHub) — not to a placeholder
+"Coming soon" wall.
+
+### 4.7 One idea per section
+
+Sections are indivisible units. A section that tries to explain two
+ideas becomes hard to skim and hard to link to. If a section requires
+"and also" phrasing, split it.
+
+### 4.8 Message consistency across surfaces
+
+The one-sentence description of Agent Assembly must be identical on
+Horonomy's products section, Agent Assembly's hero, and the docs
+overview page. Enforce this in review by literally comparing the three
+strings.
 
 ## 5. GA4 event-mapping table
 
