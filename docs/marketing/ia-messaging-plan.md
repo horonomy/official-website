@@ -329,7 +329,79 @@ strings.
 
 ## 5. GA4 event-mapping table
 
-_TBD — see following commits._
+The event names below are drawn verbatim from the Epic (HORO-39). The
+canonical parameter dictionary, key-event configuration, and validation
+plan are HORO-45's deliverable — this section only binds pages to
+events so downstream implementation tickets know what to fire where.
+
+**Convention.** Event names are snake_case. Every event carries at
+minimum `hostname`, `page_path`, and `surface` (one of
+`horonomy_site`, `product_site`, `docs`, `github_readme`). CTA-bound
+events additionally carry `cta_location` (`hero`, `nav`, `body`,
+`install_block`, `footer`, `thank_you`). No PII in any parameter.
+
+### 5.1 Horonomy (`horonomy.dev`)
+
+Owned by HORO-41.
+
+| Page                     | Event                              | Trigger                                                     |
+|--------------------------|------------------------------------|-------------------------------------------------------------|
+| Home                     | `horonomy_product_agent_assembly_click` | Any click leaving to `agent-assembly.com`               |
+| Home / global            | `horonomy_github_click`            | Any click to `github.com/ai-agent-assembly`                 |
+| Home / Manifesto         | `horonomy_manifesto_click`         | Any click to the manifesto / about page                     |
+| Home / Contact           | `horonomy_contact_click`           | Any click on the contact link (email, form, or DM)          |
+| Home / Blog              | `horonomy_blog_click`              | Any click on a blog post title or nav Blog link             |
+
+### 5.2 Agent Assembly (`agent-assembly.com`)
+
+Owned by HORO-42 (landing), HORO-43 (early access), HORO-44 (install).
+
+| Page / block             | Event                                | Trigger                                                              |
+|--------------------------|--------------------------------------|----------------------------------------------------------------------|
+| Landing hero             | `cta_start_self_hosting_click`       | Primary hero CTA "Start self-hosting"                                |
+| Landing hero             | `cta_cloud_early_access_click`       | Secondary hero CTA "Request Cloud Early Access"                      |
+| Landing hero             | `cta_view_github_click`              | Tertiary hero CTA "View GitHub" (== `github_core_repo_click` fallback) |
+| Landing nav              | `cta_view_docs_click` / `docs_click` | Nav item "Docs" (cross-hostname to docs)                             |
+| Landing install block    | `copy_install_command`               | Copy-to-clipboard action on the install command                      |
+| Landing security section | `section_security_model_view` (== `security_model_view`) | ≥50% viewport visibility of security-model section     |
+| Landing architecture     | `section_architecture_view` (== `architecture_view`)     | ≥50% viewport visibility of architecture section       |
+| Landing use cases        | `outbound_click`                     | Any outbound click not covered by a more specific event              |
+| Early-access page        | `cloud_early_access_page_view`       | Route-change to the early-access page                                |
+| Early-access page        | `cloud_early_access_submit` (Key Event) | Form submit success                                               |
+| Early-access thank-you   | `cloud_early_access_oss_docs_click`  | "See OSS docs" next-step link                                        |
+| Early-access thank-you   | `cloud_early_access_github_click`    | "View on GitHub" next-step link                                      |
+| Install path (all pages) | `copy_install_command` (Key Event)   | Any install-command copy on the product site                         |
+| GitHub deep links        | `github_core_repo_click` (Key Event) | Any click to the core repo                                           |
+| Examples repo link       | `examples_repo_click` (Key Event)    | Any click to `agent-assembly-examples`                               |
+| SDK page previews        | `sdk_page_view`                      | Rendered SDK preview block on the product site                       |
+| Contact page             | `contact_click` (Key Event)          | Contact form submit or contact link click                            |
+
+### 5.3 Docs (`docs.agent-assembly.com`)
+
+Owned by HORO-48.
+
+| Page                     | Event                                    | Trigger                                                    |
+|--------------------------|------------------------------------------|------------------------------------------------------------|
+| Overview                 | `quickstart_click`                       | Click on "Continue to Quickstart" CTA                      |
+| Quickstart               | `docs_quickstart_click`                  | Any high-intent action inside quickstart                   |
+| Installation             | `docs_installation_view` (== `installation_view`) | Page view                                        |
+| Installation             | `docs_copy_install_command` (== `copy_install_command`) | Copy-to-clipboard on install command        |
+| SDKs / Python            | `docs_sdk_python_view` (== `sdk_page_view` with `sdk=python`) | Page view                             |
+| SDKs / Node              | `docs_sdk_node_view` (`sdk=node`)        | Page view                                                  |
+| SDKs / Go                | `docs_sdk_go_view` (`sdk=go`)            | Page view                                                  |
+| Examples                 | `docs_examples_click` (== `examples_repo_click`) | Click to `agent-assembly-examples`                  |
+| Security model           | `docs_security_model_view` (== `security_model_view`) | Page view                                      |
+| Troubleshooting          | `docs_github_issue_click`                | Click on "Open a GitHub issue" link                        |
+
+### 5.4 Key Events (conversions) — final list
+
+Copied from the Epic; HORO-45 will configure these in GA4:
+
+- `copy_install_command`
+- `cloud_early_access_submit`
+- `github_core_repo_click`
+- `examples_repo_click`
+- `contact_click`
 
 ## 6. Handoff notes
 
