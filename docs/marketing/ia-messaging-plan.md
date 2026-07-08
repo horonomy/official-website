@@ -181,7 +181,69 @@ the page, but the set is:
 
 ## 3. Suggested navigation structure per surface
 
-_TBD — see following commits._
+Navigation is a shorthand for what each surface promises the visitor.
+Nav labels should describe the destination in words the visitor
+already uses — not internal terminology.
+
+### 3.1 Horonomy top nav (`horonomy.dev`)
+
+Left → right:
+
+1. **Home** — company positioning and primary CTA to Agent Assembly.
+2. **Products** — currently one entry: Agent Assembly (with a short
+   descriptor). Reserves room for future portfolio without demoting
+   the flagship.
+3. **Manifesto / About** — worldview page. Retains the astronomy
+   theme but always ties back to autonomy and governance.
+4. **Blog** — founder-led writing. Cross-hostname UTM tagging when a
+   blog post CTA points at Agent Assembly.
+5. **GitHub** (outbound icon) — links to `github.com/ai-agent-assembly`
+   org page. Fires `horonomy_github_click`.
+
+Footer: Product (→ Agent Assembly), GitHub, Contact, Blog, Privacy.
+
+### 3.2 Agent Assembly top nav (`agent-assembly.com`)
+
+Left → right:
+
+1. **Product** — the landing page. Answers what/why/who in 10 seconds.
+2. **Docs** — cross-hostname to `docs.agent-assembly.com`. Carries
+   `utm_source=product_site`, `utm_medium=docs_link`, and the active
+   campaign. Fires `docs_click`.
+3. **GitHub** — deep-link to the core repo (not the org page). Fires
+   `github_core_repo_click`.
+4. **Security** — same-hostname deep link into the security model
+   section (or a dedicated page if HORO-42 splits it out). Fires
+   `security_model_view`.
+5. **Blog** — same-hostname product blog.
+6. **Early Access** — button, visually distinct from other nav items.
+   Same-hostname link to the transparent early-access page (HORO-43).
+   Fires `cta_cloud_early_access_click`.
+
+Footer: Product, Docs, GitHub, Security, Blog, Early Access,
+Privacy. Every outbound link fires the appropriate event.
+
+### 3.3 Docs top nav (`docs.agent-assembly.com`)
+
+The docs nav is a *funnel*, not a taxonomy. Order matters — first-time
+visitors read top-to-bottom until they find a next step.
+
+1. **Start Here / Overview**
+2. **Quickstart**
+3. **Installation** (+ Requirements)
+4. **Run your first governed agent**
+5. **SDKs** (Python, Node, Go — same order everywhere for consistency)
+6. **Concepts** (identity, authority, budgets, audit trails, secret isolation)
+7. **Enforcement layers** (SDK hooks, sidecar proxy, eBPF)
+8. **Examples**
+9. **Security model**
+10. **Troubleshooting**
+11. **Versioning / release status**
+
+Footer or persistent side rail carries **Request Cloud Early Access**
+as a cross-hostname link (UTM: `utm_source=docs`, `utm_medium=docs_link`,
+`utm_campaign=early_access`) — visible from every page but not competing
+with the primary "next step in quickstart" CTA.
 
 ## 4. Page-level messaging principles
 
