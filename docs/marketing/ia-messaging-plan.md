@@ -405,4 +405,129 @@ Copied from the Epic; HORO-45 will configure these in GA4:
 
 ## 6. Handoff notes
 
-_TBD — see following commits._
+Each downstream implementation ticket consumes specific sections of
+this plan. Reviewers use this map to check that a PR is aligned with
+the plan.
+
+### HORO-41 — Horonomy site brand and routing
+
+Consumes:
+
+- **Section 2.1** — the surface job, audience, and primary CTAs.
+- **Section 3.1** — nav shape.
+- **Section 4.1–4.2, 4.4, 4.6** — messaging principles (brand-first,
+  concrete, no fake doors).
+- **Section 5.1** — event list.
+
+Explicitly does NOT own:
+
+- Any Agent Assembly landing copy.
+- Any docs content.
+- Any product-level SaaS / OSS-install copy.
+
+Cross-hostname CTAs from Horonomy carry UTM per HORO-47 conventions
+(`utm_source=horonomy_site`, `utm_medium=referral`, `utm_campaign=<active>`).
+
+### HORO-42 — Agent Assembly landing conversion paths
+
+Consumes:
+
+- **Section 2.2** — the three-path funnel and 10-second contract.
+- **Section 3.2** — nav shape and Early-Access button.
+- **Section 4** — every principle, especially 4.1 (10-second),
+  4.3 (one CTA per page), 4.5 (trust before ask), 4.6 (no fake doors).
+- **Section 5.2** — event list; establishes the shared analytics hook
+  and CTA components that HORO-43 and HORO-44 will consume.
+
+Explicitly does NOT own:
+
+- Cloud Early Access page implementation (HORO-43).
+- Install-command copy behavior (HORO-44).
+- Docs content (HORO-48).
+
+**Blocker for HORO-43 and HORO-44** — the shared analytics hook and CTA
+components land here first. HORO-43 and HORO-44 start after HORO-42
+merges.
+
+### HORO-43 — Cloud Early Access flow
+
+Consumes:
+
+- **Section 2.2** and **Section 4.6** — the transparent early-access
+  contract; must never imply SaaS is GA.
+- **Section 5.2** — the early-access page and thank-you events.
+
+Form fields: keep the minimum viable set (email, role, team size, free
+text "what are you trying to govern?", preferred deployment). No IP
+tracking beyond GA4 defaults; no third-party identifier enrichment.
+Thank-you page routes to OSS docs / GitHub, not to a "Coming soon" wall.
+
+### HORO-44 — OSS install tracking
+
+Consumes:
+
+- **Section 2.2** — the OSS self-hosting path.
+- **Section 5.2** — install-block events, especially
+  `copy_install_command` (Key Event).
+
+Constraint: install commands must be **real** commands that work today.
+No placeholder URLs, no fake download endpoints. If a package is not
+published yet, link to the GitHub install instructions instead.
+
+### HORO-48 — Docs adoption funnel
+
+Consumes:
+
+- **Section 2.3** — the docs funnel job.
+- **Section 3.3** — top-nav order (funnel, not taxonomy).
+- **Section 4.2, 4.3** — functional-first, one dominant CTA per page.
+- **Section 5.3** — docs event list.
+
+The docs `Request Cloud Early Access` cross-hostname link lives in the
+persistent footer / side rail (Section 3.3), not in the top nav, and
+carries UTM per HORO-47.
+
+### HORO-45 — Event taxonomy spec (Wave 1 companion)
+
+Consumes:
+
+- **Section 5** — the page → event bindings.
+
+Owns:
+
+- Event names, parameter dictionary, key-event GA4 configuration,
+  DebugView validation, GTM vs code-emitted dataLayer decisions.
+
+If HORO-45 renames or removes an event listed in Section 5, this plan
+must be updated in the same PR. Do not let the plan and the taxonomy
+drift.
+
+### HORO-46 — GA4 reports / dashboard (Wave 3)
+
+Consumes:
+
+- **Section 5** — full event list to build explorations against.
+
+### HORO-50 — Pre-launch QA (Wave 3)
+
+Consumes:
+
+- **Section 2** — verifies each surface honors its job.
+- **Section 3** — verifies nav order matches spec.
+- **Section 4.1, 4.6** — verifies 10-second rule and no fake doors.
+- **Section 5** — verifies every listed event fires in DebugView.
+
+## 7. Change control
+
+This plan is a shared contract. Changes to any of the following require
+a PR that updates this file AND notes the affected downstream tickets:
+
+- The one-sentence description of Agent Assembly.
+- Any surface's primary CTAs.
+- Any nav order change.
+- Any event name, addition, or removal in Section 5.
+- The list of GA4 Key Events.
+
+Trivial edits (typos, formatting) can go in without notifying downstream
+tickets. Substantive edits require a comment on HORO-39 summarizing
+what changed.
