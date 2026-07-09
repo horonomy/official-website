@@ -162,17 +162,33 @@ const config: Config = {
         src: 'img/logo.svg',
       },
       hideOnScroll: false,
+      // Order per IA plan §3.1 (HORO-40): Home is implicit via the logo;
+      // Products, Manifesto, Blog, GitHub sit right-aligned in that order.
+      // Observatory retains a slot as a design-system entry between Products
+      // and Manifesto so the star-map still has a discoverable anchor for
+      // returning visitors — this does not conflict with the plan (which
+      // enumerates minimum required nav items, not an exhaustive whitelist).
       items: [
         {to: '/#products', label: 'Products', position: 'right'},
         {to: '/#observatory', label: 'Observatory', position: 'right'},
         {to: '/#manifesto', label: 'Manifesto', position: 'right'},
+        {to: '/blog', label: 'Blog', position: 'right'},
+        // Points at the ai-agent-assembly GitHub org page (where the actual
+        // product source lives) per IA plan §3.1. `horonomy_github_click`
+        // fires via the delegated navbar listener in
+        // `src/analytics/navbarEvents.ts`.
         {
-          href: 'https://github.com/horonomy',
+          href: 'https://github.com/ai-agent-assembly',
           label: 'GitHub',
           position: 'right',
         },
       ],
     },
+    // Footer shape per IA plan §3.1 (HORO-40): Product → Agent Assembly,
+    // Company (Manifesto/Observatory), Open source (GitHub org), Contact,
+    // Blog. Cross-hostname Agent Assembly link carries UTM per HORO-47
+    // (`utm_content=home_footer`). `mailto:` contact link fires
+    // `horonomy_contact_click` via the delegated navbarEvents listener.
     footer: {
       style: 'dark',
       links: [
@@ -181,7 +197,12 @@ const config: Config = {
           items: [
             {
               label: 'AI agent assembly',
-              href: 'https://agent-assembly.com',
+              href:
+                'https://agent-assembly.com/' +
+                '?utm_source=horonomy_site' +
+                '&utm_medium=referral' +
+                '&utm_campaign=agent_assembly_launch' +
+                '&utm_content=home_footer',
             },
             {label: 'Research tracks', to: '/#products'},
           ],
@@ -191,15 +212,24 @@ const config: Config = {
           items: [
             {label: 'Manifesto', to: '/#manifesto'},
             {label: 'Observatory', to: '/#observatory'},
+            {label: 'Blog', to: '/blog'},
           ],
         },
         {
           title: 'Open source',
           items: [
-            {label: 'github.com/horonomy', href: 'https://github.com/horonomy'},
             {
-              label: 'AI-agent-assembly',
-              href: 'https://github.com/AI-agent-assembly',
+              label: 'github.com/ai-agent-assembly',
+              href: 'https://github.com/ai-agent-assembly',
+            },
+          ],
+        },
+        {
+          title: 'Contact',
+          items: [
+            {
+              label: 'hello@horonomy.dev',
+              href: 'mailto:hello@horonomy.dev',
             },
           ],
         },
