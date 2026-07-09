@@ -1,6 +1,34 @@
 import React from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import {
+  linkDomainOf,
+  trackHoronomyEvent,
+} from '@site/src/analytics/trackEvent';
 import styles from './styles.module.css';
+
+// Cross-hostname routing per IA plan §2.1 and UTM conventions §4 (HORO-47).
+// Every Horonomy → Agent Assembly CTA carries the same source/medium/campaign
+// vocabulary; only `utm_content` varies by on-page location.
+const AGENT_ASSEMBLY_URL_LORE_LEGEND =
+  'https://agent-assembly.com/' +
+  '?utm_source=horonomy_site' +
+  '&utm_medium=referral' +
+  '&utm_campaign=agent_assembly_launch' +
+  '&utm_content=home_lore_legend';
+
+const AGENT_ASSEMBLY_URL_PRODUCTS_ALL =
+  'https://agent-assembly.com/' +
+  '?utm_source=horonomy_site' +
+  '&utm_medium=referral' +
+  '&utm_campaign=agent_assembly_launch' +
+  '&utm_content=home_products_all';
+
+const AGENT_ASSEMBLY_URL_PRODUCTS_CARD =
+  'https://agent-assembly.com/' +
+  '?utm_source=horonomy_site' +
+  '&utm_medium=referral' +
+  '&utm_campaign=agent_assembly_launch' +
+  '&utm_content=home_products_card';
 
 const PRINCIPLES = [
   {
@@ -19,6 +47,17 @@ const PRINCIPLES = [
     body: 'Every autonomous action should be explainable, reviewable, and accountable.',
   },
 ];
+
+function trackAgentAssemblyClick(url: string): () => void {
+  return () => {
+    trackHoronomyEvent('horonomy_product_agent_assembly_click', {
+      cta_location: 'body',
+      link_url: url,
+      link_domain: linkDomainOf(url),
+      target_product: 'agent_assembly',
+    });
+  };
+}
 
 function Lore(): React.ReactElement {
   return (
@@ -47,9 +86,10 @@ function Lore(): React.ReactElement {
         <div className={styles.legend}>
           <a
             className={styles.legendRow}
-            href="https://agent-assembly.com"
+            href={AGENT_ASSEMBLY_URL_LORE_LEGEND}
             target="_blank"
-            rel="noreferrer">
+            rel="noreferrer"
+            onClick={trackAgentAssemblyClick(AGENT_ASSEMBLY_URL_LORE_LEGEND)}>
             <span className={`${styles.dot} ${styles.dotActive}`} />
             <span>THE ASSEMBLER — AI AGENT ASSEMBLY ↗</span>
           </a>
@@ -102,18 +142,28 @@ function Products(): React.ReactElement {
           </div>
           <a
             className={styles.allProducts}
-            href="https://agent-assembly.com"
+            href={AGENT_ASSEMBLY_URL_PRODUCTS_ALL}
             target="_blank"
-            rel="noreferrer">
+            rel="noreferrer"
+            onClick={trackAgentAssemblyClick(AGENT_ASSEMBLY_URL_PRODUCTS_ALL)}>
             ALL PRODUCTS →
           </a>
         </div>
         <div className={styles.productGrid}>
+          {/*
+            AI Agent Assembly product card. Per IA plan §2.1 the primary
+            product-conversion path routes visitors to agent-assembly.com;
+            the previous target (the GitHub org page) confused product
+            discovery with source-code validation — GitHub is available as
+            the hero's dedicated "View on GitHub" secondary CTA and in the
+            navbar.
+          */}
           <a
             className={styles.productCard}
-            href="https://github.com/AI-agent-assembly"
+            href={AGENT_ASSEMBLY_URL_PRODUCTS_CARD}
             target="_blank"
-            rel="noreferrer">
+            rel="noreferrer"
+            onClick={trackAgentAssemblyClick(AGENT_ASSEMBLY_URL_PRODUCTS_CARD)}>
             <div className={styles.productCardTop}>
               <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
                 <circle
@@ -136,7 +186,7 @@ function Products(): React.ReactElement {
               tools, policies, and operating boundaries.
             </p>
             <div className={styles.productMeta}>
-              AGENT INFRASTRUCTURE · GITHUB ↗
+              AGENT INFRASTRUCTURE · AGENT-ASSEMBLY.COM ↗
             </div>
           </a>
 
@@ -172,6 +222,17 @@ function Products(): React.ReactElement {
 }
 
 function Manifesto(): React.ReactElement {
+  // Same-hostname link — MUST NOT carry UTM per UTM conventions §5.2.
+  const manifestoHref = '/#manifesto';
+  const onManifestoClick = (): void => {
+    trackHoronomyEvent('horonomy_manifesto_click', {
+      cta_location: 'body',
+      link_url: manifestoHref,
+      link_domain: linkDomainOf(manifestoHref),
+      target_product: 'horonomy',
+    });
+  };
+
   return (
     <section className={styles.manifesto} id="manifesto">
       <div className="hn-shell">
@@ -181,7 +242,10 @@ function Manifesto(): React.ReactElement {
           becomes drift. Horonomy builds the systems that make autonomy{' '}
           <span className={styles.cyan}>explicit, governable, and safe to scale.</span>
         </p>
-        <a className={styles.manifestoLink} href="/#manifesto">
+        <a
+          className={styles.manifestoLink}
+          href={manifestoHref}
+          onClick={onManifestoClick}>
           READ THE FULL MANIFESTO →
         </a>
       </div>
