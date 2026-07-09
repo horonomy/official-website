@@ -117,6 +117,8 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/analytics/gtagRouteTracker.ts'),
     require.resolve('./src/analytics/consentBanner.ts'),
+    // Delegated click tracking for taxonomy §2.4 nav/footer events (HORO-41).
+    require.resolve('./src/analytics/navbarEvents.ts'),
   ],
 
   presets: [

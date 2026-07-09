@@ -89,6 +89,7 @@ function Lore(): React.ReactElement {
             href={AGENT_ASSEMBLY_URL_LORE_LEGEND}
             target="_blank"
             rel="noreferrer"
+            data-horo-tracked=""
             onClick={trackAgentAssemblyClick(AGENT_ASSEMBLY_URL_LORE_LEGEND)}>
             <span className={`${styles.dot} ${styles.dotActive}`} />
             <span>THE ASSEMBLER — AI AGENT ASSEMBLY ↗</span>
@@ -145,6 +146,7 @@ function Products(): React.ReactElement {
             href={AGENT_ASSEMBLY_URL_PRODUCTS_ALL}
             target="_blank"
             rel="noreferrer"
+            data-horo-tracked=""
             onClick={trackAgentAssemblyClick(AGENT_ASSEMBLY_URL_PRODUCTS_ALL)}>
             ALL PRODUCTS →
           </a>
@@ -163,6 +165,7 @@ function Products(): React.ReactElement {
             href={AGENT_ASSEMBLY_URL_PRODUCTS_CARD}
             target="_blank"
             rel="noreferrer"
+            data-horo-tracked=""
             onClick={trackAgentAssemblyClick(AGENT_ASSEMBLY_URL_PRODUCTS_CARD)}>
             <div className={styles.productCardTop}>
               <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
@@ -245,6 +248,7 @@ function Manifesto(): React.ReactElement {
         <a
           className={styles.manifestoLink}
           href={manifestoHref}
+          data-horo-tracked=""
           onClick={onManifestoClick}>
           READ THE FULL MANIFESTO →
         </a>

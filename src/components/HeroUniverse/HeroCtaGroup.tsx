@@ -59,6 +59,7 @@ export default function HeroCtaGroup(): React.ReactElement {
       <Link
         className={styles.solid}
         to={AGENT_ASSEMBLY_URL}
+        data-horo-tracked=""
         onClick={onAgentAssemblyClick}>
         Explore Agent Assembly{' '}
         <span className={styles.arrow} aria-hidden="true">
@@ -68,6 +69,7 @@ export default function HeroCtaGroup(): React.ReactElement {
       <Link
         className={styles.ghost}
         to={GITHUB_ORG_URL}
+        data-horo-tracked=""
         onClick={onGithubClick}>
         View on GitHub
       </Link>
