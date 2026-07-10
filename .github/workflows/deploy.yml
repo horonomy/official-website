@@ -1,1 +1,79 @@
-bmFtZTogRGVwbG95CgojIEJ1aWxkcyB0aGUgc2l0ZSBhbmQgZGVwbG95cyBpdCB0byBDbG91ZGZsYXJlIFBhZ2VzIG9uIGV2ZXJ5IHB1c2ggdG8gbWFpbgojIChhbmQgb24gbWFudWFsIGRpc3BhdGNoKS4gVGhlIFBhZ2VzIHByb2plY3QgaXMgY3JlYXRlZCBvbiBmaXJzdCBydW4gaWYgaXQKIyBkb2VzIG5vdCBleGlzdCwgc28gdGhlIG9ubHkgbWFudWFsIHNldHVwIGlzIHRoZSB0aHJlZSBzZXR0aW5ncyBiZWxvdy4KIwojIERvcm1hbnQgYnkgZGVmYXVsdDogdGhlIGpvYiBvbmx5IHJ1bnMgb25jZSB0aGUgcmVwb3NpdG9yeSB2YXJpYWJsZQojIENMT1VERkxBUkVfREVQTE9ZX0VOQUJMRUQgaXMgc2V0IHRvICJ0cnVlIiwgc28gaXQgbmV2ZXIgZmFpbHMgbm9pc2lseSBiZWZvcmUKIyBjcmVkZW50aWFscyBleGlzdC4KIwojIEFjdGl2YXRlIOKAlCBTZXR0aW5ncyDihpIgU2VjcmV0cyBhbmQgdmFyaWFibGVzIOKGkiBBY3Rpb25zOgojICAgVmFyaWFibGUgIENMT1VERkxBUkVfREVQTE9ZX0VOQUJMRUQgPSB0cnVlCiMgICBTZWNyZXQgICAgQ0xPVURGTEFSRV9BUElfVE9LRU4gICAgICA9IEFQSSB0b2tlbiB3aXRoIHRoZQojICAgICAgICAgICAgICJBY2NvdW50IOKGkiBDbG91ZGZsYXJlIFBhZ2VzIOKGkiBFZGl0IiBwZXJtaXNzaW9uCiMgICBTZWNyZXQgICAgQ0xPVURGTEFSRV9BQ0NPVU5UX0lEICAgICA9IHlvdXIgQ2xvdWRmbGFyZSBhY2NvdW50IGlkCiMgKE5vIG1hbnVhbCBQYWdlcy1wcm9qZWN0IGNyZWF0aW9uIG5lZWRlZCDigJQgdGhlIHdvcmtmbG93IHByb3Zpc2lvbnMgaXQuKQoKb246CiAgcHVzaDoKICAgIGJyYW5jaGVzOiBbbWFpbl0KICB3b3JrZmxvd19kaXNwYXRjaDoKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiBkZXBsb3ktbWFpbgogIGNhbmNlbC1pbi1wcm9ncmVzczogdHJ1ZQoKcGVybWlzc2lvbnM6CiAgY29udGVudHM6IHJlYWQKCmVudjoKICBQQUdFU19QUk9KRUNUOiBob3Jvbm9teS1zaXRlCgpqb2JzOgogIGRlcGxveToKICAgIG5hbWU6IGRlcGxveQogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAogICAgaWY6ICR7eyB2YXJzLkNMT1VERkxBUkVfREVQTE9ZX0VOQUJMRUQgPT0gJ3RydWUnIH19CiAgICAjIHdyYW5nbGVyIHJlYWRzIHRoZXNlIGZyb20gdGhlIGVudmlyb25tZW50IGZvciBib3RoIHRoZSBjcmVhdGUgYW5kIGRlcGxveQogICAgIyBzdGVwczsgcGFzc2VkIHZpYSBlbnYgKG5ldmVyIGludGVycG9sYXRlZCBpbnRvIGEgcnVuOiBjb21tYW5kKS4KICAgIGVudjoKICAgICAgQ0xPVURGTEFSRV9BUElfVE9LRU46ICR7eyBzZWNyZXRzLkNMT1VERkxBUkVfQVBJX1RPS0VOIH19CiAgICAgIENMT1VERkxBUkVfQUNDT1VOVF9JRDogJHt7IHNlY3JldHMuQ0xPVURGTEFSRV9BQ0NPVU5UX0lEIH19CiAgICBzdGVwczoKICAgICAgLSBuYW1lOiBDaGVja291dAogICAgICAgIHVzZXM6IGFjdGlvbnMvY2hlY2tvdXRAdjcKCiAgICAgIC0gbmFtZTogU2V0IHVwIHBucG0KICAgICAgICB1c2VzOiBwbnBtL2FjdGlvbi1zZXR1cEB2NgogICAgICAgIHdpdGg6CiAgICAgICAgICB2ZXJzaW9uOiAxMAoKICAgICAgLSBuYW1lOiBTZXQgdXAgTm9kZS5qcwogICAgICAgIHVzZXM6IGFjdGlvbnMvc2V0dXAtbm9kZUB2NgogICAgICAgIHdpdGg6CiAgICAgICAgICBub2RlLXZlcnNpb246IDIyCiAgICAgICAgICBjYWNoZTogcG5wbQoKICAgICAgLSBuYW1lOiBJbnN0YWxsIGRlcGVuZGVuY2llcwogICAgICAgIHJ1bjogcG5wbSBpbnN0YWxsIC0tZnJvemVuLWxvY2tmaWxlCgogICAgICAtIG5hbWU6IEJ1aWxkCiAgICAgICAgcnVuOiBwbnBtIGJ1aWxkCgogICAgICAtIG5hbWU6IEVuc3VyZSB0aGUgQ2xvdWRmbGFyZSBQYWdlcyBwcm9qZWN0IGV4aXN0cyAoaWRlbXBvdGVudCkKICAgICAgICBydW46IHwKICAgICAgICAgIG5weCAtLXllcyB3cmFuZ2xlckAzIHBhZ2VzIHByb2plY3QgY3JlYXRlICIkUEFHRVNfUFJPSkVDVCIgXAogICAgICAgICAgICAtLXByb2R1Y3Rpb24tYnJhbmNoPW1haW4gXAogICAgICAgICAgICB8fCBlY2hvICJQYWdlcyBwcm9qZWN0IGFscmVhZHkgZXhpc3RzIOKAlCBjb250aW51aW5nLiIKCiAgICAgIC0gbmFtZTogUHVibGlzaCB0byBDbG91ZGZsYXJlIFBhZ2VzCiAgICAgICAgdXNlczogY2xvdWRmbGFyZS93cmFuZ2xlci1hY3Rpb25AdjQKICAgICAgICB3aXRoOgogICAgICAgICAgYXBpVG9rZW46ICR7eyBzZWNyZXRzLkNMT1VERkxBUkVfQVBJX1RPS0VOIH19CiAgICAgICAgICBhY2NvdW50SWQ6ICR7eyBzZWNyZXRzLkNMT1VERkxBUkVfQUNDT1VOVF9JRCB9fQogICAgICAgICAgY29tbWFuZDogPi0KICAgICAgICAgICAgcGFnZXMgZGVwbG95IGJ1aWxkCiAgICAgICAgICAgIC0tcHJvamVjdC1uYW1lPSR7eyBlbnYuUEFHRVNfUFJPSkVDVCB9fQogICAgICAgICAgICAtLWJyYW5jaD1tYWluCiAgICAgICAgICAgIC0tY29tbWl0LWRpcnR5PXRydWUK
+name: Deploy
+
+# Builds the site and deploys it to Cloudflare Pages on every push to main
+# (and on manual dispatch). The Pages project is created on first run if it
+# does not exist, so the only manual setup is the three settings below.
+#
+# Dormant by default: the job only runs once the repository variable
+# CLOUDFLARE_DEPLOY_ENABLED is set to "true", so it never fails noisily before
+# credentials exist.
+#
+# Activate — Settings → Secrets and variables → Actions:
+#   Variable  CLOUDFLARE_DEPLOY_ENABLED = true
+#   Secret    CLOUDFLARE_API_TOKEN      = API token with the
+#             "Account → Cloudflare Pages → Edit" permission
+#   Secret    CLOUDFLARE_ACCOUNT_ID     = your Cloudflare account id
+# (No manual Pages-project creation needed — the workflow provisions it.)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PAGES_PROJECT: horonomy-site
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    if: ${{ vars.CLOUDFLARE_DEPLOY_ENABLED == 'true' }}
+    # wrangler reads these from the environment for both the create and deploy
+    # steps; passed via env (never interpolated into a run: command).
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Ensure the Cloudflare Pages project exists (idempotent)
+        run: |
+          npx --yes wrangler@3 pages project create "$PAGES_PROJECT" \
+            --production-branch=main \
+            || echo "Pages project already exists — continuing."
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy build
+            --project-name=${{ env.PAGES_PROJECT }}
+            --branch=main
+            --commit-dirty=true
