@@ -1,0 +1,39 @@
+name: Company Metadata Drift Check
+
+# AAASM-5520: src/generated/company-metadata.ts is generated from the pinned
+# Horonomy company registry projection (horonomy/.github metadata/company.json).
+# The site footer contact + copyright consume that module. This gate fails
+# closed if the generated module drifts from the pinned registry, so a stale
+# contact literal can never merge.
+
+on:
+  pull_request:
+    paths:
+      - "src/generated/company-metadata.ts"
+      - "scripts/generate-company-metadata.mjs"
+      - "docusaurus.config.ts"
+      - ".github/workflows/company-metadata-check.yml"
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  company-drift:
+    name: company metadata drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v6.0.0
+        with:
+          node-version: "22"
+
+      - name: Audit generated company metadata against the pinned registry
+        run: node scripts/generate-company-metadata.mjs --check
