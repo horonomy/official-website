@@ -12,6 +12,14 @@ import {
   consentDefaultScript,
   gtagConfigScript,
 } from './src/analytics/consentInit';
+// AAASM-5520: company contact + name come from the generated company-metadata
+// module (projected from the pinned horonomy/.github company registry) so the
+// footer contact address and copyright name cannot drift from the company SoT.
+// Regenerate with: node scripts/generate-company-metadata.mjs
+import {
+  COMPANY_NAME,
+  COMPANY_CONTACTS,
+} from './src/generated/company-metadata';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -228,13 +236,13 @@ const config: Config = {
           title: 'Contact',
           items: [
             {
-              label: 'hello@horonomy.dev',
-              href: 'mailto:hello@horonomy.dev',
+              label: COMPANY_CONTACTS.hello,
+              href: `mailto:${COMPANY_CONTACTS.hello}`,
             },
           ],
         },
       ],
-      copyright: `DEFINING THE BOUNDARIES OF AUTONOMY · © ${new Date().getFullYear()} Horonomy`,
+      copyright: `DEFINING THE BOUNDARIES OF AUTONOMY · © ${new Date().getFullYear()} ${COMPANY_NAME}`,
     },
     prism: {
       theme: prismThemes.github,
