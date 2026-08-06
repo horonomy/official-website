@@ -197,8 +197,14 @@ function Products(): React.ReactElement {
               domains, and budgets an agent may use, holds risky actions for
               human review, and records what happened.
             </p>
+            {/*
+              Category label. "AGENT INFRASTRUCTURE" read as tooling for
+              building agents; the category Agent Assembly competes in is
+              governance (AAASM-5614). The destination is the canonical
+              product URL per ADR 0007 (agent-assembly.com apex).
+            */}
             <div className={styles.productMeta}>
-              AGENT INFRASTRUCTURE · AGENT-ASSEMBLY.COM ↗
+              AGENT GOVERNANCE · AGENT-ASSEMBLY.COM ↗
             </div>
           </a>
 
