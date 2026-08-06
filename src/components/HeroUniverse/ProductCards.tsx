@@ -139,8 +139,10 @@ function ProductCard({
       onFocus={emit}>
       <Glyph id={product.id} />
       <div className={styles.cardBody}>
-        {/* Name and maturity share a row so a labelled card is the same
-            height as an unlabelled sibling in the four-column grid. */}
+        {/* `nameRow` keeps the pill attached to the name it labels; with the
+            current label it wraps onto its own line below rather than sitting
+            inline. Equal card height comes from the grid stretching its
+            items, not from this row. */}
         <div className={styles.nameRow}>
           <h3 className={styles.name}>{product.name}</h3>
           {maturity && <span className={styles.maturity}>{maturity}</span>}
