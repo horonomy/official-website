@@ -16,9 +16,21 @@ import {
   type ProductLifecycle,
 } from '@site/src/generated/company-metadata';
 
+/**
+ * `Record<ProductLifecycle, …>` deliberately, not a partial map: adding a
+ * member to the registry vocabulary must fail the build here until someone
+ * decides what it is called on the page, rather than silently rendering no
+ * label at all.
+ *
+ * `release_candidate` reuses the exact wording the Agent Assembly Docs Hub
+ * already publishes ("Release candidate", `docs/src/source-of-truth.md`).
+ * Coining a third spelling for the same state is what cross-surface
+ * incoherence looks like (AAASM-5614).
+ */
 const LABELS: Record<ProductLifecycle, string | null> = {
   available: null,
   beta: 'Beta',
+  release_candidate: 'Release candidate',
   coming_soon: 'Coming soon',
 };
 
