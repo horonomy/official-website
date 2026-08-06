@@ -159,6 +159,14 @@ function Products(): React.ReactElement {
             discovery with source-code validation — GitHub is available as
             the hero's dedicated "View on GitHub" secondary CTA and in the
             navbar.
+
+            Copy stays at company altitude and describes governance, not
+            agent construction (AAASM-5614): Agent Assembly governs agents
+            that other frameworks build. Keep the summary here in step with
+            the hero card in `HeroUniverse/products.ts` — this is the same
+            product promise stated twice on one page. Do not reach past the
+            approved promise on agent-assembly.com (no coverage absolutes, no
+            unreleased SaaS capability, no eBPF-as-cross-platform).
           */}
           <a
             className={styles.productCard}
@@ -185,8 +193,9 @@ function Products(): React.ReactElement {
             </div>
             <div className={styles.productName}>AI agent assembly</div>
             <p className={styles.productBody}>
-              A framework for assembling autonomous agents with explicit roles,
-              tools, policies, and operating boundaries.
+              A governance layer for AI agents. It decides which tools,
+              domains, and budgets an agent may use, holds risky actions for
+              human review, and records what happened.
             </p>
             <div className={styles.productMeta}>
               AGENT INFRASTRUCTURE · AGENT-ASSEMBLY.COM ↗
