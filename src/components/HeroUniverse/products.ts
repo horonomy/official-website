@@ -36,8 +36,12 @@ export const PRODUCTS: Product[] = [
     // altitude: govern what an agent may do, hold risky actions at a
     // checkpoint, record the evidence.
     tagline: 'Govern. Checkpoint. Record.',
+    // "approval checkpoints", not a bare "checkpoints": in an AI-agent context
+    // an unqualified checkpoint reads as a model/agent state snapshot-and-
+    // resume. The qualifier fixes the sense the tagline intends — a gate that
+    // holds a risky action for a human — without lengthening the line much.
     blurb:
-      'A governance layer for AI agents — permissions, checkpoints, and evidence.',
+      'A governance layer for AI agents — permissions, approval checkpoints, and evidence.',
     // Canonical product URL: the `agent-assembly.com` apex, which ADR 0007
     // ("Public Domain & URL Contract", ai-agent-assembly/agent-assembly →
     // `docs/src/adr/0007-public-domain-and-url-contract.md`) fixes as the
