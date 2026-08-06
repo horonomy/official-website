@@ -36,7 +36,8 @@ export const PRODUCTS: Product[] = [
     // altitude: govern what an agent may do, hold risky actions at a
     // checkpoint, record the evidence.
     tagline: 'Govern. Checkpoint. Record.',
-    blurb: 'The assembly line for intelligent agents.',
+    blurb:
+      'A governance layer for AI agents — permissions, checkpoints, and evidence.',
     href: 'https://agent-assembly.com',
     tone: 'primary',
   },
