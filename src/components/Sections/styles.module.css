@@ -251,11 +251,15 @@ a.legendRow:hover {
   line-height: 1.6;
   color: var(--hn-muted);
 }
+/* `--hn-muted`, not `--hn-faint`: at 11px this is WCAG "small text" and needs
+   4.5:1, which `--hn-faint` on the card's glass base does not reach. The mono
+   face, uppercase transform and letter-spacing already separate this line from
+   `.productBody` above it, so the shared colour costs no hierarchy. */
 .productMeta {
   font-family: var(--hn-font-mono);
   font-size: 11px;
   letter-spacing: 0.12em;
-  color: var(--hn-faint);
+  color: var(--hn-muted);
 }
 
 /* ---- manifesto ---- */
