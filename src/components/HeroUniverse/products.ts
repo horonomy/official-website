@@ -41,9 +41,11 @@ export const PRODUCTS: Product[] = [
     // Canonical product URL: the `agent-assembly.com` apex, which ADR 0007
     // ("Public Domain & URL Contract", ai-agent-assembly/agent-assembly →
     // `docs/src/adr/0007-public-domain-and-url-contract.md`) fixes as the
-    // primary public marketing host. Trailing slash to match the form every
-    // other Horonomy → Agent Assembly link uses, so the site points at one URL.
-    href: 'https://agent-assembly.com/',
+    // primary public marketing host. No trailing slash: this exact string is
+    // what the company registry stores (`PRODUCTS_CATALOG[].website`), and
+    // `ConstellationMap` renders the href verbatim into its accessible name,
+    // so a slash here would be spoken aloud as "opens agent-assembly.com/".
+    href: 'https://agent-assembly.com',
     tone: 'primary',
   },
   {

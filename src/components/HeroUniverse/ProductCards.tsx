@@ -118,9 +118,14 @@ function ProductCard({
     );
   }
 
-  // Same derivation the ConstellationMap uses for its own labels, so a screen
-  // reader hears the canonical product host rather than "learn more" with no
-  // hint that the card leaves horonomy.dev.
+  // Spoken destination, so a screen reader hears the canonical product host
+  // rather than "learn more" with no hint that the card leaves horonomy.dev.
+  //
+  // The trailing-slash strip is defensive only — hrefs in `products.ts` are
+  // stored bare, matching the company registry. Note that `ConstellationMap`
+  // builds its own accessible name from the raw href and does NOT strip, so a
+  // slash added there would be announced verbatim; keep hrefs bare rather than
+  // relying on this normalisation.
   const destination = product.href.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
   return (
