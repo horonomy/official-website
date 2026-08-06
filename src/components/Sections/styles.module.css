@@ -219,12 +219,16 @@ a.legendRow:hover {
   margin-bottom: 28px;
 }
 
+/* Badge text is now supplied by the company registry in sentence case
+   ("Beta"), so the all-caps treatment lives in CSS rather than in the
+   literal — no visual change for the labels that were already uppercase. */
 .badgeActive,
 .badgeResearch {
   font-family: var(--hn-font-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
   padding: 5px 10px;
+  text-transform: uppercase;
 }
 .badgeActive {
   color: var(--hn-cyan);

@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
 import clsx from 'clsx';
+import {maturityLabelFor} from '@site/src/data/productLifecycle';
 import {LAYERS} from './layers';
 import {PRODUCTS, type Product} from './products';
 import {CONSTELLATIONS} from './constellations';
@@ -91,6 +92,13 @@ function ProductCard({
   // wired in `index.tsx`, this is a no-op and the card just styles its own state.
   const emit = onActivate ? () => onActivate(product.id) : undefined;
 
+  // Maturity comes from the pinned company registry, never from a literal
+  // typed here — a shipped product that is not yet 1.0 must say so on the
+  // card, and the label must be the one the company catalog stands behind
+  // (AAASM-5614). Roadmap entries below render their own "Coming soon"
+  // badge, so they do not read this.
+  const maturity = maturityLabelFor(product.id);
+
   // Products still in design/estimation render as a non-interactive roadmap
   // entry: a plain <div> (no link, no pointer, no navigation, no focus stop),
   // with a "Coming soon" label instead of the "Learn more →" affordance.
@@ -119,7 +127,12 @@ function ProductCard({
       onFocus={emit}>
       <Glyph id={product.id} />
       <div className={styles.cardBody}>
-        <h3 className={styles.name}>{product.name}</h3>
+        {/* Name and maturity share a row so a labelled card is the same
+            height as an unlabelled sibling in the four-column grid. */}
+        <div className={styles.nameRow}>
+          <h3 className={styles.name}>{product.name}</h3>
+          {maturity && <span className={styles.maturity}>{maturity}</span>}
+        </div>
         <p className={styles.blurb}>{product.blurb}</p>
         <span className={styles.more}>
           Learn more <span className={styles.arrow} aria-hidden="true">→</span>

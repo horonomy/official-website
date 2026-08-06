@@ -150,12 +150,39 @@
   min-width: 0;
 }
 
+/* Product name + maturity pill on one baseline. Wraps rather than shrinking
+   the name, so the pill drops below on the narrowest cards instead of
+   truncating the product it labels. */
+.nameRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .name {
   margin: 0;
   font-size: 17px;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--hn-ink);
+}
+
+/* Maturity of a shipped-but-not-1.0 product (e.g. "BETA"). Mono + muted so it
+   reads as metadata about the product, never as part of its name. `--hn-muted`
+   on the card's glass base clears WCAG AA for small text. */
+.maturity {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--hn-line-strong);
+  font-family: var(--hn-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hn-muted);
+  white-space: nowrap;
 }
 
 .primary .name {
