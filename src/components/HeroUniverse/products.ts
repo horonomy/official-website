@@ -29,7 +29,13 @@ export const PRODUCTS: Product[] = [
   {
     id: 'ai-agent-assembly',
     name: 'AI Agent Assembly',
-    tagline: 'Assemble. Orchestrate. Scale.',
+    // Governance positioning (AAASM-5614). The previous "Assemble.
+    // Orchestrate. Scale." / "assembly line" wording read as an agent-building
+    // or orchestration framework; Agent Assembly governs agents someone else
+    // builds. The three beats mirror the product's own promise at company
+    // altitude: govern what an agent may do, hold risky actions at a
+    // checkpoint, record the evidence.
+    tagline: 'Govern. Checkpoint. Record.',
     blurb: 'The assembly line for intelligent agents.',
     href: 'https://agent-assembly.com',
     tone: 'primary',
