@@ -29,8 +29,26 @@ export const PRODUCTS: Product[] = [
   {
     id: 'ai-agent-assembly',
     name: 'AI Agent Assembly',
-    tagline: 'Assemble. Orchestrate. Scale.',
-    blurb: 'The assembly line for intelligent agents.',
+    // Governance positioning (AAASM-5614). The previous "Assemble.
+    // Orchestrate. Scale." / "assembly line" wording read as an agent-building
+    // or orchestration framework; Agent Assembly governs agents someone else
+    // builds. The three beats mirror the product's own promise at company
+    // altitude: govern what an agent may do, hold risky actions at a
+    // checkpoint, record the evidence.
+    tagline: 'Govern. Checkpoint. Record.',
+    // "approval checkpoints", not a bare "checkpoints": in an AI-agent context
+    // an unqualified checkpoint reads as a model/agent state snapshot-and-
+    // resume. The qualifier fixes the sense the tagline intends — a gate that
+    // holds a risky action for a human — without lengthening the line much.
+    blurb:
+      'A governance layer for AI agents — permissions, approval checkpoints, and evidence.',
+    // Canonical product URL: the `agent-assembly.com` apex, which ADR 0007
+    // ("Public Domain & URL Contract", ai-agent-assembly/agent-assembly →
+    // `docs/src/adr/0007-public-domain-and-url-contract.md`) fixes as the
+    // primary public marketing host. No trailing slash: this exact string is
+    // what the company registry stores (`PRODUCTS_CATALOG[].website`), and
+    // `ConstellationMap` renders the href verbatim into its accessible name,
+    // so a slash here would be spoken aloud as "opens agent-assembly.com/".
     href: 'https://agent-assembly.com',
     tone: 'primary',
   },

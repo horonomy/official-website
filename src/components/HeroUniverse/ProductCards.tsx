@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
 import clsx from 'clsx';
+import {maturityLabelFor} from '@site/src/data/productLifecycle';
 import {LAYERS} from './layers';
 import {PRODUCTS, type Product} from './products';
 import {CONSTELLATIONS} from './constellations';
@@ -91,6 +92,13 @@ function ProductCard({
   // wired in `index.tsx`, this is a no-op and the card just styles its own state.
   const emit = onActivate ? () => onActivate(product.id) : undefined;
 
+  // Maturity comes from the pinned company registry, never from a literal
+  // typed here — a shipped product that is not yet 1.0 must say so on the
+  // card, and the label must be the one the company catalog stands behind
+  // (AAASM-5614). Roadmap entries below render their own "Coming soon"
+  // badge, so they do not read this.
+  const maturity = maturityLabelFor(product.id);
+
   // Products still in design/estimation render as a non-interactive roadmap
   // entry: a plain <div> (no link, no pointer, no navigation, no focus stop),
   // with a "Coming soon" label instead of the "Learn more →" affordance.
@@ -110,16 +118,35 @@ function ProductCard({
     );
   }
 
+  // Spoken destination, so a screen reader hears the canonical product host
+  // rather than "learn more" with no hint that the card leaves horonomy.dev.
+  //
+  // The trailing-slash strip is defensive only — hrefs in `products.ts` are
+  // stored bare, matching the company registry. Note that `ConstellationMap`
+  // builds its own accessible name from the raw href and does NOT strip, so a
+  // slash added there would be announced verbatim; keep hrefs bare rather than
+  // relying on this normalisation.
+  const destination = product.href.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
   return (
     <Link
       className={clsx(styles.card, styles[product.tone], active && styles.active)}
       to={product.href}
-      aria-label={`${product.name} — learn more`}
+      aria-label={`${product.name}${
+        maturity ? `, ${maturity}` : ''
+      } — learn more at ${destination}`}
       onMouseEnter={emit}
       onFocus={emit}>
       <Glyph id={product.id} />
       <div className={styles.cardBody}>
-        <h3 className={styles.name}>{product.name}</h3>
+        {/* `nameRow` keeps the pill attached to the name it labels; with the
+            current label it wraps onto its own line below rather than sitting
+            inline. Equal card height comes from the grid stretching its
+            items, not from this row. */}
+        <div className={styles.nameRow}>
+          <h3 className={styles.name}>{product.name}</h3>
+          {maturity && <span className={styles.maturity}>{maturity}</span>}
+        </div>
         <p className={styles.blurb}>{product.blurb}</p>
         <span className={styles.more}>
           Learn more <span className={styles.arrow} aria-hidden="true">→</span>

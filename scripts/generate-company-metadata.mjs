@@ -35,9 +35,9 @@ const OUT_PATH = join(REPO_ROOT, 'src', 'generated', 'company-metadata.ts');
 
 const REGISTRY_SOURCE = {
   repo: 'horonomy/.github',
-  commit: '0bdb0e5d7b12394e2bec3099e397c9f948d7cd93',
+  commit: '8d53646a5282fc23aba2b5df53a5617bed909cec',
   path: 'metadata/generated/company.json',
-  blob: '911a95c0a5bf774a512a636055222cd638d4ee5e',
+  blob: 'f7c174c860ef09e126cd6dc35c79566dcb3d5100',
 };
 
 // Vendored verbatim from the pinned company.json above.
@@ -50,7 +50,7 @@ const REGISTRY = {
       name: 'AI Agent Assembly',
       website: 'https://agent-assembly.com',
       github_org: 'https://github.com/ai-agent-assembly',
-      lifecycle: 'beta',
+      lifecycle: 'release_candidate',
     },
     {id: 'archeweave', name: 'ArcheWeave', website: null, github_org: null, lifecycle: 'coming_soon'},
     {id: 'harbinger', name: 'Harbinger', website: null, github_org: null, lifecycle: 'coming_soon'},
@@ -78,7 +78,14 @@ function render() {
     `//   ${REGISTRY_SOURCE.path} (blob ${REGISTRY_SOURCE.blob})`,
     '// Re-pin and regenerate; never hand-edit. See scripts/generate-company-metadata.mjs.',
     '',
-    'export type ProductLifecycle = "available" | "beta" | "coming_soon";',
+    // The full registry vocabulary, not just the values currently in use — the
+    // union is the contract a consumer exhaustively switch-maps against, so it
+    // must stay in step with `_LIFECYCLES` in the registry's own generator.
+    'export type ProductLifecycle =',
+    '  | "available"',
+    '  | "beta"',
+    '  | "release_candidate"',
+    '  | "coming_soon";',
     '',
     'export type CatalogProduct = {',
     '  id: string;',

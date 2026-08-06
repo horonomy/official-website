@@ -4,6 +4,7 @@ import {
   linkDomainOf,
   trackHoronomyEvent,
 } from '@site/src/analytics/trackEvent';
+import {maturityLabelFor} from '@site/src/data/productLifecycle';
 import styles from './styles.module.css';
 
 // Cross-hostname routing per IA plan §2.1 and UTM conventions §4 (HORO-47).
@@ -29,6 +30,8 @@ const AGENT_ASSEMBLY_URL_PRODUCTS_CARD =
   '&utm_medium=referral' +
   '&utm_campaign=agent_assembly_launch' +
   '&utm_content=home_products_card';
+
+const AGENT_ASSEMBLY_MATURITY = maturityLabelFor('ai-agent-assembly');
 
 const PRINCIPLES = [
   {
@@ -159,6 +162,14 @@ function Products(): React.ReactElement {
             discovery with source-code validation — GitHub is available as
             the hero's dedicated "View on GitHub" secondary CTA and in the
             navbar.
+
+            Copy stays at company altitude and describes governance, not
+            agent construction (AAASM-5614): Agent Assembly governs agents
+            that other frameworks build. Keep the summary here in step with
+            the hero card in `HeroUniverse/products.ts` — this is the same
+            product promise stated twice on one page. Do not reach past the
+            approved promise on agent-assembly.com (no coverage absolutes, no
+            unreleased SaaS capability, no eBPF-as-cross-platform).
           */}
           <a
             className={styles.productCard}
@@ -181,15 +192,29 @@ function Products(): React.ReactElement {
                   transform="rotate(-50 12 12)"
                 />
               </svg>
-              <span className={styles.badgeActive}>IN DEVELOPMENT</span>
+              {/* Maturity from the pinned company registry, so this badge and
+                  the hero card's cannot say two different things about the
+                  same product (AAASM-5614). */}
+              {AGENT_ASSEMBLY_MATURITY && (
+                <span className={styles.badgeActive}>
+                  {AGENT_ASSEMBLY_MATURITY}
+                </span>
+              )}
             </div>
             <div className={styles.productName}>AI agent assembly</div>
             <p className={styles.productBody}>
-              A framework for assembling autonomous agents with explicit roles,
-              tools, policies, and operating boundaries.
+              A governance layer for AI agents. It decides which tools,
+              domains, and budgets an agent may use, holds risky actions for
+              human review, and records what happened.
             </p>
+            {/*
+              Category label. "AGENT INFRASTRUCTURE" read as tooling for
+              building agents; the category Agent Assembly competes in is
+              governance (AAASM-5614). The destination is the canonical
+              product URL per ADR 0007 (agent-assembly.com apex).
+            */}
             <div className={styles.productMeta}>
-              AGENT INFRASTRUCTURE · AGENT-ASSEMBLY.COM ↗
+              AGENT GOVERNANCE · AGENT-ASSEMBLY.COM ↗
             </div>
           </a>
 
