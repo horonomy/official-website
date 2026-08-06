@@ -38,7 +38,12 @@ export const PRODUCTS: Product[] = [
     tagline: 'Govern. Checkpoint. Record.',
     blurb:
       'A governance layer for AI agents — permissions, checkpoints, and evidence.',
-    href: 'https://agent-assembly.com',
+    // Canonical product URL: the `agent-assembly.com` apex, which ADR 0007
+    // ("Public Domain & URL Contract", ai-agent-assembly/agent-assembly →
+    // `docs/src/adr/0007-public-domain-and-url-contract.md`) fixes as the
+    // primary public marketing host. Trailing slash to match the form every
+    // other Horonomy → Agent Assembly link uses, so the site points at one URL.
+    href: 'https://agent-assembly.com/',
     tone: 'primary',
   },
   {

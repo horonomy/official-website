@@ -118,11 +118,18 @@ function ProductCard({
     );
   }
 
+  // Same derivation the ConstellationMap uses for its own labels, so a screen
+  // reader hears the canonical product host rather than "learn more" with no
+  // hint that the card leaves horonomy.dev.
+  const destination = product.href.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
   return (
     <Link
       className={clsx(styles.card, styles[product.tone], active && styles.active)}
       to={product.href}
-      aria-label={`${product.name} — learn more`}
+      aria-label={`${product.name}${
+        maturity ? `, ${maturity}` : ''
+      } — learn more at ${destination}`}
       onMouseEnter={emit}
       onFocus={emit}>
       <Glyph id={product.id} />
