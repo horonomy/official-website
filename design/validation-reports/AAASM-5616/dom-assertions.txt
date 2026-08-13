@@ -1,0 +1,15 @@
+  PASS  hero carries the routing precondition
+  PASS  hero no longer says "runtime boundary"
+  PASS  card carries the routing precondition
+  PASS  card no longer claims human review
+  PASS  card no longer claims budgets
+  PASS  hero pill names its axis (title)
+  PASS  hero card accessible name carries the axis
+  PASS  section badge names the axis to a screen reader
+  PASS  section badge axis is visually hidden, not removed
+  PASS  meta description restated at company altitude
+  PASS  og:description matches (social card surface)
+  PASS  no wrong-cased org link in any built page
+  PASS  canonical product host present
+
+all 13 DOM assertions pass
