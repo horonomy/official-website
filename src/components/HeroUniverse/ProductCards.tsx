@@ -1,7 +1,11 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
 import clsx from 'clsx';
-import {isReleased, maturityLabelFor} from '@site/src/data/productLifecycle';
+import {
+  PORTFOLIO_STAGE_AXIS,
+  isReleased,
+  maturityLabelFor,
+} from '@site/src/data/productLifecycle';
 import {LAYERS} from './layers';
 import {PRODUCTS, type Product} from './products';
 import {CONSTELLATIONS} from './constellations';
@@ -133,7 +137,7 @@ function ProductCard({
       className={clsx(styles.card, styles[product.tone], active && styles.active)}
       to={product.href}
       aria-label={`${product.name}${
-        maturity ? `, ${maturity}` : ''
+        maturity ? `, ${PORTFOLIO_STAGE_AXIS.toLowerCase()} ${maturity}` : ''
       } — learn more at ${destination}`}
       onMouseEnter={emit}
       onFocus={emit}>
@@ -145,7 +149,19 @@ function ProductCard({
             items, not from this row. */}
         <div className={styles.nameRow}>
           <h3 className={styles.name}>{product.name}</h3>
-          {maturity && <span className={styles.maturity}>{maturity}</span>}
+          {/* The label names its axis to a pointer and to assistive tech.
+              Three maturity vocabularies share this problem space and two of
+              them share the "Release candidate" spelling, so a bare pill
+              leaves a reader to guess which one it is (ADR 0034 hand-off 7,
+              AAASM-5616). The visible text stays short; the axis rides on the
+              tooltip and on the card's accessible name. */}
+          {maturity && (
+            <span
+              className={styles.maturity}
+              title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
+              {maturity}
+            </span>
+          )}
         </div>
         <p className={styles.blurb}>{product.blurb}</p>
         <span className={styles.more}>

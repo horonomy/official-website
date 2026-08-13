@@ -4,7 +4,10 @@ import {
   linkDomainOf,
   trackHoronomyEvent,
 } from '@site/src/analytics/trackEvent';
-import {maturityLabelFor} from '@site/src/data/productLifecycle';
+import {
+  PORTFOLIO_STAGE_AXIS,
+  maturityLabelFor,
+} from '@site/src/data/productLifecycle';
 import styles from './styles.module.css';
 
 // Cross-hostname routing per IA plan §2.1 and UTM conventions §4 (HORO-47).
@@ -194,9 +197,19 @@ function Products(): React.ReactElement {
               </svg>
               {/* Maturity from the pinned company registry, so this badge and
                   the hero card's cannot say two different things about the
-                  same product (AAASM-5614). */}
+                  same product (AAASM-5614).
+
+                  The axis rides in a visually-hidden span here, but in the
+                  hero card's `aria-label` instead: that card sets an
+                  `aria-label` on its <a>, which replaces the accessible name
+                  computed from its children, so a hidden span inside it would
+                  never be announced. This card sets no `aria-label`, so its
+                  children are the accessible name (AAASM-5616). */}
               {AGENT_ASSEMBLY_MATURITY && (
-                <span className={styles.badgeActive}>
+                <span
+                  className={styles.badgeActive}
+                  title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
+                  <span className="hn-sr-only">{PORTFOLIO_STAGE_AXIS}: </span>
                   {AGENT_ASSEMBLY_MATURITY}
                 </span>
               )}
