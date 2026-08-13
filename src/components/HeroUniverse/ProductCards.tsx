@@ -82,6 +82,42 @@ function Glyph({id}: {id: string}): React.ReactElement | null {
   );
 }
 
+/**
+ * The portfolio-stage pill.
+ *
+ * One component, used by both branches, because two copies is how the roadmap
+ * badge ended up hand-written and axis-less while the released one was derived
+ * and axis-named (AAASM-5616). `null` when the registry carries no label for
+ * this id — an unreleased-but-listed product renders "Coming soon", and a
+ * non-product placeholder renders nothing at all.
+ *
+ * `srAxis` distinguishes the two ways the axis reaches assistive technology.
+ * A card that sets `aria-label` on its own anchor replaces the accessible name
+ * computed from its children, so a hidden span inside it is never announced
+ * and the axis has to travel in that label instead.
+ */
+function StagePill({
+  productId,
+  className,
+  srAxis = false,
+}: {
+  productId: string;
+  className: string;
+  /** Default false: most cards carry the axis in their own `aria-label`. */
+  srAxis?: boolean;
+}): React.ReactElement | null {
+  const maturity = maturityLabelFor(productId);
+  if (!maturity) return null;
+  return (
+    <span
+      className={className}
+      title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
+      {srAxis && <span className="hn-sr-only">{PORTFOLIO_STAGE_AXIS}: </span>}
+      {maturity}
+    </span>
+  );
+}
+
 function ProductCard({
   product,
   active,
@@ -116,24 +152,7 @@ function ProductCard({
         <div className={styles.cardBody}>
           <h3 className={styles.name}>{product.name}</h3>
           <p className={styles.blurb}>{product.blurb}</p>
-          {/* Derived and axis-named, exactly like the released branch. This
-              read `<span>Coming soon</span>` — a hand-written maturity label
-              naming no axis, on three of the four cards, in the same PR that
-              added a contributor rule against hand-writing one. The gate could
-              not see it either, because it keys on the axis title.
-
-              A product the registry does not carry gets no pill at all: the
-              hero row's "More Constellations" is a placeholder, not a product,
-              and a portfolio-stage label on a non-product states a stage for
-              something that has none. */}
-          {maturity && (
-            <span
-              className={styles.badge}
-              title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
-              <span className="hn-sr-only">{PORTFOLIO_STAGE_AXIS}: </span>
-              {maturity}
-            </span>
-          )}
+          <StagePill productId={product.id} className={styles.badge} srAxis />
         </div>
       </div>
     );
@@ -166,19 +185,10 @@ function ProductCard({
             items, not from this row. */}
         <div className={styles.nameRow}>
           <h3 className={styles.name}>{product.name}</h3>
-          {/* The label names its axis to a pointer and to assistive tech.
-              Three maturity vocabularies share this problem space and two of
-              them share the "Release candidate" spelling, so a bare pill
-              leaves a reader to guess which one it is (ADR 0034 hand-off 7,
-              AAASM-5616). The visible text stays short; the axis rides on the
-              tooltip and on the card's accessible name. */}
-          {maturity && (
-            <span
-              className={styles.maturity}
-              title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
-              {maturity}
-            </span>
-          )}
+          {/* srAxis is false here: this card's <a> sets an aria-label, which
+              replaces the name computed from its children, so the axis rides
+              in that label instead of in a hidden span. */}
+          <StagePill productId={product.id} className={styles.maturity} />
         </div>
         <p className={styles.blurb}>{product.blurb}</p>
         <span className={styles.more}>
