@@ -39,3 +39,12 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      # Runs after the build because it reads the published HTML, not the
+      # source: that is what a reader and a crawler receive, and it is the only
+      # form in which render-time text and minified markup exist. Offline by
+      # design — it must not be able to fail because another service is down
+      # (AAASM-5616). Exit 2 means the gate itself is broken, which is a
+      # different event from a finding and is not swallowed here.
+      - name: Check product claims
+        run: pnpm check:claims
