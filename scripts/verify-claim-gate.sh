@@ -62,6 +62,25 @@ trap cleanup EXIT
 
 build() { CI=true pnpm build >/dev/null 2>&1; }
 
+# mutate <file> <sed-expression>
+#
+# Asserts the edit actually changed the file. A sed whose pattern no longer
+# matches is a silent no-op, and a no-op mutation makes the gate look correct
+# for the wrong reason — the run reports "clean" and the reader credits the
+# gate. That exact mistake put a defect through this suite once already, so a
+# mutation that does not land is a hard failure of the verifier, not a finding.
+mutate() {
+  local file="$1" expr="$2" before after
+  before="$(md5 -q "$file" 2>/dev/null || md5sum "$file" | cut -d' ' -f1)"
+  sed -i.bak "$expr" "$file" && rm -f "$file.bak"
+  after="$(md5 -q "$file" 2>/dev/null || md5sum "$file" | cut -d' ' -f1)"
+  if [ "$before" = "$after" ]; then
+    printf '  ERROR mutation did not apply to %s\n          %s\n' "$file" "$expr"
+    FAIL=$((FAIL + 1))
+    return 1
+  fi
+}
+
 # assert <label> <expected-exit> [rebuild]
 assert() {
   local label="$1" want="$2" rebuild="${3:-no}"
@@ -103,23 +122,23 @@ assert "attrValues reverted to quoted-only" 2
 # rendered pill comes from that same map — so editing it moved both sides at
 # once and the gate stayed green while the site shipped the new string. The gate
 # now keeps its own lifecycle -> label map in claim-gate-config.json.
-sed -i.bak "s/release_candidate: 'Release candidate',/release_candidate: 'Generally Available — Enterprise Ready',/" "$LIFECYCLE" && rm -f "$LIFECYCLE.bak"
-assert "label map edited to an unapproved string" 1 rebuild
+mutate "$LIFECYCLE" "s/release_candidate: 'Release candidate',/release_candidate: 'Generally Available — Enterprise Ready',/" \
+  && assert "label map edited to an unapproved string" 1 rebuild
 
 echo
 echo "CONTENT REGRESSIONS — one per rule, through a real build"
 
-sed -i.bak 's/can hold an action$/governs every action an agent takes and can hold an action/' "$SECTIONS" && rm -f "$SECTIONS.bak"
-assert "banned absolute in visible product copy" 1 rebuild
+mutate "$SECTIONS" 's/can hold an action instead of answering it/governs every action an agent takes/' \
+  && assert "banned absolute in visible product copy" 1 rebuild
 
-sed -i.bak 's|description="Horonomy is an|description="Comprehensive governance. Horonomy is an|' "$INDEX" && rm -f "$INDEX.bak"
-assert "banned absolute in the meta description" 1 rebuild
+mutate "$INDEX" 's|description="Horonomy is an|description="Comprehensive governance. Horonomy is an|' \
+  && assert "banned absolute in the meta description" 1 rebuild
 
-sed -i.bak 's|https://agent-assembly.com|https://not-canonical-agent-assembly.example.com|' "$INTRO" && rm -f "$INTRO.bak"
-assert "product link off the canonical host" 1 rebuild
+mutate "$INTRO" 's|https://agent-assembly.com|https://not-canonical-agent-assembly.example.com|' \
+  && assert "product link off the canonical host" 1 rebuild
 
-sed -i.bak 's/^              {maturity}$/              Generally Available/' "$CARDS" && rm -f "$CARDS.bak"
-assert "maturity pill hardcoded in markup" 1 rebuild
+mutate "$CARDS" 's/^              {maturity}$/              Generally Available/' \
+  && assert "maturity pill hardcoded in markup" 1 rebuild
 
 echo
 echo "THE GATE'S OWN CONFIGURATION"

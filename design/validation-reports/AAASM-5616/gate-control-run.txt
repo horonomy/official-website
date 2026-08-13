@@ -1,78 +1,25 @@
-AAASM-5616 — claim gate control run
-Generated 2026-08-13T11:08:29Z
+Claim gate control run — 2026-08-13T11:49:08Z
+commit e7c3b8b
 
-A gate that has never been seen to fail is not known to work. The first
-version of this gate passed a clean run AND passed with three deliberate
-defects in the build — three of its four rules were inert because the
-Docusaurus minifier drops quotes from attribute values and the extractors
-only matched the quoted form. That is why this file exists.
+BASELINE
+  PASS  unmodified tree                                            exit 0
 
-==============================================================
-STEP 1 — baseline, unmodified tree
-==============================================================
-[2mchecked 10 page(s) against 15 banned phrase(s), 2 registry-derived maturity label(s), and 1 canonical host(s); 9 phrase control(s) and 8 rule control(s) passed[0m
-[32m✓ no product-claim findings[0m
-EXIT=0
+REGRESSIONS THIS GATE SHIPPED WITH (both were found in review, not by me)
+  PASS  attrValues reverted to quoted-only                         exit 2
+  PASS  label map edited to an unapproved string                   exit 1
 
-==============================================================
-STEP 2 — four deliberate defects, one per rule
-==============================================================
-  D1  Sections/index.tsx   product card -> 'governs every action an agent takes'
-                           (fd-7 banned absolute, in visible prose)
-  D2  docs/intro.md        product link -> try-agent-assembly.example.com
-                           (host absent from the pinned registry)
-  D3  Sections/index.tsx   maturity pill -> hardcoded 'Generally Available'
-                           (bypasses the registry derivation)
-  D4  pages/index.tsx      meta description -> 'Comprehensive governance.'
-                           (fd-7 banned absolute, metadata surface)
+CONTENT REGRESSIONS — one per rule, through a real build
+  PASS  banned absolute in visible product copy                    exit 1
+  PASS  banned absolute in the meta description                    exit 1
+  PASS  product link off the canonical host                        exit 1
+  PASS  maturity pill hardcoded in markup                          exit 1
 
-[2mchecked 10 page(s) against 15 banned phrase(s), 2 registry-derived maturity label(s), and 1 canonical host(s); 9 phrase control(s) and 8 rule control(s) passed[0m
-[31m✗ 5 product-claim finding(s)
-[0m
-[31m  [canonical-link][0m
-    build/docs/intro/index.html
-      https://try-agent-assembly.example.com — host 'try-agent-assembly.example.com' is not a canonical product host in the registry (agent-assembly.com).
+THE GATE'S OWN CONFIGURATION
+  PASS  phrase catalogue emptied                                   exit 2
+  PASS  a registry lifecycle member left unmapped                  exit 2
 
-[31m  [banned-absolute][0m
-    build/index.html
-      "every action" — ADR 0033 forbidden design 7. Unwaivable (ADR 0034 Decision 10); there is no approver for this.
+RESTORED
+  PASS  tree restored                                              exit 0
 
-[31m  [banned-absolute-metadata][0m
-    build/index.html
-      <meta description> contains "Comprehensive" — a metadata surface no bound travels to (ADR 0034 Decision 10, bound 3).
-    build/index.html
-      <meta og:description> contains "Comprehensive" — a metadata surface no bound travels to (ADR 0034 Decision 10, bound 3).
-
-[31m  [maturity-vocabulary][0m
-    build/index.html
-      maturity label "Generally Available" is not one the pinned registry produces (expected one of: Release candidate, Coming soon). A pill hardcoded in markup bypasses the derivation the registry owns.
-
-[2m  See design/product-narrative-hierarchy.md for what this site may claim and why.[0m
-EXIT=1
-
-==============================================================
-STEP 3 — defects reverted, rebuilt
-==============================================================
-[2mchecked 10 page(s) against 15 banned phrase(s), 2 registry-derived maturity label(s), and 1 canonical host(s); 9 phrase control(s) and 8 rule control(s) passed[0m
-[32m✓ no product-claim findings[0m
-EXIT=0
-
-==============================================================
-RESULT
-==============================================================
-  clean  -> exit 0
-  D1..D4 -> exit 1, one finding class per injected defect
-  revert -> exit 0
-
-Each of the four rules was shown to fire on real minified build output,
-not only on the in-process fixture. The metadata rule caught both the
-<meta description> and the derived og:description from one injected
-string, which is the social-card surface AAASM-5616 asks about.
-
-The gate also self-tests on every invocation and exits 2 — distinct from
-a finding — if any rule fails to fire on its fixture or fires on a
-compliant one. That is what makes a future clean run mean something.
-
-Offline: no network call, no service dependency. The banned-phrase list is
-a synced copy of ADR 0033 forbidden design 7; scripts/banned-absolutes.json
-records the sync date and how to extend it.
+==============================================
+passed 10, failed 0

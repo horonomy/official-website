@@ -1,15 +1,17 @@
-  PASS  hero carries the routing precondition
+  PASS  hero uses the §6 verb "evaluates"
+  PASS  hero no longer says "applies your policy to"
   PASS  hero no longer says "runtime boundary"
-  PASS  card carries the routing precondition
+  PASS  card uses "evaluates", carries the routing bound
+  PASS  card no longer claims tool calls (second, uncarried bound)
   PASS  card no longer claims human review
   PASS  card no longer claims budgets
-  PASS  hero pill names its axis (title)
+  PASS  every maturity pill names its axis (4 expected)
+  PASS  roadmap badges are axis-named, not hardcoded
+  PASS  non-product "More Constellations" carries no stage pill
   PASS  hero card accessible name carries the axis
-  PASS  section badge names the axis to a screen reader
-  PASS  section badge axis is visually hidden, not removed
-  PASS  meta description restated at company altitude
+  PASS  meta description at company altitude
   PASS  og:description matches (social card surface)
-  PASS  no wrong-cased org link in any built page
+  PASS  no wrong-cased org link in any built page or feed
   PASS  canonical product host present
 
-all 13 DOM assertions pass
+all 15 DOM assertions pass
