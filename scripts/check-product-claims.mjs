@@ -437,65 +437,42 @@ function ruleSelfTest(ctx) {
    * Every extractor therefore gets its own unquoted case, not just the one
    * whose failure happened to cause the incident.
    */
+  /**
+   * `[rule, what it is, fixture, expected finding count]`.
+   *
+   * A tuple table rather than nine object literals: the shape repeated far
+   * more than it varied, and the varying part — the fixture and its count — is
+   * what a reader needs to see side by side to tell whether every extractor
+   * form is covered.
+   */
   const cases = [
-    {
-      rule: 'banned-absolute',
-      name: 'banned phrase in visible prose',
-      html: '<html><body><p>Agent Assembly cannot be bypassed.</p></body></html>',
-      expect: 1,
-    },
-    {
-      rule: 'banned-absolute',
-      name: 'banned phrase in an attribute a reader hears (alt)',
-      html: '<html><body><img alt="It governs every action an agent takes."></body></html>',
-      expect: 1,
-    },
-    {
-      rule: 'banned-absolute-metadata',
-      name: 'meta description, quoted',
-      html: '<html><head><meta name="description" content="Comprehensive governance."></head></html>',
-      expect: 1,
-    },
-    {
-      rule: 'banned-absolute-metadata',
-      name: 'meta description, UNQUOTED content',
-      html: '<html><head><meta name=description content=comprehensive></head></html>',
-      expect: 1,
-    },
-    {
-      rule: 'canonical-link',
-      name: 'non-canonical product host, UNQUOTED href',
-      html: '<html><body><a href=https://evil-agent-assembly.example.com>x</a></body></html>',
-      expect: 1,
-    },
-    {
-      rule: 'canonical-link',
-      name: 'non-canonical product host, quoted href',
-      html: '<html><body><a href="https://evil-agent-assembly.example.com/?a=1&b=2">x</a></body></html>',
-      expect: 1,
-    },
-    {
-      rule: 'canonical-link',
-      name: 'wrong-cased organisation, UNQUOTED href',
-      html: '<html><body><a href=https://github.com/AI-agent-assembly>y</a></body></html>',
-      expect: 1,
-    },
-    {
-      rule: 'maturity-vocabulary',
-      name: 'undeclared label, quoted title',
-      html: '<html><body><span title="Portfolio stage — axis">Totally Made Up</span></body></html>',
-      expect: 1,
-    },
-    {
-      rule: 'maturity-vocabulary',
-      name: 'undeclared label behind a nested visually-hidden span',
-      html:
-        '<html><body><span title="Portfolio stage — axis">' +
-        '<span class=hn-sr-only>Portfolio stage<!-- -->: </span>Totally Made Up' +
-        '</span></body></html>',
-      expect: 1,
-    },
-  ];
+    ['banned-absolute', 'banned phrase in visible prose',
+     '<p>Agent Assembly cannot be bypassed.</p>', 1],
+    ['banned-absolute', 'banned phrase in an attribute a reader hears (alt)',
+     '<img alt="It governs every action an agent takes.">', 1],
+    ['banned-absolute-metadata', 'meta description, quoted',
+     '<meta name="description" content="Comprehensive governance.">', 1],
+    ['banned-absolute-metadata', 'meta description, UNQUOTED content',
+     '<meta name=description content=comprehensive>', 1],
+    ['canonical-link', 'non-canonical product host, UNQUOTED href',
+     '<a href=https://evil-agent-assembly.example.com>x</a>', 1],
+    ['canonical-link', 'non-canonical product host, quoted href',
+     '<a href="https://evil-agent-assembly.example.com/?a=1&b=2">x</a>', 1],
+    ['canonical-link', 'wrong-cased organisation, UNQUOTED href',
+     '<a href=https://github.com/AI-agent-assembly>y</a>', 1],
+    ['maturity-vocabulary', 'undeclared label, quoted title',
+     '<span title="Portfolio stage — axis">Totally Made Up</span>', 1],
+    ['maturity-vocabulary', 'undeclared label behind a nested hidden span',
+     '<span title="Portfolio stage — axis"><span class=hn-sr-only>' +
+     'Portfolio stage<!-- -->: </span>Totally Made Up</span>', 1],
+  ].map(([rule, name, body, expect]) => ({
+    rule,
+    name,
+    html: `<html><head>${/^<meta/.test(body) ? body : ''}</head><body>${
+      /^<meta/.test(body) ? '' : body
+    }</body></html>`,
+    expect,
+  }));
 
   /** Must produce nothing from any rule. */
   const clean = `<html><head>
