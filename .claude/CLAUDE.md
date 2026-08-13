@@ -49,7 +49,9 @@ pnpm clear            # clear the Docusaurus build cache
   publishes to **Cloudflare Pages** (project `horonomy-official-website`,
   production branch `main`). The job is **dormant by default** — it only runs
   once the repo variable `CLOUDFLARE_DEPLOY_ENABLED` is set to `"true"` and the
-  `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets exist.
+  `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets exist. It runs
+  `pnpm check:claims` itself before publishing — `ci.yml`'s main-push run races
+  it rather than gating it, so the check has to live in the job that deploys.
 
 Always run `pnpm typecheck`, `pnpm build` and `pnpm check:claims` locally
 before pushing — CI runs exactly these and nothing else, so a local pass is
@@ -99,7 +101,7 @@ is the machine-readable half.
 ### What may never be published here
 
 Banned absolutes (ADR 0033 forbidden design 7 — the list lives in
-`scripts/banned-absolutes.json`) are **unwaivable**. No approver, expiry or
+`scripts/claim-gate-config.json`) are **unwaivable**. No approver, expiry or
 owner makes one publishable; the only route is an evidence-backed amendment to
 ADR 0033 in `ai-agent-assembly/agent-assembly`. Also out of bounds here: a
 per-capability status, a platform claim, integration instructions, and any

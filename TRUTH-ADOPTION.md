@@ -7,7 +7,7 @@ truth_layers: ["T7"]
 content_layers: ["L0"]
 claim_namespaces: []
 owners:
-  truth-owner-company: "@Chisanan232"
+  truth-owner-portfolio: "@Chisanan232"
 enforcement:
   pull_request: "CI / build → Check product claims (.github/workflows/ci.yml)"
   release_gate: "none"
@@ -15,7 +15,11 @@ enforcement:
     There is no release gate because there is no release: deploy.yml publishes
     to Cloudflare Pages on push to main, and is dormant until
     CLOUDFLARE_DEPLOY_ENABLED is set. The claim gate runs on pull requests and
-    on main, so the tree that deploys is the tree that was checked.
+    on main, and deploy.yml runs it itself before publishing. The main-push run
+    in ci.yml does NOT gate the deploy - the two workflows have separate
+    concurrency groups and no dependency between them, so they race. It is a
+    second, independent check on the merged tree, not the thing that holds the
+    publish back; the step inside deploy.yml is.
 local_adrs: []
 exceptions: []
 last_reviewed_version: "0.0.0"
@@ -81,7 +85,7 @@ at the layer that owns it — never to declare a namespace here.
 
 | Reviewer class | Filled by | Reviews |
 | --- | --- | --- |
-| `truth-owner-company` | `@Chisanan232` (via `.github/CODEOWNERS`) | Any change to product copy, product metadata, maturity labels, or canonical links |
+| `truth-owner-portfolio` | `@Chisanan232` (via `.github/CODEOWNERS`) | Any change to product copy, product metadata, maturity labels, or canonical links |
 
 > **Known divergence from ADR 0034 Decision 9.** That decision requires reviewer
 > **classes** filled by a team or group, never an individual. This repository's
@@ -100,8 +104,14 @@ why none exists here.
 | Scope | Mechanism |
 | --- | --- |
 | Pull request | `CI / build` → **Check product claims** (`pnpm check:claims`), after `pnpm build` |
-| Push to `main` | The same job — `deploy.yml` publishes from `main`, so the deployed tree is gated too |
+| Push to `main` | The same job, as an independent second check. It does **not** gate the deploy: `ci.yml` and `deploy.yml` have separate concurrency groups and no dependency, so they race |
+| Publish | `deploy.yml` runs `pnpm check:claims` itself, between Build and Publish. This is the step that actually holds a publish back |
 | Release gate | none — this site has no release; it deploys continuously from `main` |
+
+`main` is currently **unprotected**, so nothing prevents a direct push that
+skips the pull-request run. The publish-time check in `deploy.yml` is what
+makes that survivable; branch protection is an organisation-level change and is
+not this record's to make.
 
 `scripts/check-product-claims.mjs` checks four things: banned absolutes in
 published prose, banned absolutes in page metadata, product links against the
@@ -151,6 +161,11 @@ is contributor documentation that cites the canonical decision.
 - **`discontinued` has no member** on the portfolio-lifecycle axis. The
   vocabulary is generated from the pinned registry in `horonomy/.github`, so
   adding one is an upstream change, not a local edit.
+- **`src/components/Hero/` is dead code** — no importers, absent from the
+  build — still carrying the `AGENT INFRASTRUCTURE` category AAASM-5614
+  rejected and a wrong-cased organisation URL. The claim gate reads the build,
+  so it cannot see it, and deleting a file is not something this ticket did
+  unasked. Flagged for removal.
 - **F12 — a scoping collision.** `content-ownership.md` quotes this site's
   product blurb as the worked example of a compliant L0 summary (2026-08-06).
   AAASM-5585 removed the same framing from the *product website's homepage

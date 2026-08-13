@@ -61,6 +61,14 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # The publish gate. `ci.yml` also runs this on push to main, but it cannot
+      # hold this workflow back: the two have separate concurrency groups and no
+      # `needs`/`workflow_run` between them, so they race. Running it here is
+      # what makes the tree that deploys the tree that was checked. Offline, so
+      # it cannot fail the deploy because another service is down (AAASM-5616).
+      - name: Check product claims
+        run: pnpm check:claims
+
       - name: Ensure the Cloudflare Pages project exists (idempotent)
         run: |
           npx --yes wrangler@3 pages project create "$PAGES_PROJECT" \
