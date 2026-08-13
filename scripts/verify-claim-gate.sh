@@ -70,11 +70,12 @@ build() { CI=true pnpm build >/dev/null 2>&1; }
 # gate. That exact mistake put a defect through this suite once already, so a
 # mutation that does not land is a hard failure of the verifier, not a finding.
 mutate() {
-  local file="$1" expr="$2" before after
-  before="$(md5 -q "$file" 2>/dev/null || md5sum "$file" | cut -d' ' -f1)"
+  local file="$1" expr="$2"
+  # Byte comparison against the pristine snapshot, not a hash: `cmp` answers
+  # exactly the question being asked, needs no digest, and does not invite a
+  # scanner to ask whether a weak hash is load-bearing here.
   sed -i.bak "$expr" "$file" && rm -f "$file.bak"
-  after="$(md5 -q "$file" 2>/dev/null || md5sum "$file" | cut -d' ' -f1)"
-  if [ "$before" = "$after" ]; then
+  if cmp -s "$SNAP/$file" "$file"; then
     printf '  ERROR mutation did not apply to %s\n          %s\n' "$file" "$expr"
     FAIL=$((FAIL + 1))
     return 1
@@ -137,7 +138,7 @@ mutate "$INDEX" 's|description="Horonomy is an|description="Comprehensive govern
 mutate "$INTRO" 's|https://agent-assembly.com|https://not-canonical-agent-assembly.example.com|' \
   && assert "product link off the canonical host" 1 rebuild
 
-mutate "$CARDS" 's/^              {maturity}$/              Generally Available/' \
+mutate "$CARDS" 's/^      {maturity}$/      Generally Available/' \
   && assert "maturity pill hardcoded in markup" 1 rebuild
 
 echo
