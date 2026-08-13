@@ -29,6 +29,14 @@ design/
 - **Mascot**: the First Horologer — an ancient observer that measures and
   records the sky before a system is trusted to act.
 
+## Content governance
+
+- [`product-narrative-hierarchy.md`](product-narrative-hierarchy.md) — what the
+  company site owns versus what a product owns, the approved company-level
+  product summary format, the cross-site handoff, and the three maturity axes
+  (AAASM-5615). Read it before writing or editing any copy about a portfolio
+  product.
+
 ## Homepage
 
 The homepage implements direction **3a — "The First Horologer"** from
