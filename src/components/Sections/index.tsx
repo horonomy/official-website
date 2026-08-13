@@ -202,10 +202,20 @@ function Products(): React.ReactElement {
               )}
             </div>
             <div className={styles.productName}>AI agent assembly</div>
+            {/*
+              "can hold an action instead of answering it" is the product's
+              own sentence, borrowed verbatim. What stood here — "holds risky
+              actions for human review" — asserted the one part of that
+              capability the product says is not there: its `/product` page
+              marks the hold "Approval required" and real, then bounds it with
+              "No shipped operator surface can answer the queue the hold blocks
+              on … Do not plan on human review yet" (AAASM-5657). The hold is
+              claimable; the human answering it is not (AAASM-5616).
+            */}
             <p className={styles.productBody}>
               A governance layer for AI agents. It decides which tools,
-              domains, and budgets an agent may use, holds risky actions for
-              human review, and records what happened.
+              domains, and budgets an agent may use, can hold an action
+              instead of answering it, and records what happened.
             </p>
             {/*
               Category label. "AGENT INFRASTRUCTURE" read as tooling for
