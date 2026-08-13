@@ -99,13 +99,13 @@ function ProductCard({
   // Maturity comes from the pinned company registry, never from a literal
   // typed here — a shipped product that is not yet 1.0 must say so on the
   // card, and the label must be the one the company catalog stands behind
-  // (AAASM-5614). Roadmap entries below render their own "Coming soon"
-  // badge, so they do not read this.
+  // (AAASM-5614). Roadmap entries read this too — they used to hand-write
+  // their own badge instead (AAASM-5616).
   const maturity = maturityLabelFor(product.id);
 
   // Products still in design/estimation render as a non-interactive roadmap
   // entry: a plain <div> (no link, no pointer, no navigation, no focus stop),
-  // with a "Coming soon" label instead of the "Learn more →" affordance.
+  // with the registry's label instead of the "Learn more →" affordance.
   if (!isReleased(product.id)) {
     return (
       <div
@@ -116,7 +116,24 @@ function ProductCard({
         <div className={styles.cardBody}>
           <h3 className={styles.name}>{product.name}</h3>
           <p className={styles.blurb}>{product.blurb}</p>
-          <span className={styles.badge}>Coming soon</span>
+          {/* Derived and axis-named, exactly like the released branch. This
+              read `<span>Coming soon</span>` — a hand-written maturity label
+              naming no axis, on three of the four cards, in the same PR that
+              added a contributor rule against hand-writing one. The gate could
+              not see it either, because it keys on the axis title.
+
+              A product the registry does not carry gets no pill at all: the
+              hero row's "More Constellations" is a placeholder, not a product,
+              and a portfolio-stage label on a non-product states a stage for
+              something that has none. */}
+          {maturity && (
+            <span
+              className={styles.badge}
+              title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
+              <span className="hn-sr-only">{PORTFOLIO_STAGE_AXIS}: </span>
+              {maturity}
+            </span>
+          )}
         </div>
       </div>
     );
