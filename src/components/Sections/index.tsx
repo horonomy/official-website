@@ -203,19 +203,36 @@ function Products(): React.ReactElement {
             </div>
             <div className={styles.productName}>AI agent assembly</div>
             {/*
-              "can hold an action instead of answering it" is the product's
-              own sentence, borrowed verbatim. What stood here — "holds risky
-              actions for human review" — asserted the one part of that
-              capability the product says is not there: its `/product` page
-              marks the hold "Approval required" and real, then bounds it with
-              "No shipped operator surface can answer the queue the hold blocks
-              on … Do not plan on human review yet" (AAASM-5657). The hold is
-              claimable; the human answering it is not (AAASM-5616).
+              Every clause here is traceable to a card on agent-assembly.com's
+              `/product` page, and the bounds travel with them (AAASM-5616).
+
+              "On the paths you route through it" carries the D2 precondition
+              the product declares non-severable from its promise; without it
+              ADR 0034 §2.3 reads the scope at its widest.
+
+              "checks … against your policy" is the product's "Evaluated" term,
+              not an enforcement verb. "tool and network calls" replaces
+              "which tools, domains, and budgets an agent may use": budgets are
+              gone because the product's spend card carries the term
+              "Unmeasured" and says the claim "is about what a policy can
+              declare, not about what stops a call" — restating that as a
+              decision verb is a D8 value above the row.
+
+              "can hold an action instead of answering it" is the product's own
+              sentence verbatim. What stood here — "holds risky actions for
+              human review" — asserted the one part it says is not there: "No
+              shipped operator surface can answer the queue the hold blocks on
+              … Do not plan on human review yet" (AAASM-5657).
+
+              "records what it decided" is the product's phrasing, and narrower
+              than "records what happened", which implies a record of the
+              action rather than of the decision.
             */}
             <p className={styles.productBody}>
-              A governance layer for AI agents. It decides which tools,
-              domains, and budgets an agent may use, can hold an action
-              instead of answering it, and records what happened.
+              A governance layer for AI agents. On the paths you route through
+              it, it checks an agent&apos;s tool and network calls against your
+              policy, can hold an action instead of answering it, and records
+              what it decided.
             </p>
             {/*
               Category label. "AGENT INFRASTRUCTURE" read as tooling for
