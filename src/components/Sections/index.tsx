@@ -223,11 +223,21 @@ function Products(): React.ReactElement {
               the product declares non-severable from its promise; without it
               ADR 0034 §2.3 reads the scope at its widest.
 
-              "checks … against your policy" is the product's "Evaluated" term,
-              not an enforcement verb. "tool and network calls" replaces
-              "which tools, domains, and budgets an agent may use": budgets are
-              gone because the product's spend card carries the term
-              "Unmeasured" and says the claim "is about what a policy can
+              "evaluates … against your policy" is the ADR 0033 §6 term
+              itself, matching the product's own hero verb rather than a
+              paraphrase of it.
+
+              It says "network calls", not "tool and network calls". The
+              routing precondition above covers network, but tools carry a
+              second, different bound the same clause cannot: MCP tool-call
+              refusal is off until an operator turns it on, and tool servers
+              over stdio — the most common setup — have no interception
+              mechanism at all. Carrying one bound and not the other is the
+              failure mode, so the tool claim is dropped rather than
+              half-qualified.
+
+              Budgets are gone because the product's spend card carries the
+              term "Unmeasured" and says the claim "is about what a policy can
               declare, not about what stops a call" — restating that as a
               decision verb is a D8 value above the row.
 
@@ -243,7 +253,7 @@ function Products(): React.ReactElement {
             */}
             <p className={styles.productBody}>
               A governance layer for AI agents. On the paths you route through
-              it, it checks an agent&apos;s tool and network calls against your
+              it, it evaluates an agent&apos;s network calls against your
               policy, can hold an action instead of answering it, and records
               what it decided.
             </p>

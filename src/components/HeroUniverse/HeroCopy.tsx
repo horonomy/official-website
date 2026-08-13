@@ -20,6 +20,11 @@ import styles from './HeroCopy.module.css';
  * article over an unbounded scope and dropped that precondition, which
  * ADR 0034 §2.2 grades a broadening rather than a simplification. A reader of
  * this page would have assumed an unrouted agent was covered (AAASM-5616).
+ *
+ * The verb is "evaluates" — the ADR 0033 §6 term, and the product's own — not
+ * a paraphrase like "applies your policy to". This is the site's most
+ * prominent product sentence, so it is the last place to swap a claim term for
+ * a synonym whose strength nothing defines.
  */
 export default function HeroCopy(): React.ReactElement {
   return (
@@ -31,9 +36,9 @@ export default function HeroCopy(): React.ReactElement {
       <p className={styles.subhead}>
         Horonomy is an AI-native company building governance-first systems for
         autonomous software. Our first product,{' '}
-        <span className={styles.gold}>Agent Assembly</span>, applies your
-        policy to the agent actions you route through it — and records what it
-        decided.
+        <span className={styles.gold}>Agent Assembly</span>, evaluates the
+        agent actions you route through it against your policy — and records
+        what it decided.
       </p>
     </div>
   );
