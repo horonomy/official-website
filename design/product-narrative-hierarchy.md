@@ -385,23 +385,115 @@ default to this site's copy deck.
 
 ## 9. Conformance findings
 
-Applying §§3–6 to `origin/main` at the time of writing produced the findings
-below. They are **recorded, not remediated** — remediation is
-[AAASM-5616](https://lightning-dust-mite.atlassian.net/browse/AAASM-5616)'s, and
-severities use ADR 0034 §2.2's vocabulary (*blocking* / *finding*).
+Applying §§3–6 to `origin/main` produced the findings below. They are
+**recorded, not remediated** — remediation is
+[AAASM-5616](https://lightning-dust-mite.atlassian.net/browse/AAASM-5616)'s.
+Severities are ADR 0034 §2.2's: *blocking* means a dropped bound or a strength
+value above the canonical row; *finding* means it is recorded and resolved before
+the surface is published at a release tag.
 
-| # | Surface | Observation | Severity |
-|---|---|---|---|
-| F1 | `HeroCopy.tsx` subhead | *"defines the runtime boundary where AI agents can act"* — a definite article over an unbounded scope, with no precondition and no claim identifier in the same block. Under §2.3 the omitted dimensions read at their broadest. The verb is not itself an ADR 0033 §6 term, and the §6 synonym list (AAASM-5599) has not published, so this is a finding today rather than a block | Finding |
-| F2 | `Sections/index.tsx` product card | *"It decides which tools, domains, and budgets an agent may use…"* — a verb with an object, stating no routing or configuration precondition. Compare against the product's own `/product` wording before rewording; if that source bounds the same statement, this dropped a D2 conjunct | Finding → verify |
-| F3 | Maturity pills, all surfaces | *Release candidate* renders with nothing naming its axis. A reader cannot tell it is a portfolio-lifecycle value rather than the Docs Hub's documentation-area label of the same spelling | Finding |
-| F4 | `products.ts` | `comingSoon?: boolean` is hand-written and independent of the registry's `lifecycle`. Two sources for one fact; nothing asserts they agree | Finding |
-| F5 | `ConstellationMap.tsx` | The sky map states product status implicitly (*"in development"*) and reads no registry value, so it is a third surface that can disagree with the other two | Finding |
-| F6 | `docs/intro.md`, `blog/2026-07-03-welcome.md`, `blog/authors.yml` | Agent Assembly links point at `https://github.com/AI-agent-assembly` — wrong casing, and the GitHub organisation rather than the ADR 0007 canonical apex | Finding |
-| F7 | `src/pages/index.tsx` `<meta description>` | Predates the governance repositioning; describes the company without the bounded product framing the cards now use | Finding |
-| F8 | `src/components/Hero/` | Dead code, imported nowhere, still carrying the `AGENT INFRASTRUCTURE` category AAASM-5614 rejected. It typechecks and builds, so nothing catches it | Finding |
-| F9 | Registry vocabulary | No `discontinued` member; owned upstream in `horonomy/.github`. See §5 | Escalated |
-| F10 | CI | No content or claim gate exists. `pnpm typecheck` and `pnpm build` do not read copy, and `onBrokenLinks: 'throw'` checks internal links only | Finding |
+Each row was compared against the product's own wording on `agent-assembly.com`,
+read from `ai-agent-assembly/official-website` at `origin/main`. A claim
+traceable only to another marketing page is not traceable, so the canonical
+quote is carried here rather than referenced.
+
+### Blocking
+
+**F1 · The hero subhead drops the routing precondition.**
+`HeroCopy.tsx` says Agent Assembly *"defines the runtime boundary where AI agents
+can act"*. The product's own promise is:
+
+> Agent Assembly evaluates the actions you route through it against your policy,
+> refuses them, or blocks them pending a decision, and records what it decided.
+> An action you have not routed through it is not inspected — and the record
+> says so.
+
+The product website declares its headline and subheadline **non-severable** at
+the source, precisely because the headline alone reads as a claim over all agent
+behaviour. This site states the capability with the bound removed entirely: a
+dropped D2 conjunct, which ADR 0034 §2.2 grades blocking. It is also the
+first-pass question's conclusive *yes* — a reader of this page would assume an
+unrouted agent is covered; a reader of the product page would not.
+
+**F2 · The product card claims budget enforcement the product records as
+`Unmeasured`.** `Sections/index.tsx` says it *"decides which tools, domains, and
+budgets an agent may use"*. On budgets, the product's own page carries the
+ADR 0033 §6 term **Unmeasured** and says:
+
+> Whether a declared cap is checked in the decision path is not established by
+> any evidence row, so the honest term for the enforcement is Unmeasured — the
+> claim above is about what a policy can declare, not about what stops a call.
+
+Restating *Unmeasured* as a decision verb is a D8 strength value above the
+canonical row. Blocking.
+
+**F3 · The product card claims human review, which the product says is not
+available.** The same sentence says it *"holds risky actions for human
+review"*. The product's own bound reads:
+
+> No shipped operator surface can answer the queue the hold blocks on, so in
+> practice it blocks and then refuses at the timeout with no person involved.
+> Do not plan on human review yet — tracked as AAASM-5657.
+
+This is the failure AAASM-5615's acceptance criteria name directly: a company
+statement implying a product capability that is not available. It is the most
+serious row here, because a reader could act on it — an evaluator could choose
+this product expecting a human-approval workflow.
+
+Note the contrast with the hero card's *"approval checkpoints"*, which is a
+**noun** and therefore a capability mention: it asserts the capability exists,
+which is true, without asserting that a human answers it. The two surfaces state
+the same subject at two different strengths, and only the verb form overreaches.
+
+### Findings
+
+| # | Surface | Observation |
+|---|---|---|
+| F4 | Maturity pills, all surfaces | *Release candidate* renders with nothing naming its axis. A reader cannot tell it is a portfolio-lifecycle value rather than the Docs Hub's documentation-area label of the same spelling (§5) |
+| F5 | `products.ts` | `comingSoon?: boolean` is hand-written and independent of the registry's `lifecycle`. Two sources for one fact; nothing asserts they agree |
+| F6 | `ConstellationMap.tsx` | States product status implicitly (*"in development"*) and reads no registry value — a third surface that can disagree with the other two |
+| F7 | `docs/intro.md`, `blog/2026-07-03-welcome.md`, `blog/authors.yml` | Agent Assembly links point at `https://github.com/AI-agent-assembly` — wrong casing, and the GitHub organisation rather than the ADR 0007 canonical apex |
+| F8 | `src/pages/index.tsx` `<meta description>` | Predates the governance repositioning. A description is a metadata surface: it travels into a search result without its bound, so it must be self-bounding or carry no coverage claim |
+| F9 | `src/components/Hero/` | Dead code, imported nowhere, still carrying the `AGENT INFRASTRUCTURE` category AAASM-5614 rejected. It typechecks and builds, so nothing catches it |
+| F10 | CI | No content or claim gate exists. `pnpm typecheck` and `pnpm build` do not read copy, and `onBrokenLinks: 'throw'` checks internal links only |
+
+### Escalated
+
+**F11 · No `discontinued` member.** Owned upstream in `horonomy/.github`; see §5.
+
+**F12 · The sanctioned L0 example and the product site's claim gate now
+disagree, and neither has been reconciled.**
+
+`content-ownership.md` quotes this site's blurb — *"A governance layer for AI
+agents — permissions, approval checkpoints, and evidence."* — as the **worked
+example of a compliant L0 summary**, and argues for it on the grounds that its
+nouns attach no scope. That text was committed **2026-08-06**.
+
+Separately, AAASM-5585 removed *"a governance layer for AI agents"* from the
+**product website's homepage hero** on **2026-08-08**, and the product site's
+claim gate now carries a `rejected-hero` class whose `governance {unit} for`
+template matches this site's blurb literally.
+
+These are not obviously in conflict — the rejection is scoped by its own
+rationale to a hero position on L1, where the product must state its own promise
+with the routing bound attached, and the L0 argument is about a different
+position on a different layer. But the rejection post-dates the sanction, and no
+source reconciles them.
+
+Two consequences, and neither is this document's to decide alone:
+
+1. **The blurb stays** until a source rules otherwise. `content-ownership.md` is
+   the surface ADR 0034 assigns ownership of the L0 row, its L0 argument is
+   explicit, and nothing has rebutted it. Changing L0 copy on the strength of an
+   L1 hero decision would be this site substituting its own reading for a
+   canonical one.
+2. **A claim gate here must not import the `rejected-hero` class.** That class is
+   L1-scoped; importing it would fail the build on the exact sentence the
+   canonical source holds up as the compliant L0 example. AAASM-5616 must scope
+   its gate to the classes that bind every layer — ADR 0033 forbidden design 7's
+   banned absolutes above all — and leave L1-position rulings to L1.
+
+Raised for a ruling by the owners of `content-ownership.md` and AAASM-5585.
 
 ---
 
