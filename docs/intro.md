@@ -12,4 +12,4 @@ systems it builds. It is intentionally minimal for now — a seed for the real
 content to come.
 
 For the flagship product, see
-[AI agent assembly](https://github.com/AI-agent-assembly).
+[AI Agent Assembly](https://agent-assembly.com).

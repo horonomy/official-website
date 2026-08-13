@@ -1,7 +1,11 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
 import clsx from 'clsx';
-import {maturityLabelFor} from '@site/src/data/productLifecycle';
+import {
+  PORTFOLIO_STAGE_AXIS,
+  isReleased,
+  maturityLabelFor,
+} from '@site/src/data/productLifecycle';
 import {LAYERS} from './layers';
 import {PRODUCTS, type Product} from './products';
 import {CONSTELLATIONS} from './constellations';
@@ -78,6 +82,42 @@ function Glyph({id}: {id: string}): React.ReactElement | null {
   );
 }
 
+/**
+ * The portfolio-stage pill.
+ *
+ * One component, used by both branches, because two copies is how the roadmap
+ * badge ended up hand-written and axis-less while the released one was derived
+ * and axis-named (AAASM-5616). `null` when the registry carries no label for
+ * this id — an unreleased-but-listed product renders "Coming soon", and a
+ * non-product placeholder renders nothing at all.
+ *
+ * `srAxis` distinguishes the two ways the axis reaches assistive technology.
+ * A card that sets `aria-label` on its own anchor replaces the accessible name
+ * computed from its children, so a hidden span inside it is never announced
+ * and the axis has to travel in that label instead.
+ */
+function StagePill({
+  productId,
+  className,
+  srAxis = false,
+}: {
+  productId: string;
+  className: string;
+  /** Default false: most cards carry the axis in their own `aria-label`. */
+  srAxis?: boolean;
+}): React.ReactElement | null {
+  const maturity = maturityLabelFor(productId);
+  if (!maturity) return null;
+  return (
+    <span
+      className={className}
+      title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
+      {srAxis && <span className="hn-sr-only">{PORTFOLIO_STAGE_AXIS}: </span>}
+      {maturity}
+    </span>
+  );
+}
+
 function ProductCard({
   product,
   active,
@@ -95,14 +135,14 @@ function ProductCard({
   // Maturity comes from the pinned company registry, never from a literal
   // typed here — a shipped product that is not yet 1.0 must say so on the
   // card, and the label must be the one the company catalog stands behind
-  // (AAASM-5614). Roadmap entries below render their own "Coming soon"
-  // badge, so they do not read this.
+  // (AAASM-5614). Roadmap entries read this too — they used to hand-write
+  // their own badge instead (AAASM-5616).
   const maturity = maturityLabelFor(product.id);
 
   // Products still in design/estimation render as a non-interactive roadmap
   // entry: a plain <div> (no link, no pointer, no navigation, no focus stop),
-  // with a "Coming soon" label instead of the "Learn more →" affordance.
-  if (product.comingSoon) {
+  // with the registry's label instead of the "Learn more →" affordance.
+  if (!isReleased(product.id)) {
     return (
       <div
         className={clsx(styles.card, styles[product.tone], styles.comingSoon)}
@@ -112,7 +152,7 @@ function ProductCard({
         <div className={styles.cardBody}>
           <h3 className={styles.name}>{product.name}</h3>
           <p className={styles.blurb}>{product.blurb}</p>
-          <span className={styles.badge}>Coming soon</span>
+          <StagePill productId={product.id} className={styles.badge} srAxis />
         </div>
       </div>
     );
@@ -133,7 +173,7 @@ function ProductCard({
       className={clsx(styles.card, styles[product.tone], active && styles.active)}
       to={product.href}
       aria-label={`${product.name}${
-        maturity ? `, ${maturity}` : ''
+        maturity ? `, ${PORTFOLIO_STAGE_AXIS.toLowerCase()} ${maturity}` : ''
       } — learn more at ${destination}`}
       onMouseEnter={emit}
       onFocus={emit}>
@@ -145,7 +185,10 @@ function ProductCard({
             items, not from this row. */}
         <div className={styles.nameRow}>
           <h3 className={styles.name}>{product.name}</h3>
-          {maturity && <span className={styles.maturity}>{maturity}</span>}
+          {/* srAxis is false here: this card's <a> sets an aria-label, which
+              replaces the name computed from its children, so the axis rides
+              in that label instead of in a hidden span. */}
+          <StagePill productId={product.id} className={styles.maturity} />
         </div>
         <p className={styles.blurb}>{product.blurb}</p>
         <span className={styles.more}>

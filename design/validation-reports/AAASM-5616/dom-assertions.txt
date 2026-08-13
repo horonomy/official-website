@@ -1,0 +1,17 @@
+  PASS  hero uses the §6 verb "evaluates"
+  PASS  hero no longer says "applies your policy to"
+  PASS  hero no longer says "runtime boundary"
+  PASS  card uses "evaluates", carries the routing bound
+  PASS  card no longer claims tool calls (second, uncarried bound)
+  PASS  card no longer claims human review
+  PASS  card no longer claims budgets
+  PASS  every maturity pill names its axis (4 expected)
+  PASS  roadmap badges are axis-named, not hardcoded
+  PASS  non-product "More Constellations" carries no stage pill
+  PASS  hero card accessible name carries the axis
+  PASS  meta description at company altitude
+  PASS  og:description matches (social card surface)
+  PASS  no wrong-cased org link in any built page or feed
+  PASS  canonical product host present
+
+all 15 DOM assertions pass

@@ -4,7 +4,10 @@ import {
   linkDomainOf,
   trackHoronomyEvent,
 } from '@site/src/analytics/trackEvent';
-import {maturityLabelFor} from '@site/src/data/productLifecycle';
+import {
+  PORTFOLIO_STAGE_AXIS,
+  maturityLabelFor,
+} from '@site/src/data/productLifecycle';
 import styles from './styles.module.css';
 
 // Cross-hostname routing per IA plan §2.1 and UTM conventions §4 (HORO-47).
@@ -194,18 +197,65 @@ function Products(): React.ReactElement {
               </svg>
               {/* Maturity from the pinned company registry, so this badge and
                   the hero card's cannot say two different things about the
-                  same product (AAASM-5614). */}
+                  same product (AAASM-5614).
+
+                  The axis rides in a visually-hidden span here, but in the
+                  hero card's `aria-label` instead: that card sets an
+                  `aria-label` on its <a>, which replaces the accessible name
+                  computed from its children, so a hidden span inside it would
+                  never be announced. This card sets no `aria-label`, so its
+                  children are the accessible name (AAASM-5616). */}
               {AGENT_ASSEMBLY_MATURITY && (
-                <span className={styles.badgeActive}>
+                <span
+                  className={styles.badgeActive}
+                  title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
+                  <span className="hn-sr-only">{PORTFOLIO_STAGE_AXIS}: </span>
                   {AGENT_ASSEMBLY_MATURITY}
                 </span>
               )}
             </div>
             <div className={styles.productName}>AI agent assembly</div>
+            {/*
+              Every clause here is traceable to a card on agent-assembly.com's
+              `/product` page, and the bounds travel with them (AAASM-5616).
+
+              "On the paths you route through it" carries the D2 precondition
+              the product declares non-severable from its promise; without it
+              ADR 0034 §2.3 reads the scope at its widest.
+
+              "evaluates … against your policy" is the ADR 0033 §6 term
+              itself, matching the product's own hero verb rather than a
+              paraphrase of it.
+
+              It says "network calls", not "tool and network calls". The
+              routing precondition above covers network, but tools carry a
+              second, different bound the same clause cannot: MCP tool-call
+              refusal is off until an operator turns it on, and tool servers
+              over stdio — the most common setup — have no interception
+              mechanism at all. Carrying one bound and not the other is the
+              failure mode, so the tool claim is dropped rather than
+              half-qualified.
+
+              Budgets are gone because the product's spend card carries the
+              term "Unmeasured" and says the claim "is about what a policy can
+              declare, not about what stops a call" — restating that as a
+              decision verb is a D8 value above the row.
+
+              "can hold an action instead of answering it" is the product's own
+              sentence verbatim. What stood here — "holds risky actions for
+              human review" — asserted the one part it says is not there: "No
+              shipped operator surface can answer the queue the hold blocks on
+              … Do not plan on human review yet" (AAASM-5657).
+
+              "records what it decided" is the product's phrasing, and narrower
+              than "records what happened", which implies a record of the
+              action rather than of the decision.
+            */}
             <p className={styles.productBody}>
-              A governance layer for AI agents. It decides which tools,
-              domains, and budgets an agent may use, holds risky actions for
-              human review, and records what happened.
+              A governance layer for AI agents. On the paths you route through
+              it, it evaluates an agent&apos;s network calls against your
+              policy, can hold an action instead of answering it, and records
+              what it decided.
             </p>
             {/*
               Category label. "AGENT INFRASTRUCTURE" read as tooling for

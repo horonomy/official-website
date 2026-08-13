@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import {LAYERS} from './layers';
 import {PRODUCTS, type Product} from './products';
+import {isReleased} from '@site/src/data/productLifecycle';
 import {CONSTELLATIONS, type Constellation as Shape} from './constellations';
 import styles from './ConstellationMap.module.css';
 
@@ -17,7 +18,7 @@ import styles from './ConstellationMap.module.css';
  * actually opens `product.href`, matching the external-link convention
  * `ProductCards.tsx` already uses for the same product. On hover or keyboard
  * focus its connecting lines draw in, its nodes brighten, and its label is
- * emphasised. In-development products (`href` === '#') are non-interactive:
+ * emphasised. In-development products (per the registry) are non-interactive:
  * they keep their stars but stay faint and cannot be hovered, focused, or
  * clicked — rendered as a plain `<g>`. The hover/focus visual is driven by
  * CSS (`:hover` / `:focus-visible`) keyed on the shared `.constellation`
@@ -73,8 +74,11 @@ function Constellation({
   if (!shape) return null;
 
   const isPrimary = product.tone === 'primary';
-  // Products still in development (no real destination yet) are faded but kept.
-  const comingSoon = product.href === '#';
+  // Products still in development are faded but kept. "Shipped?" is a registry
+  // fact answered in one place (`isReleased`); this used to test
+  // `href === '#'`, a third independent derivation that could disagree with
+  // both the registry and the card row (AAASM-5616).
+  const comingSoon = !isReleased(product.id);
   const [lx, ly] = shape.label;
   const box = bbox(shape.nodes);
   const figures = shape.figures ?? [shape.nodes.map((_, i) => i)];

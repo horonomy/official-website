@@ -1,0 +1,25 @@
+Claim gate control run — 2026-08-13T11:55:42Z
+commit 106718f
+
+BASELINE
+  PASS  unmodified tree                                            exit 0
+
+REGRESSIONS THIS GATE SHIPPED WITH (both were found in review, not by me)
+  PASS  attrValues reverted to quoted-only                         exit 2
+  PASS  label map edited to an unapproved string                   exit 1
+
+CONTENT REGRESSIONS — one per rule, through a real build
+  PASS  banned absolute in visible product copy                    exit 1
+  PASS  banned absolute in the meta description                    exit 1
+  PASS  product link off the canonical host                        exit 1
+  PASS  maturity pill hardcoded in markup                          exit 1
+
+THE GATE'S OWN CONFIGURATION
+  PASS  phrase catalogue emptied                                   exit 2
+  PASS  a registry lifecycle member left unmapped                  exit 2
+
+RESTORED
+  PASS  tree restored                                              exit 0
+
+==============================================
+passed 10, failed 0
