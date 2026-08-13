@@ -17,13 +17,16 @@ export type Product = {
   blurb: string;
   href: string;
   tone: ProductTone;
-  /**
-   * When true the product is still in design/estimation and has not shipped.
-   * Its card renders as a non-interactive roadmap entry (no link, no pointer,
-   * no "Learn more") with a "Coming soon" label.
-   */
-  comingSoon?: boolean;
 };
+
+/*
+ * There is deliberately no `comingSoon` field here.
+ *
+ * Whether a product has shipped is a registry fact, and `isReleased()` in
+ * `src/data/productLifecycle.ts` is the one place that answers it. A boolean
+ * on this type was a second, hand-written source that nothing kept in step
+ * with the registry (AAASM-5616).
+ */
 
 export const PRODUCTS: Product[] = [
   {
@@ -59,7 +62,6 @@ export const PRODUCTS: Product[] = [
     blurb: 'The knowledge fabric of your organization.',
     href: '#',
     tone: 'secondary',
-    comingSoon: true,
   },
   {
     id: 'harbinger',
@@ -68,7 +70,6 @@ export const PRODUCTS: Product[] = [
     blurb: 'Monitoring and prediction for AI-native systems.',
     href: '#',
     tone: 'secondary',
-    comingSoon: true,
   },
   {
     id: 'more',
@@ -77,6 +78,5 @@ export const PRODUCTS: Product[] = [
     blurb: 'The universe is still expanding.',
     href: '#',
     tone: 'muted',
-    comingSoon: true,
   },
 ];

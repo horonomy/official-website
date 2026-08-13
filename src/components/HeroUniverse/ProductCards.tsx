@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
 import clsx from 'clsx';
-import {maturityLabelFor} from '@site/src/data/productLifecycle';
+import {isReleased, maturityLabelFor} from '@site/src/data/productLifecycle';
 import {LAYERS} from './layers';
 import {PRODUCTS, type Product} from './products';
 import {CONSTELLATIONS} from './constellations';
@@ -102,7 +102,7 @@ function ProductCard({
   // Products still in design/estimation render as a non-interactive roadmap
   // entry: a plain <div> (no link, no pointer, no navigation, no focus stop),
   // with a "Coming soon" label instead of the "Learn more →" affordance.
-  if (product.comingSoon) {
+  if (!isReleased(product.id)) {
     return (
       <div
         className={clsx(styles.card, styles[product.tone], styles.comingSoon)}
