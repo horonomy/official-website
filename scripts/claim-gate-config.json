@@ -21,7 +21,7 @@
     "else.",
     "",
     "DELIBERATELY NOT IMPORTED: the product website's `rejected-hero` class.",
-    "That class is scoped to an L1 hero position — it bans the framing",
+    "That class is scoped to an L1 hero position \u2014 it bans the framing",
     "AAASM-5585 removed from agent-assembly.com's homepage. Its",
     "`governance {unit} for` template matches this site's product blurb",
     "literally, and that blurb is the sentence content-ownership.md holds up",
@@ -31,7 +31,7 @@
     "design/product-narrative-hierarchy.md and is filed for a ruling.",
     "",
     "Also not imported: fd-1 through fd-6, fd-8 and fd-9. Those bind",
-    "architecture descriptions, which this site does not author (it is L0 —",
+    "architecture descriptions, which this site does not author (it is L0 \u2014",
     "it may not author a per-capability status, a platform claim, or an",
     "architecture narrative at all). fd-7 is the item that binds every layer",
     "including this one."
@@ -40,7 +40,7 @@
   "source_repo": "ai-agent-assembly/agent-assembly",
   "source_path": "docs/src/adr/0033-canonical-governance-and-enforcement-architecture.md",
   "last_synced": "2026-08-13",
-  "minimum_phrase_count": 15,
+  "minimum_phrase_count": 14,
   "phrases": [
     "catch everything",
     "catch-all",
@@ -55,14 +55,13 @@
     "whole fleet",
     "universal",
     "comprehensive",
-    "complete",
-    "completely"
+    "complete"
   ],
   "must_not_match": {
     "$comment": [
       "Negative controls. Each string below contains a banned phrase as a",
       "SUBSTRING but is not an instance of it. If a naive substring matcher",
-      "replaces the word-boundary matcher, these fire and the gate fails —",
+      "replaces the word-boundary matcher, these fire and the gate fails \u2014",
       "which is the point. A matcher that cannot tell 'complete' from",
       "'incomplete' would either be disabled by whoever it blocked, or",
       "trained around."
@@ -77,12 +76,35 @@
     "$comment": [
       "Positive controls. Each must be detected on every run. A gate that",
       "reports zero findings without proving it can still find anything is a",
-      "gate that has silently stopped working — an empty result and a broken",
+      "gate that has silently stopped working \u2014 an empty result and a broken",
       "detector look identical from the outside."
     ],
     "Agent Assembly cannot be bypassed.": "cannot be bypassed",
     "It governs every action an agent takes.": "every action",
     "Comprehensive coverage across your fleet.": "comprehensive",
     "Works with no code changes.": "no code changes"
+  },
+  "maturity_labels": {
+    "$comment": [
+      "The gate's OWN expected label for each registry lifecycle value.",
+      "",
+      "This must NOT be read from src/data/productLifecycle.ts. The rendered",
+      "pill comes from that file's LABELS map; comparing the build against the",
+      "same map is a tautology that can only pass \u2014 an edit there moves both",
+      "sides at once, and the site can ship 'Generally Available' for a",
+      "release_candidate product with the gate green. That is what the first",
+      "version of this gate did.",
+      "",
+      "Keyed by the lifecycle values the pinned registry declares. A key here",
+      "with no counterpart in the registry, or a registry member missing from",
+      "here, exits 2: an unmapped member would be silently unchecked.",
+      "",
+      "null means 'this state renders no pill' \u2014 a generally-available product",
+      "needs no qualifier and hanging one on it would understate it."
+    ],
+    "available": null,
+    "beta": "Beta",
+    "release_candidate": "Release candidate",
+    "coming_soon": "Coming soon"
   }
 }

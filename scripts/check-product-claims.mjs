@@ -33,7 +33,7 @@
  * No network, no service dependency, no fetch of the upstream ADR. AAASM-5616
  * requires that company-site deployment stay independent and resilient, so this
  * gate must be unable to fail because something else is down. The cost is that
- * scripts/banned-absolutes.json is a synced copy rather than a live read; the
+ * scripts/claim-gate-config.json is a synced copy rather than a live read; the
  * file documents how to keep it in step.
  *
  * IT SCANS THE BUILD, NOT THE SOURCE
@@ -54,6 +54,13 @@ import {fileURLToPath} from 'node:url';
 
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..');
 const argIdx = process.argv.indexOf('--build-dir');
+if (argIdx > -1 && !process.argv[argIdx + 1]) {
+  // Without this the join() throws a TypeError and node exits 1 — the same
+  // code as "found a claim problem". A usage error must not be reportable as
+  // a finding, and neither should look like the other.
+  console.error('usage: check-product-claims.mjs [--build-dir <path>]');
+  process.exit(2);
+}
 const BUILD_DIR = join(ROOT, argIdx > -1 ? process.argv[argIdx + 1] : 'build');
 
 const RED = (s) => `\x1b[31m${s}\x1b[0m`;
@@ -99,10 +106,10 @@ function phraseRegex(phrase) {
 let catalogue;
 try {
   catalogue = JSON.parse(
-    readFileSync(join(ROOT, 'scripts/banned-absolutes.json'), 'utf8'),
+    readFileSync(join(ROOT, 'scripts/claim-gate-config.json'), 'utf8'),
   );
 } catch (e) {
-  brokenGate(`cannot read scripts/banned-absolutes.json — ${e.message}`);
+  brokenGate(`cannot read scripts/claim-gate-config.json — ${e.message}`);
 }
 
 const PHRASES = catalogue.phrases ?? [];
@@ -198,7 +205,10 @@ function readRegistry() {
     brokenGate(`cannot read the generated company metadata — ${e.message}`);
   }
   const websites = [...src.matchAll(/website:\s*"([^"]+)"/g)].map((m) => m[1]);
-  const lifecycles = [...src.matchAll(/^\s*\|\s*"([a-z_]+)"$/gm)].map((m) => m[1]);
+  // The final union member ends `";` rather than `"`, so an anchored match
+  // without the optional semicolon silently drops it — which is how the last
+  // lifecycle member went unmapped and unchecked.
+  const lifecycles = [...src.matchAll(/^\s*\|\s*"([a-z_]+)";?\s*$/gm)].map((m) => m[1]);
   const catalog = [...src.matchAll(/\{id:\s*"([^"]+)"[^}]*lifecycle:\s*"([a-z_]+)"\}/g)].map(
     (m) => ({id: m[1], lifecycle: m[2]}),
   );
@@ -212,30 +222,6 @@ function readRegistry() {
   return {websites, lifecycles, catalog};
 }
 
-/** The lifecycle -> rendered-label map, as an object. */
-function readDeclaredLabels() {
-  let src;
-  try {
-    src = readFileSync(join(ROOT, 'src/data/productLifecycle.ts'), 'utf8');
-  } catch (e) {
-    brokenGate(`cannot read src/data/productLifecycle.ts — ${e.message}`);
-  }
-  const block = src.match(
-    /const LABELS: Record<ProductLifecycle, string \| null> = \{([\s\S]*?)\};/,
-  );
-  if (!block) {
-    brokenGate(
-      'could not parse the LABELS map out of src/data/productLifecycle.ts — ' +
-        'the maturity rule would have nothing to compare against',
-    );
-  }
-  const map = {};
-  for (const m of block[1].matchAll(/([a-z_]+):\s*(?:'([^']*)'|null)/g)) {
-    map[m[1]] = m[2] ?? null;
-  }
-  return map;
-}
-
 // ---------------------------------------------------------------------------
 // HTML helpers
 // ---------------------------------------------------------------------------
@@ -246,7 +232,10 @@ function walk(dir) {
     const p = join(dir, name);
     const st = statSync(p);
     if (st.isDirectory()) out.push(...walk(p));
-    else if (name.endsWith('.html')) out.push(p);
+    // Feeds carry post prose verbatim and are a published surface a reader
+    // subscribes to, so a claim that never appears in an .html page can still
+    // ship in rss.xml / atom.xml.
+    else if (/\.(html|xml)$/.test(name)) out.push(p);
   }
   return out;
 }
@@ -343,12 +332,23 @@ function pillLabels(html) {
 const RULES = [
   {
     id: 'banned-absolute',
-    run: (html) =>
-      findPhrases(visibleText(html)).map(
+    /**
+     * Visible prose, plus the attributes a reader is read aloud or shown on
+     * hover. `alt`, `title` and `aria-label` are prose to a screen-reader user
+     * and to anyone with images off; a ban that only reaches text nodes lets
+     * the same sentence through in the one place a sighted reviewer never
+     * looks.
+     */
+    run: (html) => {
+      const spoken = ['alt', 'title', 'aria-label']
+        .flatMap((a) => attrValues(html, a))
+        .join(' \u2014 ');
+      return findPhrases(visibleText(html) + ' \u2014 ' + spoken).map(
         (h) =>
           `"${h.matched}" — ADR 0033 forbidden design 7. Unwaivable ` +
           `(ADR 0034 Decision 10); there is no approver for this.`,
-      ),
+      );
+    },
   },
   {
     id: 'banned-absolute-metadata',
@@ -398,8 +398,12 @@ const RULES = [
         .map(
           (l) =>
             `maturity label "${l}" is not one the pinned registry produces ` +
-            `(expected one of: ${[...ctx.expectedLabels].join(', ')}). A pill ` +
-            `hardcoded in markup bypasses the derivation the registry owns.`,
+            `(expected one of: ${[...ctx.expectedLabels].join(', ')}). Either ` +
+            `the pill is hardcoded in markup, bypassing the derivation, or ` +
+            `src/data/productLifecycle.ts now maps a lifecycle to a different ` +
+            `string than scripts/claim-gate-config.json expects. Both change ` +
+            `what the portfolio-lifecycle axis says, and that axis is the ` +
+            `company registry's.`,
         ),
   },
 ];
@@ -419,46 +423,129 @@ function ruleSelfTest(ctx) {
   const good = [...ctx.expectedLabels][0] ?? 'Release candidate';
   const canonical = [...ctx.canonicalHosts][0] ?? 'agent-assembly.com';
 
-  // Unquoted attributes on purpose — that is how the minifier emits them.
-  const dirty = `<html><head>
-<meta name="description" content="It governs every action an agent takes.">
-</head><body>
-<p>Agent Assembly cannot be bypassed.</p>
-<a href=https://not-the-canonical-agent-assembly.example.com>x</a>
-<a href="https://github.com/AI-agent-assembly">y</a>
-<span title="Portfolio stage — axis"><span>Portfolio stage: </span>Totally Made Up</span>
-</body></html>`;
+  /**
+   * One violation per case, with the exact count asserted.
+   *
+   * "Did the rule fire at all" is not enough, and that weakness hid the
+   * original defect. The first self-test put two independent canonical-link
+   * violations in one fixture — one quoted, one unquoted — and asserted only
+   * `length > 0`. Either alone satisfied it, so reverting `attrValues` to
+   * quoted-only, the exact regression this test exists to catch, left the
+   * self-test green. In the real build 36 of 43 hrefs are unquoted, so the
+   * quoted-only matcher is the one that reads almost nothing.
+   *
+   * Every extractor therefore gets its own unquoted case, not just the one
+   * whose failure happened to cause the incident.
+   */
+  const cases = [
+    {
+      rule: 'banned-absolute',
+      name: 'banned phrase in visible prose',
+      html: '<html><body><p>Agent Assembly cannot be bypassed.</p></body></html>',
+      expect: 1,
+    },
+    {
+      rule: 'banned-absolute',
+      name: 'banned phrase in an attribute a reader hears (alt)',
+      html: '<html><body><img alt="It governs every action an agent takes."></body></html>',
+      expect: 1,
+    },
+    {
+      rule: 'banned-absolute-metadata',
+      name: 'meta description, quoted',
+      html: '<html><head><meta name="description" content="Comprehensive governance."></head></html>',
+      expect: 1,
+    },
+    {
+      rule: 'banned-absolute-metadata',
+      name: 'meta description, UNQUOTED content',
+      html: '<html><head><meta name=description content=comprehensive></head></html>',
+      expect: 1,
+    },
+    {
+      rule: 'canonical-link',
+      name: 'non-canonical product host, UNQUOTED href',
+      html: '<html><body><a href=https://evil-agent-assembly.example.com>x</a></body></html>',
+      expect: 1,
+    },
+    {
+      rule: 'canonical-link',
+      name: 'non-canonical product host, quoted href',
+      html: '<html><body><a href="https://evil-agent-assembly.example.com/?a=1&b=2">x</a></body></html>',
+      expect: 1,
+    },
+    {
+      rule: 'canonical-link',
+      name: 'wrong-cased organisation, UNQUOTED href',
+      html: '<html><body><a href=https://github.com/AI-agent-assembly>y</a></body></html>',
+      expect: 1,
+    },
+    {
+      rule: 'maturity-vocabulary',
+      name: 'undeclared label, quoted title',
+      html: '<html><body><span title="Portfolio stage — axis">Totally Made Up</span></body></html>',
+      expect: 1,
+    },
+    {
+      rule: 'maturity-vocabulary',
+      name: 'undeclared label behind a nested visually-hidden span',
+      html:
+        '<html><body><span title="Portfolio stage — axis">' +
+        '<span class=hn-sr-only>Portfolio stage<!-- -->: </span>Totally Made Up' +
+        '</span></body></html>',
+      expect: 1,
+    },
+  ];
 
+  /** Must produce nothing from any rule. */
   const clean = `<html><head>
 <meta name="description" content="A company building governance-first systems.">
+<meta name=viewport content=width=device-width>
 </head><body>
 <p>It records what it decided.</p>
+<img alt="The First Horologer, observing the sky">
 <a href=https://${canonical}>x</a>
-<span title="Portfolio stage — axis"><span>Portfolio stage: </span>${good}</span>
+<a href="https://${canonical}/?utm_source=a&utm_medium=b">x</a>
+<a href=https://github.com/ai-agent-assembly>y</a>
+<span title="Portfolio stage — axis"><span class=hn-sr-only>Portfolio stage<!-- -->: </span>${good}</span>
 </body></html>`;
 
   const failures = [];
-  for (const rule of RULES) {
-    if (rule.run(dirty, ctx).length === 0) {
-      failures.push(
-        `rule '${rule.id}' did not fire on a page built to violate it — it is ` +
-          `inert, so a clean report from it means nothing`,
-      );
+
+  for (const c of cases) {
+    const rule = RULES.find((r) => r.id === c.rule);
+    if (!rule) {
+      failures.push(`self-test names unknown rule '${c.rule}'`);
+      continue;
     }
-    const noise = rule.run(clean, ctx);
-    if (noise.length > 0) {
+    const n = rule.run(c.html, ctx).length;
+    if (n !== c.expect) {
       failures.push(
-        `rule '${rule.id}' fired on a compliant page: ${noise[0]}`,
+        `[${c.rule}] "${c.name}": expected exactly ${c.expect} finding(s), ` +
+          `got ${n} — the extractor for this form is not reading it`,
       );
     }
   }
+
+  for (const rule of RULES) {
+    const noise = rule.run(clean, ctx);
+    if (noise.length) {
+      failures.push(`[${rule.id}] fired on a compliant page: ${noise[0]}`);
+    }
+    if (!cases.some((c) => c.rule === rule.id)) {
+      failures.push(
+        `[${rule.id}] has no self-test case, so nothing proves it works`,
+      );
+    }
+  }
+
   if (failures.length) {
     brokenGate(
       'rule self-test failed, so no result from this run is trustworthy:\n  - ' +
         failures.join('\n  - '),
     );
   }
-  return RULES.length * 2;
+  return cases.length + RULES.length;
 }
 
 // ---------------------------------------------------------------------------
@@ -467,25 +554,46 @@ function ruleSelfTest(ctx) {
 
 const phraseControls = runSelfTest();
 const {websites, lifecycles, catalog} = readRegistry();
-const labelMap = readDeclaredLabels();
 
 /**
- * The labels the registry can actually produce today: the rendered label for
- * each catalog product's declared lifecycle. Comparing the build against the
- * whole LABELS map would be circular — it would accept any label the map
- * happens to contain, including one just edited in. This accepts only what the
- * pinned registry's own lifecycle values map to, so a pill hardcoded in markup,
- * or a label attached to a lifecycle no product holds, is a finding.
+ * The labels the site may render, derived from the pinned registry's
+ * per-product lifecycle through the GATE'S OWN map.
+ *
+ * Deliberately not read from src/data/productLifecycle.ts. The pill in the
+ * build is rendered from that file's LABELS map, so comparing one against the
+ * other compares a value with itself: an edit moves the page and the
+ * expectation together and the gate stays green. The first version of this
+ * gate did exactly that, and would have certified "Generally Available" on a
+ * release_candidate product as clean.
  */
+const gateLabels = catalogue.maturity_labels ?? {};
+const mappedLifecycles = Object.keys(gateLabels).filter((k) => !k.startsWith('$'));
+
+for (const member of lifecycles) {
+  if (!mappedLifecycles.includes(member)) {
+    brokenGate(
+      `the registry declares lifecycle member '${member}' and ` +
+        `scripts/claim-gate-config.json has no expected label for it, so a ` +
+        `product in that state would be unchecked. Add it to maturity_labels.`,
+    );
+  }
+}
+for (const member of mappedLifecycles) {
+  if (!lifecycles.includes(member)) {
+    brokenGate(
+      `scripts/claim-gate-config.json maps lifecycle member '${member}', ` +
+        `which the pinned registry does not declare — the map has drifted.`,
+    );
+  }
+}
+
 const expectedLabels = new Set(
-  catalog
-    .map((p) => labelMap[p.lifecycle])
-    .filter((l) => typeof l === 'string' && l.length > 0),
+  catalog.map((x) => gateLabels[x.lifecycle]).filter((l) => typeof l === 'string' && l),
 );
 if (!expectedLabels.size) {
   brokenGate(
-    'no maturity label is derivable from the pinned registry, so the ' +
-      'maturity rule would accept anything',
+    'no maturity label is expected for any catalog product, so the maturity ' +
+      'rule would accept anything',
   );
 }
 
