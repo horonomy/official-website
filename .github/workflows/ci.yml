@@ -3,6 +3,12 @@ name: CI
 on:
   pull_request:
     branches: [main]
+  # Also on main. `deploy.yml` publishes from main, so a gate that only runs on
+  # pull requests cannot see the tree that actually ships: two individually
+  # green PRs can merge into a red main, and the claim gate would never look at
+  # the result it deploys (AAASM-5616).
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
