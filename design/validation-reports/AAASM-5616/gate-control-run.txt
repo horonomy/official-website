@@ -1,5 +1,5 @@
-Claim gate control run — 2026-08-13T11:49:08Z
-commit e7c3b8b
+Claim gate control run — 2026-08-13T11:55:42Z
+commit 106718f
 
 BASELINE
   PASS  unmodified tree                                            exit 0
