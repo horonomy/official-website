@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with
 code in this repository. It layers on top of the Horonom org-wide baseline at
 [`horonomy/.github`](https://github.com/horonomy/.github) (`.github/CLAUDE.md`),
-which carries the shared engineering policy for all Horonomy repos.
+which carries the shared engineering policy for all Horonom repos.
 
 ## What this repository is
 
