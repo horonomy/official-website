@@ -47,6 +47,22 @@ future product-site repo are independently deployed Docusaurus sites; a
 versioned package is worth the distribution overhead only once at least one
 more repo is actually consuming these tokens in production.
 
+## Product Registry (HORO-282)
+
+`src/data/productRegistry.ts` is the canonical, version-controlled Horonom
+product portfolio — name, category, one-line problem statement, maturity,
+and canonical/family/GitHub URLs for every publicly-shown product. It is
+the intended source for the corporate site's System Map (HORO-284) and the
+Horo Run Product Atlas (HORO-285); do not hand-duplicate a product's name,
+URL, or maturity label anywhere else that could drift.
+
+To add or update a product: edit one entry in `PRODUCT_REGISTRY`, then run
+`pnpm check:registry` (schema/invariant validation) and `pnpm typecheck`
+before opening a PR — both run in CI. Full procedure and field reference are
+documented in the file's own header comment. This is a separate, richer
+registry from `src/generated/company-metadata.ts`'s minimal footer catalog
+— see that file's registry for why they aren't merged.
+
 ## Develop
 
 ```bash
