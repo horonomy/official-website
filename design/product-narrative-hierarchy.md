@@ -1,4 +1,4 @@
-# Horonomy → product narrative hierarchy
+# Horonom → product narrative hierarchy
 
 How the company site talks about a product it does not own the truth about.
 
@@ -8,7 +8,7 @@ How the company site talks about a product it does not own the truth about.
 
 ## Why this document exists
 
-Horonomy is a company. Agent Assembly is a product. The two have separate
+Horonom is a company. Agent Assembly is a product. The two have separate
 websites, separate repositories and — since the product lives in a different
 GitHub organisation — separate review populations. That separation is what makes
 the failure mode available: this site can publish a sentence about Agent Assembly
@@ -63,7 +63,7 @@ here restates it.
 `content-ownership.md`'s L0 row is the authority for this table; it is reproduced
 here in the terms a contributor to this repository will meet.
 
-| | Horonomy owns (author it here) | Agent Assembly owns (restate only) |
+| | Horonom owns (author it here) | Agent Assembly owns (restate only) |
 |---|---|---|
 | **Purpose** | Why the company exists; the thesis about autonomy needing structure | Why the product exists; the pain it addresses |
 | **Principles** | The company's engineering and ethical principles | The product's design rationale and architecture |
@@ -81,7 +81,7 @@ claim, integration instructions, or any statement that widens.
 
 The one place the left column can quietly become the right column is
 long-term direction. Company intent — *we believe autonomous systems need
-explicit boundaries* — is Horonomy's to state. The same sentence acquires a
+explicit boundaries* — is Horonom's to state. The same sentence acquires a
 product subject the moment it names a capability, a date or an availability, and
 at that point it is a product roadmap claim, which ADR 0034 hand-off 4 assigns to
 the product website, not here.
@@ -218,7 +218,7 @@ subject.
 |---|---|---|---|
 | **Behaviour on evidence** | ADR 0033 §6's eleven claim terms | ADR 0033 §6 (`agent-assembly`) | One **action** on one host, at one time |
 | **Documentation-area maturity** | `🧪 Release candidate`, `🗺️ Planned` | Docs Hub `source-of-truth.md` | One **area of Agent Assembly documentation** |
-| **Portfolio lifecycle** | `available`, `beta`, `release_candidate`, `coming_soon` | **This site's pinned product registry** | One **product in the Horonomy portfolio** |
+| **Portfolio lifecycle** | `available`, `beta`, `release_candidate`, `coming_soon` | **This site's pinned product registry** | One **product in the Horonom portfolio** |
 
 Concretely: a portfolio-lifecycle value says nothing about a documentation area;
 a documentation-area label says nothing about an action's behaviour; and a §6
@@ -232,7 +232,7 @@ naming its axis is the conflation this table exists to prevent.
 
 ### The portfolio-lifecycle axis is this site's own
 
-Of the three, exactly one belongs to Horonomy. Its four members are declared in
+Of the three, exactly one belongs to Horonom. Its four members are declared in
 `src/generated/company-metadata.ts` as the `ProductLifecycle` union and rendered
 by `src/data/productLifecycle.ts`:
 
@@ -295,7 +295,7 @@ It does not carry the decision across to the Docs Hub, and it does not edit
 cross-reference is
 [AAASM-5655](https://lightning-dust-mite.atlassian.net/browse/AAASM-5655)'s, and
 that ticket is still open. Nothing here contradicts it: this document names the
-axis on the Horonomy side and leaves the crossing where 5655 owns it.
+axis on the Horonom side and leaves the crossing where 5655 owns it.
 
 ---
 
