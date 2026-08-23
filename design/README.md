@@ -1,6 +1,6 @@
 # Design
 
-Versioned design source of truth for the Horonomy website. Reference material —
+Versioned design source of truth for the Horonom website. Reference material —
 not production code. Production lives under `src/`.
 
 ```
