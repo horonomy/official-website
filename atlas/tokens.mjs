@@ -40,8 +40,12 @@ export function extractTokens(cssSource, minCount = MIN_TOKEN_COUNT) {
   // Match by declaration, not by line: several --hn-* values (e.g.
   // --hn-glass-bg's linear-gradient(...)) span multiple lines, so a
   // line-by-line split would truncate them mid-value.
-  const declarations = [...body.matchAll(/--hn-[\w-]+:\s*[^;]+;/gs)].map((m) =>
-    m[0].replace(/\s+/g, ' ').trim(),
+  // No `\s*` before `[^;]+`: both would match whitespace, and two adjacent
+  // quantifiers over overlapping character sets is the ReDoS-shaped
+  // pattern static analysis flags (SonarCloud javascript:S8786) — `[^;]+`
+  // alone already covers any leading whitespace in the value.
+  const declarations = [...body.matchAll(/--hn-[\w-]+:[^;]+;/gs)].map((m) =>
+    m[0].replaceAll(/\s+/g, ' ').trim(),
   );
 
   if (declarations.length < minCount) {
