@@ -43,6 +43,13 @@ jobs:
       - name: Type-check
         run: pnpm typecheck
 
+      # Runs before the build, cheaply, on the source module — an invalid
+      # product entry (bad maturity label, duplicate slug, missing URL)
+      # should fail fast rather than surface only once check:claims reads
+      # the rendered HTML (HORO-282).
+      - name: Validate product registry
+        run: pnpm check:registry
+
       - name: Build
         run: pnpm build
 
