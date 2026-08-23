@@ -89,7 +89,7 @@ at the layer that owns it — never to declare a namespace here.
 
 > **Known divergence from ADR 0034 Decision 9.** That decision requires reviewer
 > **classes** filled by a team or group, never an individual. This repository's
-> `CODEOWNERS` names one person, because the Horonomy organisation has no team
+> `CODEOWNERS` names one person, because the Horonom organisation has no team
 > configured for this repository. It is recorded here rather than papered over
 > with a team name that does not exist: a record naming a non-existent team
 > would pass a validator and route no review. Resolving it means creating the
