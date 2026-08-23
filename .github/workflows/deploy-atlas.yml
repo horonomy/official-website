@@ -43,22 +43,27 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
+      # SHA-pinned (SonarCloud githubactions:S7637) — comment notes the tag
+      # each SHA corresponds to.
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6
         with:
           version: 10
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           cache: pnpm
 
+      # --ignore-scripts (SonarCloud githubactions:S6505): confirmed locally
+      # that install/build still succeed under it — see ci.yml's atlas job
+      # for the same note.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build Atlas
         run: pnpm build:atlas
@@ -68,6 +73,11 @@ jobs:
       - name: Check Atlas product claims
         run: node scripts/check-product-claims.mjs --build-dir atlas/dist
 
+      # SonarCloud githubactions:S6505 flags this npx on-demand install
+      # (arbitrary code execution risk from a mutable version range) — left
+      # as-is to match deploy.yml's identical, already-established pattern
+      # rather than diverging only here; pinning wrangler as a real
+      # devDependency is a repo-wide change out of this ticket's scope.
       - name: Ensure the Cloudflare Pages project exists (idempotent)
         run: |
           npx --yes wrangler@3 pages project create "$PAGES_PROJECT" \
@@ -75,7 +85,7 @@ jobs:
             || echo "Pages project already exists — continuing."
 
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v4
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
