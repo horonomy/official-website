@@ -76,7 +76,7 @@ function Lore(): React.ReactElement {
             width={132}
             height={132}
             loading="lazy"
-            alt="The First Horologer — Horonomy's mascot, observing the sky with an astrolabe"
+            alt="The First Horologer — Horonom's mascot, observing the sky with an astrolabe"
           />
           <div className={styles.loreLabel}>
             THE LORE
@@ -208,7 +208,7 @@ function Products(): React.ReactElement {
               {AGENT_ASSEMBLY_MATURITY && (
                 <span
                   className={styles.badgeActive}
-                  title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
+                  title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonom portfolio`}>
                   <span className="hn-sr-only">{PORTFOLIO_STAGE_AXIS}: </span>
                   {AGENT_ASSEMBLY_MATURITY}
                 </span>
@@ -317,7 +317,7 @@ function Manifesto(): React.ReactElement {
         <div className="hn-section-kicker">Manifesto</div>
         <p className={styles.manifestoText}>
           Software is becoming autonomous. But autonomy without boundaries
-          becomes drift. Horonomy builds the systems that make autonomy{' '}
+          becomes drift. Horonom builds the systems that make autonomy{' '}
           <span className={styles.cyan}>explicit, governable, and safe to scale.</span>
         </p>
         <a
