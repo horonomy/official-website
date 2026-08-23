@@ -1,0 +1,22 @@
+// Type-checks the Atlas build script and its pure helper modules. Separate
+// from the repo root tsconfig.json (which is Docusaurus's, extends
+// @docusaurus/tsconfig, and excludes this directory implicitly by never
+// including it) because the Atlas is a distinct Node entrypoint with its
+// own module resolution needs (import ../src/data/productRegistry.ts by
+// its .ts extension, which Docusaurus's tsconfig does not enable).
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "checkJs": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["./**/*.mjs", "./**/*.mts", "../src/data/productRegistry.ts"],
+  "exclude": ["dist", "test"]
+}

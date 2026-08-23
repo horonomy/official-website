@@ -1,0 +1,171 @@
+/* Product Atlas layout (HORO-285). --hn-* custom properties above this
+   block are injected at build time from src/css/custom.css by tokens.mjs —
+   this file only lays the page out and never redeclares a color/spacing
+   value that a token already owns. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--hn-graphite);
+  color: var(--hn-text);
+  font-family: var(--hn-font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.hn-atlas-skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10;
+  background: var(--hn-text);
+  color: var(--hn-graphite);
+  padding: var(--hn-space-3) var(--hn-space-4);
+  border-radius: var(--hn-radius-sm);
+}
+
+.hn-atlas-skip:focus {
+  left: var(--hn-space-4);
+  top: var(--hn-space-4);
+}
+
+.hn-atlas-header {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--hn-space-8) var(--hn-gutter) var(--hn-space-6);
+}
+
+.hn-atlas-header__kicker {
+  font-family: var(--hn-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hn-faint);
+  margin: 0 0 var(--hn-space-3);
+}
+
+.hn-atlas-header__title {
+  font-size: 40px;
+  line-height: 1.1;
+  margin: 0 0 var(--hn-space-4);
+  color: var(--hn-ink);
+}
+
+.hn-atlas-header__framing {
+  font-size: 17px;
+  color: var(--hn-muted);
+  margin: 0 0 var(--hn-space-5);
+}
+
+.hn-atlas-header__back {
+  color: var(--hn-cyan);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.hn-atlas-header__back:hover,
+.hn-atlas-header__back:focus-visible {
+  text-decoration: underline;
+}
+
+.hn-atlas-grid {
+  list-style: none;
+  margin: 0 auto;
+  max-width: 960px;
+  padding: 0 var(--hn-gutter) var(--hn-space-8);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--hn-space-5);
+}
+
+.hn-atlas-card {
+  border: 1px solid var(--hn-line);
+  border-radius: var(--hn-radius-md);
+  padding: var(--hn-space-5);
+  background: var(--hn-panel);
+  box-shadow: var(--hn-shadow-sm);
+}
+
+.hn-atlas-card__eyebrow {
+  font-family: var(--hn-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hn-faint);
+  margin: 0 0 var(--hn-space-2);
+}
+
+.hn-atlas-card__celestial {
+  color: var(--hn-gold);
+}
+
+.hn-atlas-card__name {
+  font-size: 20px;
+  margin: 0 0 var(--hn-space-2);
+  color: var(--hn-ink);
+}
+
+.hn-atlas-card__problem {
+  font-size: 14px;
+  color: var(--hn-text);
+  margin: 0 0 var(--hn-space-3);
+}
+
+.hn-atlas-card__maturity {
+  font-family: var(--hn-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--hn-muted);
+  margin: 0 0 var(--hn-space-4);
+}
+
+.hn-atlas-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hn-space-2);
+  color: var(--hn-graphite);
+  background: var(--hn-text);
+  border-radius: var(--hn-radius-sm);
+  padding: var(--hn-space-2) var(--hn-space-4);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.hn-atlas-card__link:hover {
+  background: #ffffff;
+}
+
+.hn-atlas-card__link:focus-visible {
+  outline: none;
+  box-shadow: var(--hn-focus-ring);
+}
+
+.hn-atlas-card__pending {
+  display: inline-block;
+  color: var(--hn-faint);
+  font-size: 13px;
+  font-style: italic;
+}
+
+@media (max-width: 720px) {
+  .hn-atlas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --hn-gutter: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -3,6 +3,7 @@
 
 # Production
 /build
+/atlas/dist
 
 # Generated files
 .docusaurus
