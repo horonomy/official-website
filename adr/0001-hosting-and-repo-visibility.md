@@ -1,4 +1,4 @@
-# ADR 0001: Repository visibility and hosting for the Horonomy website
+# ADR 0001: Repository visibility and hosting for the Horonom website
 
 **Status**: Accepted
 **Date**: 2026-07-03
@@ -9,7 +9,7 @@
 
 ## Context
 
-`horonomy/official-website` is the Horonomy parent-company marketing site (Docusaurus
+`horonomy/official-website` is the Horonom parent-company marketing site (Docusaurus
 + TypeScript). Two decisions needed a durable record:
 
 1. **Repository visibility** — public or private.
