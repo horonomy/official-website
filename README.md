@@ -1,8 +1,8 @@
-# Horonomy — official website
+# Horonom — official website
 
 > Defining the boundaries of autonomy.
 
-The Horonomy company website, built with [Docusaurus](https://docusaurus.io/)
+The Horonom company website, built with [Docusaurus](https://docusaurus.io/)
 (classic preset, TypeScript). The homepage implements design direction **3a —
 "The First Horologer"** (observatory hero) joined to the full-page content
 architecture (Hero → Lore → Philosophy → Products → Manifesto), from the

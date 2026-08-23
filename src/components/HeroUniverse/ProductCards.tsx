@@ -111,7 +111,7 @@ function StagePill({
   return (
     <span
       className={className}
-      title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonomy portfolio`}>
+      title={`${PORTFOLIO_STAGE_AXIS} — where this product sits in the Horonom portfolio`}>
       {srAxis && <span className="hn-sr-only">{PORTFOLIO_STAGE_AXIS}: </span>}
       {maturity}
     </span>

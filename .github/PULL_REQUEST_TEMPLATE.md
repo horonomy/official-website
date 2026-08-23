@@ -1,6 +1,6 @@
 <!--
 PR title format: [<ticket>] <emoji> (<scope>): <summary>
-Example:        [AAASM-4024] ✨ (site): Implement Horonomy homepage
+Example:        [AAASM-4024] ✨ (site): Implement Horonom homepage
 -->
 
 ## What changed

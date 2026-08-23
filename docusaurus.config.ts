@@ -24,7 +24,7 @@ import {
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Horonomy',
+  title: 'Horonom',
   tagline: 'Defining the boundaries of autonomy.',
   favicon: 'img/favicon.svg',
 
@@ -164,9 +164,9 @@ const config: Config = {
       respectPrefersColorScheme: false,
     },
     navbar: {
-      title: 'Horonomy',
+      title: 'Horonom',
       logo: {
-        alt: 'Horonomy',
+        alt: 'Horonom',
         src: 'img/logo.svg',
       },
       hideOnScroll: false,

@@ -34,7 +34,7 @@ export default function HeroCopy(): React.ReactElement {
         <span className={styles.gold}>Intelligence.</span>
       </h1>
       <p className={styles.subhead}>
-        Horonomy is an AI-native company building governance-first systems for
+        Horonom is an AI-native company building governance-first systems for
         autonomous software. Our first product,{' '}
         <span className={styles.gold}>Agent Assembly</span>, evaluates the
         agent actions you route through it against your policy — and records

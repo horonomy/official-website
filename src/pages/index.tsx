@@ -17,7 +17,7 @@ export default function Home(): React.ReactElement {
     // matches what the page says (AAASM-5616).
     <Layout
       title={siteConfig.title}
-      description="Horonomy is an AI-native company building governance-first systems for autonomous software — starting with Agent Assembly, our first product.">
+      description="Horonom is an AI-native company building governance-first systems for autonomous software — starting with Agent Assembly, our first product.">
       <main>
         <HeroUniverse />
         <Sections />
