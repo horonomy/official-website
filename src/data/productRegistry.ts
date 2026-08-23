@@ -98,7 +98,9 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     // Horo Run family-alias row below.
     canonicalUrl: 'https://agent-assembly.com',
     familyAliasUrl: 'https://agent-assembly.horo.run',
-    docsUrl: 'https://agent-assembly.com/docs',
+    // Not verified against the live site — leave null rather than guess a
+    // path. Fill in once confirmed to actually resolve.
+    docsUrl: null,
     appUrl: null,
     apiUrl: null,
     githubUrl: 'https://github.com/ai-agent-assembly',
