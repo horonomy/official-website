@@ -61,3 +61,45 @@ jobs:
       # different event from a finding and is not swallowed here.
       - name: Check product claims
         run: pnpm check:claims
+
+  atlas:
+    name: atlas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      # Separate Node version from the `build` job (which stays on 20): the
+      # Atlas build script runs under Node's native TypeScript type
+      # stripping (--experimental-strip-types), default-on from Node 22.18.
+      - name: Set up Node.js
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check Atlas
+        run: pnpm typecheck:atlas
+
+      - name: Test Atlas
+        run: pnpm test:atlas
+
+      - name: Build Atlas
+        run: pnpm build:atlas
+
+      - name: Check Atlas product claims
+        run: node scripts/check-product-claims.mjs --build-dir atlas/dist
+
+      - name: Upload Atlas build
+        uses: actions/upload-artifact@v4
+        with:
+          name: atlas-dist
+          path: atlas/dist
