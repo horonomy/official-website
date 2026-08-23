@@ -45,6 +45,46 @@
   --hn-shell-max: 1280px;
   --hn-gutter: 64px;
 
+  /* Spacing scale (HORO-283) — the increments already in use across Hero /
+     Sections / ProductCards, named so a future product site can match rhythm
+     without re-deriving pixel values from this site's markup. */
+  --hn-space-1: 4px;
+  --hn-space-2: 8px;
+  --hn-space-3: 12px;
+  --hn-space-4: 16px;
+  --hn-space-5: 24px;
+  --hn-space-6: 32px;
+  --hn-space-7: 48px;
+  --hn-space-8: 64px;
+
+  /* Radius scale (HORO-283) — `sm` matches buttons/inputs, `md` matches
+     cards (ProductCards `.card`), `pill` matches maturity/status badges. */
+  --hn-radius-sm: 10px;
+  --hn-radius-md: 14px;
+  --hn-radius-pill: 999px;
+
+  /* Elevation scale (HORO-283) — three resting/hover levels, formalizing the
+     shadow values already hand-tuned in ProductCards/HeroCtaGroup so other
+     surfaces (and other product sites) can match depth without re-deriving
+     opacity/blur by eye. */
+  --hn-shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.3);
+  --hn-shadow-md: 0 10px 26px rgba(0, 0, 0, 0.35);
+  --hn-shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.4);
+
+  /* Focus ring (HORO-283) — the single keyboard-focus treatment. Every
+     interactive primitive (`.hn-btn`, ProductCards `.card`, ConstellationMap
+     `.constellation`) should key its `:focus-visible` outline/shadow off
+     this pair rather than inventing its own cyan value. */
+  --hn-focus-ring-color: var(--hn-cyan);
+  --hn-focus-ring: 0 0 0 2px var(--hn-graphite), 0 0 0 4px var(--hn-cyan);
+
+  /* Breakpoints (HORO-283) — documented reference values, not consumable
+     custom properties: CSS media queries cannot read `var()` in a condition.
+     Every `@media` in this codebase should use exactly these two widths
+     rather than a nearby-but-different number. */
+  /* --hn-bp-tablet: 996px */
+  /* --hn-bp-mobile: 560px */
+
   /* Infima overrides */
   --ifm-color-primary: #00b2ff;
   --ifm-color-primary-dark: #00a0e6;
@@ -202,8 +242,14 @@ body {
   font-weight: 600;
   font-size: 15px;
   padding: 14px 26px;
+  border-radius: var(--hn-radius-sm);
   text-decoration: none;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.hn-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--hn-focus-ring);
 }
 
 .hn-btn--solid {
