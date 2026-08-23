@@ -1,4 +1,4 @@
-# Horonomy — official website
+# Horonom — official website
 
 > Defining the boundaries of autonomy.
 
