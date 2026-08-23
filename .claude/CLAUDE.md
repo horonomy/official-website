@@ -1,13 +1,13 @@
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with
-code in this repository. It layers on top of the Horonomy org-wide baseline at
+code in this repository. It layers on top of the Horonom org-wide baseline at
 [`horonomy/.github`](https://github.com/horonomy/.github) (`.github/CLAUDE.md`),
 which carries the shared engineering policy for all Horonomy repos.
 
 ## What this repository is
 
-The **Horonomy company website** — the public marketing site served at
+The **Horonom company website** — the public marketing site served at
 [horonomy.dev](https://horonomy.dev). It is a [Docusaurus](https://docusaurus.io/)
 site (v3, classic preset, TypeScript). The homepage implements design direction
 **3a — "The First Horologer"** (observatory hero). This is a content/presentation
