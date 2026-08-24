@@ -81,8 +81,10 @@ for (const entryText of entries) {
   if (!canonicalUrl || !httpsRe.test(canonicalUrl)) {
     errors.push(`${label}: canonicalUrl must be an https URL, got "${canonicalUrl}"`);
   }
-  if (!githubUrl || !httpsRe.test(githubUrl)) {
-    errors.push(`${label}: githubUrl must be an https URL, got "${githubUrl}"`);
+  if (githubUrl === undefined) {
+    errors.push(`${label}: missing githubUrl (use null if the repo is not public-visitable)`);
+  } else if (githubUrl !== null && !httpsRe.test(githubUrl)) {
+    errors.push(`${label}: githubUrl must be an https URL or null, got "${githubUrl}"`);
   }
   if (id) {
     if (seenIds.has(id)) errors.push(`duplicate id "${id}"`);
