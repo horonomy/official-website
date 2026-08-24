@@ -70,7 +70,10 @@ export interface ProductEntry {
   docsUrl: string | null;
   appUrl: string | null;
   apiUrl: string | null;
-  githubUrl: string;
+  /** `null` when the product's repo is not genuinely public-visitable (e.g.
+   * a private-repo Alpha experiment) — never point this at a URL that
+   * 404s/access-denies for the public audience the Atlas serves. */
+  githubUrl: string | null;
   /** The celestial name backing this product's identity (ADR-0002). */
   celestialIdentity: string;
   /** Short plain-language description of how this product relates to the
@@ -121,7 +124,9 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     docsUrl: null,
     appUrl: null,
     apiUrl: null,
-    githubUrl: 'https://github.com/horonomy/octans',
+    // horonomy/octans is a private repo (Alpha-stage experiment) — no
+    // public-visitable link to show.
+    githubUrl: null,
     celestialIdentity: 'Octans',
     relationship: 'Standalone — usable without any other Horonom product.',
     legacyAliases: [],
@@ -139,7 +144,9 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     docsUrl: null,
     appUrl: null,
     apiUrl: null,
-    githubUrl: 'https://github.com/horonomy/circinus',
+    // horonomy/circinus is a private repo (Alpha-stage experiment) — no
+    // public-visitable link to show.
+    githubUrl: null,
     celestialIdentity: 'Circinus',
     relationship: 'Standalone — usable without any other Horonom product.',
     legacyAliases: [],
@@ -157,7 +164,9 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     docsUrl: null,
     appUrl: null,
     apiUrl: null,
-    githubUrl: 'https://github.com/horonomy/ophiuchus',
+    // horonomy/ophiuchus is a private repo (Alpha-stage experiment) — no
+    // public-visitable link to show.
+    githubUrl: null,
     celestialIdentity: 'Ophiuchus',
     relationship: 'Standalone — usable without any other Horonom product.',
     legacyAliases: [],
