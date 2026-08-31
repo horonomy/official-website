@@ -1,28 +1,37 @@
 import React from 'react';
 import clsx from 'clsx';
 import {LAYERS} from './layers';
-import {PRODUCTS, type Product} from './products';
-import {isReleased} from '@site/src/data/productLifecycle';
+import {PRODUCT_REGISTRY, type ProductEntry} from '@site/src/data/productRegistry';
+import {destinationLabel} from '@site/src/data/productDestinations';
 import {CONSTELLATIONS, type Constellation as Shape} from './constellations';
 import styles from './ConstellationMap.module.css';
 
 /**
  * The sky map: one small constellation per product, drawn as an SVG overlay
- * from {@link PRODUCTS} + {@link CONSTELLATIONS}. Gold nodes joined by faint
- * gold lines, with a label + tagline anchored beside each cluster. The
- * `primary` product burns brighter than the rest at rest.
+ * from {@link PRODUCT_REGISTRY} + {@link CONSTELLATIONS}.
  *
- * Interactive (HORO-4, navigation fixed in HORO-38): the shipped product
- * (real `href`) renders as a real SVG `<a href>` — not a synthetic
- * `role="button"` element — so clicking (or Enter on keyboard focus)
- * actually opens `product.href`, matching the external-link convention
- * `ProductCards.tsx` already uses for the same product. On hover or keyboard
- * focus its connecting lines draw in, its nodes brighten, and its label is
- * emphasised. In-development products (per the registry) are non-interactive:
- * they keep their stars but stay faint and cannot be hovered, focused, or
- * clicked — rendered as a plain `<g>`. The hover/focus visual is driven by
- * CSS (`:hover` / `:focus-visible`) keyed on the shared `.constellation`
- * class, so it works identically regardless of which element renders it.
+ * HORO-284 PR-2 moved this off the old, stale `./products.ts` hardcoded array
+ * (AI Agent Assembly, ArcheWeave, Harbinger) onto the real HORO-282 registry.
+ * `CONSTELLATIONS` only has plotted sky geometry for `ai-agent-assembly` today
+ * — Octans, Circinus and Ophiuchus have no celestial identity drawn yet, a
+ * design task outside this structural PR (tracked as an open item on
+ * HORO-284). Rather than draw an approximate/placeholder shape for them, this
+ * map renders only registry entries that have a real plotted `Constellation`
+ * — every entry is a real, live registry product, so there is no "coming
+ * soon" concept left to apply here (the old `isReleased()` check this file
+ * used to run has no registry-axis equivalent, and none is needed: a product
+ * only enters the registry once the company is ready to show it publicly).
+ *
+ * Gold nodes joined by faint gold lines, with a label + tagline anchored
+ * beside each cluster. The `order: 0` product burns brighter than the rest at
+ * rest.
+ *
+ * Interactive (HORO-4, navigation fixed in HORO-38): renders as a real SVG
+ * `<a href>` — not a synthetic `role="button"` element — so clicking (or
+ * Enter on keyboard focus) actually opens `entry.canonicalUrl`, matching the
+ * external-link convention `SystemMap` uses for the same product. On hover or
+ * keyboard focus its connecting lines draw in, its nodes brighten, and its
+ * label is emphasised.
  *
  * Shared active-state with the product cards (HORO-9) is deferred: it needs the
  * shared parent (`index.tsx`) which is owned elsewhere. This component instead
@@ -35,12 +44,6 @@ export type ConstellationMapProps = {
   activeId?: string;
   /** Optional callback fired when a constellation is activated/deactivated. */
   onActivate?: (id: string | null) => void;
-};
-
-const TONE_CLASS: Record<Product['tone'], string> = {
-  primary: styles.primary,
-  secondary: styles.secondary,
-  muted: styles.muted,
 };
 
 function points(nodes: Array<[number, number]>): string {
@@ -62,73 +65,54 @@ function bbox(nodes: Array<[number, number]>, pad = 26) {
 }
 
 function Constellation({
-  product,
+  entry,
+  shape,
   active,
   onActivate,
 }: {
-  product: Product;
+  entry: ProductEntry;
+  shape: Shape;
   active: boolean;
   onActivate?: (id: string | null) => void;
-}): React.ReactElement | null {
-  const shape: Shape | undefined = CONSTELLATIONS[product.id];
-  if (!shape) return null;
-
-  const isPrimary = product.tone === 'primary';
-  // Products still in development are faded but kept. "Shipped?" is a registry
-  // fact answered in one place (`isReleased`); this used to test
-  // `href === '#'`, a third independent derivation that could disagree with
-  // both the registry and the card row (AAASM-5616).
-  const comingSoon = !isReleased(product.id);
+}): React.ReactElement {
+  const isPrimary = entry.order === 0;
   const [lx, ly] = shape.label;
   const box = bbox(shape.nodes);
   const figures = shape.figures ?? [shape.nodes.map((_, i) => i)];
 
-  // Only shipped products are interactive. In-development products (no real
-  // destination) render as faint, non-clickable roadmap markers: they keep
-  // their stars but cannot be hovered/focused/clicked and never brighten, so
-  // the sky clearly signals what is and isn't ready.
-  const interactive = !comingSoon;
-
-  // Hover/focus still drive the shared glow state regardless of which
-  // element renders the constellation. Click-to-navigate and keyboard
-  // activation are handled natively by the <a> wrapper below (HORO-38) — no
-  // manual onClick/onKeyDown needed.
   const glowHandlers = {
-    onMouseEnter: () => onActivate?.(product.id),
+    onMouseEnter: () => onActivate?.(entry.id),
     onMouseLeave: () => onActivate?.(null),
-    onFocus: () => onActivate?.(product.id),
+    onFocus: () => onActivate?.(entry.id),
     onBlur: () => onActivate?.(null),
   };
 
-  const groupClassName = clsx(styles.constellation, TONE_CLASS[product.tone], {
-    [styles.active]: active,
-    [styles.comingSoon]: comingSoon,
-  });
+  const groupClassName = clsx(
+    styles.constellation,
+    isPrimary ? styles.primary : styles.secondary,
+    {[styles.active]: active},
+  );
 
   const content = (
     <>
-      {interactive && (
-        <>
-          {/* Transparent hit area so the whole cluster is hoverable/clickable. */}
-          <rect
-            className={styles.hit}
-            x={box.x}
-            y={box.y}
-            width={box.width}
-            height={box.height}
-          />
-          {/* Keyboard focus ring — revealed via :focus-visible in CSS. */}
-          <rect
-            className={styles.focusRing}
-            x={box.x}
-            y={box.y}
-            width={box.width}
-            height={box.height}
-            rx={12}
-            aria-hidden="true"
-          />
-        </>
-      )}
+      {/* Transparent hit area so the whole cluster is hoverable/clickable. */}
+      <rect
+        className={styles.hit}
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+      />
+      {/* Keyboard focus ring — revealed via :focus-visible in CSS. */}
+      <rect
+        className={styles.focusRing}
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+        rx={12}
+        aria-hidden="true"
+      />
 
       {figures.map((idx, i) => (
         <polyline
@@ -184,7 +168,7 @@ function Constellation({
         y={ly}
         textAnchor={shape.labelAlign}
         aria-hidden="true">
-        {product.name}
+        {entry.name}
       </text>
       <text
         className={styles.sky}
@@ -200,29 +184,18 @@ function Constellation({
         y={ly + 37}
         textAnchor={shape.labelAlign}
         aria-hidden="true">
-        {product.tagline}
+        {entry.tagline ?? entry.category}
       </text>
     </>
   );
 
-  if (!interactive) {
-    return (
-      <g
-        className={groupClassName}
-        aria-label={`${product.name}, the ${shape.sky} constellation — in development`}
-        aria-disabled>
-        {content}
-      </g>
-    );
-  }
-
   return (
     <a
       className={groupClassName}
-      href={product.href}
+      href={entry.canonicalUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${product.name}, the ${shape.sky} constellation — opens ${product.href.replace(/^https?:\/\//, '')}`}
+      aria-label={`${entry.name}, the ${shape.sky} constellation — opens ${destinationLabel(entry.canonicalUrl)}`}
       {...glowHandlers}>
       {content}
     </a>
@@ -250,6 +223,8 @@ export default function ConstellationMap({
     [onActivate],
   );
 
+  const shaped = PRODUCT_REGISTRY.filter((entry) => CONSTELLATIONS[entry.id]);
+
   return (
     <svg
       className={styles.root}
@@ -259,11 +234,12 @@ export default function ConstellationMap({
       focusable="false"
       role="group"
       aria-label="Product constellations">
-      {PRODUCTS.map((p) => (
+      {shaped.map((entry) => (
         <Constellation
-          key={p.id}
-          product={p}
-          active={resolvedActiveId === p.id}
+          key={entry.id}
+          entry={entry}
+          shape={CONSTELLATIONS[entry.id]}
+          active={resolvedActiveId === entry.id}
           onActivate={handleActivate}
         />
       ))}
