@@ -23,8 +23,17 @@
  * docs (AAASM-3552/3554) — see node-sdk/website/src/analytics/consentInit.ts.
  */
 
-/** GA4 Measurement ID (public, not a secret). */
-export const GA_MEASUREMENT_ID = 'G-10ZX4FT2T4';
+/**
+ * GA4 Measurement ID (public, not a secret).
+ *
+ * HORO-281: cut over to the dedicated `official-website` stream for
+ * horonom.com (owner-confirmed 2026-08-31). The prior stream,
+ * G-10ZX4FT2T4 (horonomy.dev), is NOT deleted — it remains as historical
+ * analytics data for the legacy domain, per the owner's explicit retention
+ * instruction. Event taxonomy/names/semantics (see trackEvent.ts) are
+ * unchanged — only the destination stream moves.
+ */
+export const GA_MEASUREMENT_ID = 'G-2TEHW99C9B';
 
 /** localStorage key shared with the consent banner client module. */
 export const CONSENT_STORAGE_KEY = 'horonomy-analytics-consent';
