@@ -53,7 +53,7 @@ function Lore(): React.ReactElement {
         <div className={styles.loreIntro}>
           <img
             className={styles.mascot}
-            src={useBaseUrl('/img/horonomy-mascot.png')}
+            src={useBaseUrl('/img/horonom-mascot.png')}
             width={132}
             height={132}
             loading="lazy"

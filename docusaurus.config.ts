@@ -158,7 +158,9 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/horonomy-mascot.png',
+    // HORO-293: renamed from horonomy-mascot.png — the mark's own visual
+    // content already said "Horonom"; only the stale filename lagged.
+    image: 'img/horonom-mascot.png',
     colorMode: {
       // The brand is dark-native; light mode is not part of the design system.
       defaultMode: 'dark',
