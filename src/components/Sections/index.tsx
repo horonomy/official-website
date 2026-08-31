@@ -101,12 +101,11 @@ function Lore(): React.ReactElement {
 
 /**
  * "How the systems relate" (HORO-284 PR-3) — the IA plan's "how the systems
- * relate" band. Structural: each row's body is the Product Registry's own
- * `relationship` field verbatim, already-reviewed data-model copy, not
- * invented here. The one line NOT sourced from the registry is the framing
- * sentence above the rows — that sentence is a DRAFT pending explicit copy
- * review (see HORO-284's PR sequencing note: PR-3 is "structural + one
- * framing sentence needing copy review"), not final approved marketing copy.
+ * relate" band. Each row's body is the Product Registry's own `relationship`
+ * field verbatim. The framing sentence above the rows is owner-approved copy
+ * (2026-08-31) — deliberately avoids both a false hard-dependency graph and a
+ * defensive "most stand alone" framing; see HORO-284's ticket comments for
+ * the direction note.
  */
 function HowSystemsRelate(): React.ReactElement {
   const products = [...PRODUCT_REGISTRY].sort((a, b) => a.order - b.order);
@@ -115,8 +114,8 @@ function HowSystemsRelate(): React.ReactElement {
       <div className="hn-shell">
         <div className="hn-section-kicker">How the systems relate</div>
         <h2 className={styles.h2}>
-          {/* DRAFT — pending copy review (HORO-284 PR-3). */}
-          One company, several focused systems. Most stand alone.
+          One company. Focused systems that work independently — and fit
+          together.
         </h2>
         <div className={styles.relate}>
           {products.map((p) => (
@@ -129,6 +128,29 @@ function HowSystemsRelate(): React.ReactElement {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * "Why Horonom exists" (HORO-284 PR-5, owner-approved copy, 2026-08-31).
+ * Placed first in `Sections` — right after the hero + System Map — so the
+ * "why it matters" explanation the ticket's IA calls for lands before the
+ * deeper brand/lore content (Philosophy, Lore, Manifesto) rather than mixed
+ * in with it.
+ */
+function WhyHoronomExists(): React.ReactElement {
+  return (
+    <section className={styles.band}>
+      <div className="hn-shell">
+        <div className="hn-section-kicker">Why Horonom exists</div>
+        <p className={styles.loreBody}>
+          Software can increasingly observe, decide, coordinate, and act
+          without step-by-step human control. As that autonomy grows, teams
+          need stronger infrastructure for runtime boundaries, trust, context
+          continuity, and change safety. Horonom builds those systems.
+        </p>
       </div>
     </section>
   );
@@ -190,9 +212,10 @@ function Manifesto(): React.ReactElement {
 export default function Sections(): React.ReactElement {
   return (
     <>
-      <Lore />
+      <WhyHoronomExists />
       <HowSystemsRelate />
       <Philosophy />
+      <Lore />
       <Manifesto />
     </>
   );
