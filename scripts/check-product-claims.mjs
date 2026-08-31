@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Offline publication gate for product claims on the Horonomy company site.
+ * Offline publication gate for product claims on the Horonom company site.
  *
  * WHY THIS EXISTS
  *
