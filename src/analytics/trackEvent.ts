@@ -104,7 +104,7 @@ export function trackHoronomyEvent(
  */
 export function linkDomainOf(url: string): string {
   try {
-    return new URL(url, 'https://horonomy.dev').hostname;
+    return new URL(url, 'https://horonom.com').hostname;
   } catch {
     return '';
   }

@@ -35,14 +35,18 @@ const OUT_PATH = join(REPO_ROOT, 'src', 'generated', 'company-metadata.ts');
 
 const REGISTRY_SOURCE = {
   repo: 'horonomy/.github',
-  commit: '8d53646a5282fc23aba2b5df53a5617bed909cec',
+  commit: 'a989a3519a792c3a4c590086073885996172b65a',
   path: 'metadata/generated/company.json',
-  blob: 'f7c174c860ef09e126cd6dc35c79566dcb3d5100',
+  blob: '969b36b42b863c75028ea3a37c27aafbe260c21c',
 };
 
 // Vendored verbatim from the pinned company.json above.
+// HORO-281: company.website cuts to horonom.com. contacts stay @horonomy.dev
+// deliberately — HORO-288 (email/MX/DKIM/SPF migration) hasn't landed, and a
+// @horonom.com address with no MX would silently swallow mail. See the
+// upstream registry's metadata/company.yaml comment for the full rationale.
 const REGISTRY = {
-  company: {name: 'Horonomy', website: 'https://horonomy.dev'},
+  company: {name: 'Horonom', website: 'https://horonom.com'},
   contacts: {hello: 'hello@horonomy.dev', security: 'security@horonomy.dev'},
   products: [
     {

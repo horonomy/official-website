@@ -159,7 +159,7 @@ function ProductCard({
   }
 
   // Spoken destination, so a screen reader hears the canonical product host
-  // rather than "learn more" with no hint that the card leaves horonomy.dev.
+  // rather than "learn more" with no hint that the card leaves horonom.com.
   //
   // The trailing-slash strip is defensive only — hrefs in `products.ts` are
   // stored bare, matching the company registry. Note that `ConstellationMap`

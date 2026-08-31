@@ -2,7 +2,7 @@
 
 How the company site talks about a product it does not own the truth about.
 
-**Status:** Accepted · **Ticket:** [AAASM-5615](https://lightning-dust-mite.atlassian.net/browse/AAASM-5615) · **Applies to:** every product surface on `horonomy.dev`
+**Status:** Accepted · **Ticket:** [AAASM-5615](https://lightning-dust-mite.atlassian.net/browse/AAASM-5615) · **Applies to:** every product surface on `horonom.com`
 
 ---
 
@@ -301,7 +301,7 @@ axis on the Horonom side and leaves the crossing where 5655 owns it.
 
 ## 6. Cross-site handoff
 
-A visitor arriving at `horonomy.dev` should be able to tell, without reading
+A visitor arriving at `horonom.com` should be able to tell, without reading
 carefully, that Agent Assembly is a product with its own home, and should be able
 to get there.
 

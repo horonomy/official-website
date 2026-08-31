@@ -32,7 +32,9 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://horonomy.dev',
+  // HORO-281: canonical corporate domain cutover to horonom.com. Drives the
+  // sitemap, canonical <link> tags, and OpenGraph URLs Docusaurus generates.
+  url: 'https://horonom.com',
   baseUrl: '/',
 
   organizationName: 'horonomy',

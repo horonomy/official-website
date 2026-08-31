@@ -8,7 +8,8 @@ which carries the shared engineering policy for all Horonom repos.
 ## What this repository is
 
 The **Horonom company website** — the public marketing site served at
-[horonomy.dev](https://horonomy.dev). It is a [Docusaurus](https://docusaurus.io/)
+[horonom.com](https://horonom.com) (HORO-281; `horonomy.dev` is now the legacy
+redirect target, see `.github/workflows/deploy.yml`). It is a [Docusaurus](https://docusaurus.io/)
 site (v3, classic preset, TypeScript). The homepage implements design direction
 **3a — "The First Horologer"** (observatory hero). This is a content/presentation
 repository: no application backend, no runtime services.
