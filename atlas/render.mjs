@@ -81,7 +81,7 @@ export function renderPage(entries, resolve) {
     <p class="hn-atlas-header__kicker">Systems by Horonom</p>
     <h1 class="hn-atlas-header__title">Horonom Product Atlas</h1>
     <p class="hn-atlas-header__framing">The Horonom product family — what each product does, and where it lives.</p>
-    <a class="hn-atlas-header__back" href="https://horonomy.dev">← Horonom</a>
+    <a class="hn-atlas-header__back" href="https://horonom.com">← Horonom</a>
   </header>
   <main id="hn-atlas-main">
     <ul class="hn-atlas-grid">

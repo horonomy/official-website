@@ -75,7 +75,7 @@ function renderBanner(): void {
   const text = document.createElement('p');
   text.className = 'horo-consent-banner__text';
   text.textContent =
-    'We use Google Analytics to understand how horonomy.dev is used. Analytics ' +
+    'We use Google Analytics to understand how horonom.com is used. Analytics ' +
     'cookies stay off until you accept.';
 
   const actions = document.createElement('div');
