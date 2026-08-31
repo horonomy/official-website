@@ -295,6 +295,47 @@ a.legendRow:hover {
   border-bottom-color: var(--hn-cyan);
 }
 
+/* "How the systems relate" band (HORO-284 PR-3) — one row per Product
+   Registry entry, each showing its own `relationship` field rather than a
+   forced dependency graph (several products stand alone). */
+.relate {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 48px;
+}
+.relateRow {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  border-top: 1px solid var(--hn-line-strong);
+  padding-top: 20px;
+  transition: border-top-color 0.2s ease;
+}
+.relateRow:hover {
+  border-top-color: var(--hn-cyan);
+}
+.relateName {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--hn-ink);
+}
+.relateCategory {
+  margin-top: 2px;
+  font-family: var(--hn-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hn-gold);
+}
+.relateBody {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--hn-muted);
+}
+
 /* ---- responsive ---- */
 @media (max-width: 996px) {
   .loreGrid {
@@ -307,6 +348,10 @@ a.legendRow:hover {
   }
   .productGrid {
     grid-template-columns: 1fr;
+  }
+  .relateRow {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
   .band {
     padding: 64px 0;
