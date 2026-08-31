@@ -106,5 +106,30 @@
     "beta": "Beta",
     "release_candidate": "Release candidate",
     "coming_soon": "Coming soon"
+  },
+  "registry_maturity_labels": {
+    "$comment": [
+      "The gate's OWN expected label for each src/data/productRegistry.ts",
+      "(HORO-282) ProductMaturity member — a SEPARATE vocabulary from",
+      "maturity_labels above, which checks the narrower, pinned",
+      "src/generated/company-metadata.ts catalog instead. The two do not",
+      "share a source or a rule; see registryMaturityLabels.ts's header for",
+      "why they may legitimately disagree on the same product.",
+      "",
+      "Same tautology guard as maturity_labels: not read from",
+      "src/data/registryMaturityLabels.ts, for the identical reason.",
+      "",
+      "Keyed by the ProductMaturity members productRegistry.ts declares. A",
+      "key here with no counterpart, or a member missing from here, exits 2.",
+      "",
+      "Unlike the portfolio axis, every member gets a real label here —",
+      "'available' is not exempted, since this vocabulary starts at",
+      "'experimental' rather than 'beta', so reaching 'available' is",
+      "itself informative."
+    ],
+    "experimental": "Experimental",
+    "beta": "Beta",
+    "release_candidate": "Release candidate",
+    "available": "Available"
   }
 }
