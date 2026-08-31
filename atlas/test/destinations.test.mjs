@@ -8,7 +8,7 @@ test('a host on the allowlist resolves live with its canonical URL', () => {
 });
 
 test('a host not on the allowlist resolves pending with no href', () => {
-  const result = resolveDestination({canonicalUrl: 'https://octans.horo.run'});
+  const result = resolveDestination({canonicalUrl: 'https://ganymede.horo.run'});
   assert.deepEqual(result, {state: 'pending', href: null});
 });
 
