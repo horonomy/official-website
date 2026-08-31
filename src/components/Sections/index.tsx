@@ -4,6 +4,7 @@ import {
   linkDomainOf,
   trackHoronomyEvent,
 } from '@site/src/analytics/trackEvent';
+import {PRODUCT_REGISTRY} from '@site/src/data/productRegistry';
 import styles from './styles.module.css';
 
 // Cross-hostname routing per IA plan §2.1 and UTM conventions §4 (HORO-47).
@@ -98,6 +99,41 @@ function Lore(): React.ReactElement {
   );
 }
 
+/**
+ * "How the systems relate" (HORO-284 PR-3) — the IA plan's "how the systems
+ * relate" band. Structural: each row's body is the Product Registry's own
+ * `relationship` field verbatim, already-reviewed data-model copy, not
+ * invented here. The one line NOT sourced from the registry is the framing
+ * sentence above the rows — that sentence is a DRAFT pending explicit copy
+ * review (see HORO-284's PR sequencing note: PR-3 is "structural + one
+ * framing sentence needing copy review"), not final approved marketing copy.
+ */
+function HowSystemsRelate(): React.ReactElement {
+  const products = [...PRODUCT_REGISTRY].sort((a, b) => a.order - b.order);
+  return (
+    <section className={styles.band}>
+      <div className="hn-shell">
+        <div className="hn-section-kicker">How the systems relate</div>
+        <h2 className={styles.h2}>
+          {/* DRAFT — pending copy review (HORO-284 PR-3). */}
+          One company, several focused systems. Most stand alone.
+        </h2>
+        <div className={styles.relate}>
+          {products.map((p) => (
+            <div key={p.id} className={styles.relateRow}>
+              <div>
+                <h3 className={styles.relateName}>{p.name}</h3>
+                <div className={styles.relateCategory}>{p.category}</div>
+              </div>
+              <p className={styles.relateBody}>{p.relationship}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Philosophy(): React.ReactElement {
   return (
     <section className={styles.band}>
@@ -155,6 +191,7 @@ export default function Sections(): React.ReactElement {
   return (
     <>
       <Lore />
+      <HowSystemsRelate />
       <Philosophy />
       <Manifesto />
     </>
