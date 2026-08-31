@@ -178,8 +178,18 @@ const config: Config = {
       // and Manifesto so the star-map still has a discoverable anchor for
       // returning visitors — this does not conflict with the plan (which
       // enumerates minimum required nav items, not an exhaustive whitelist).
+      //
+      // HORO-284 PR 6/6: adds "Atlas ↗" → horo.run, right after the on-page
+      // Products anchor. Before this, horo.run had zero references anywhere
+      // on the corporate site despite being the live Product Atlas — a
+      // returning visitor who wants to browse the whole portfolio (not just
+      // the four cards summarized here) had no path to it. The "↗" and
+      // distinct label keep it legible as "leaves this site for the atlas",
+      // per the AC that horo.run must read as the Atlas, not a second
+      // company homepage.
       items: [
         {to: '/#products', label: 'Products', position: 'right'},
+        {href: 'https://horo.run', label: 'Atlas ↗', position: 'right'},
         {to: '/#observatory', label: 'Observatory', position: 'right'},
         {to: '/#manifesto', label: 'Manifesto', position: 'right'},
         {to: '/blog', label: 'Blog', position: 'right'},
@@ -214,7 +224,11 @@ const config: Config = {
                 '&utm_campaign=agent_assembly_launch' +
                 '&utm_content=home_footer',
             },
-            {label: 'Research tracks', to: '/#products'},
+            // HORO-284 PR 6/6: replaces the old "Research tracks" placeholder
+            // (a stale, undefined concept — not in the Product Registry) with
+            // a real link to the live Product Atlas, the same "Atlas ↗" the
+            // navbar now carries.
+            {label: 'Product Atlas — horo.run ↗', href: 'https://horo.run'},
           ],
         },
         {
