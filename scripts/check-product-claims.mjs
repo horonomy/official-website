@@ -222,6 +222,49 @@ function readRegistry() {
   return {websites, lifecycles, catalog};
 }
 
+/**
+ * The HORO-282 Product Registry's own maturity vocabulary and per-product
+ * values — a separate source from readRegistry() above (see
+ * registryMaturityLabels.ts's header for why the two vocabularies differ and
+ * must not be merged).
+ */
+function readProductRegistry() {
+  let src;
+  try {
+    src = readFileSync(join(ROOT, 'src/data/productRegistry.ts'), 'utf8');
+  } catch (e) {
+    brokenGate(`cannot read the Product Registry — ${e.message}`);
+  }
+  const unionMatch = src.match(
+    /export type ProductMaturity =\s*([\s\S]*?);/,
+  );
+  const registryMaturities = unionMatch
+    ? [...unionMatch[1].matchAll(/'([a-z_]+)'/g)].map((m) => m[1])
+    : [];
+  // Entries are top-level object literals in the PRODUCT_REGISTRY array;
+  // splitting on the object boundary keeps each field match scoped to one
+  // entry, rather than a single greedy regex spanning the whole array (the
+  // same span-crossing failure mode readRegistry()'s comment warns about).
+  const arrayMatch = src.match(
+    /export const PRODUCT_REGISTRY:[^=]*=\s*\[([\s\S]*)\]\s*as const;\s*$/,
+  );
+  const entries = arrayMatch
+    ? arrayMatch[1].split(/\n {2}\},\n {2}\{/).map((block) => {
+        const id = block.match(/id:\s*'([^']+)'/)?.[1];
+        const maturity = block.match(/maturity:\s*'([^']+)'/)?.[1];
+        return {id, maturity};
+      })
+    : [];
+  if (!registryMaturities.length || !entries.length) {
+    brokenGate(
+      'could not parse the ProductMaturity union or PRODUCT_REGISTRY ' +
+        'entries out of src/data/productRegistry.ts — the file shape ' +
+        'changed, so this gate is reading nothing and would pass vacuously',
+    );
+  }
+  return {registryMaturities, entries};
+}
+
 // ---------------------------------------------------------------------------
 // HTML helpers
 // ---------------------------------------------------------------------------
@@ -292,17 +335,28 @@ function metaContents(html) {
 }
 
 /**
- * Inner text of every maturity pill, found by its axis-naming `title`.
+ * Inner text of every maturity pill on the given axis, found by its
+ * axis-naming `title`.
  *
  * A regex stopping at the first `</span>` is wrong here and was: the section
  * card nests a visually-hidden `<span>` carrying the axis name inside the
  * badge, so the lazy match closed on the inner tag and returned the axis
  * prefix as if it were the label. Walking span depth is what makes the
  * extraction match the DOM the browser builds.
+ *
+ * `axis` is escaped and interpolated so a second, differently-named axis
+ * (see registryMaturityLabels.ts's `REGISTRY_STAGE_AXIS`) gets its own
+ * extraction without a second copy of the depth-walking logic — the two
+ * axes must stay independently checkable, but the extractor mechanics they
+ * both need are identical.
  */
-function pillLabels(html) {
+function pillLabels(html, axis) {
   const out = [];
-  const open = /<span\b[^>]*\btitle\s*=\s*(?:"Portfolio stage[^"]*"|'Portfolio stage[^']*'|Portfolio)[^>]*>/gi;
+  const esc = axis.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const open = new RegExp(
+    `<span\\b[^>]*\\btitle\\s*=\\s*(?:"${esc}[^"]*"|'${esc}[^']*'|${esc})[^>]*>`,
+    'gi',
+  );
   let m;
   while ((m = open.exec(html))) {
     const start = m.index + m[0].length;
@@ -317,7 +371,7 @@ function pillLabels(html) {
     if (depth !== 0) continue; // unbalanced markup: skip rather than guess
     out.push(
       visibleText(html.slice(start, t2.index))
-        .replace(/Portfolio stage\s*:\s*/i, '')
+        .replace(new RegExp(`${esc}\\s*:\\s*`, 'i'), '')
         .replace(/\s+/g, ' ')
         .trim(),
     );
@@ -393,7 +447,7 @@ const RULES = [
   {
     id: 'maturity-vocabulary',
     run: (html, ctx) =>
-      pillLabels(html)
+      pillLabels(html, 'Portfolio stage')
         .filter((l) => l && !ctx.expectedLabels.has(l))
         .map(
           (l) =>
@@ -404,6 +458,22 @@ const RULES = [
             `string than scripts/claim-gate-config.json expects. Both change ` +
             `what the portfolio-lifecycle axis says, and that axis is the ` +
             `company registry's.`,
+        ),
+  },
+  {
+    id: 'registry-maturity-vocabulary',
+    run: (html, ctx) =>
+      pillLabels(html, 'Product stage')
+        .filter((l) => l && !ctx.expectedRegistryLabels.has(l))
+        .map(
+          (l) =>
+            `Product Registry maturity label "${l}" is not one HORO-282's ` +
+            `registry produces (expected one of: ` +
+            `${[...ctx.expectedRegistryLabels].join(', ')}). Either the pill ` +
+            `is hardcoded in markup, bypassing the derivation, or ` +
+            `src/data/registryMaturityLabels.ts now maps a maturity to a ` +
+            `different string than scripts/claim-gate-config.json's ` +
+            `registry_maturity_labels expects.`,
         ),
   },
 ];
@@ -421,6 +491,7 @@ const RULES = [
  */
 function ruleSelfTest(ctx) {
   const good = [...ctx.expectedLabels][0] ?? 'Release candidate';
+  const registryGood = [...ctx.expectedRegistryLabels][0] ?? 'Beta';
   const canonical = [...ctx.canonicalHosts][0] ?? 'agent-assembly.com';
 
   /**
@@ -465,6 +536,11 @@ function ruleSelfTest(ctx) {
     ['maturity-vocabulary', 'undeclared label behind a nested hidden span',
      '<span title="Portfolio stage — axis"><span class=hn-sr-only>' +
      'Portfolio stage<!-- -->: </span>Totally Made Up</span>', 1],
+    ['registry-maturity-vocabulary', 'undeclared label, quoted title',
+     '<span title="Product stage — axis">Totally Made Up</span>', 1],
+    ['registry-maturity-vocabulary', 'undeclared label behind a nested hidden span',
+     '<span title="Product stage — axis"><span class=hn-sr-only>' +
+     'Product stage<!-- -->: </span>Totally Made Up</span>', 1],
   ].map(([rule, name, body, expect]) => ({
     rule,
     name,
@@ -485,6 +561,7 @@ function ruleSelfTest(ctx) {
 <a href="https://${canonical}/?utm_source=a&utm_medium=b">x</a>
 <a href=https://github.com/ai-agent-assembly>y</a>
 <span title="Portfolio stage — axis"><span class=hn-sr-only>Portfolio stage<!-- -->: </span>${good}</span>
+<span title="Product stage — axis"><span class=hn-sr-only>Product stage<!-- -->: </span>${registryGood}</span>
 </body></html>`;
 
   const failures = [];
@@ -574,10 +651,52 @@ if (!expectedLabels.size) {
   );
 }
 
+/**
+ * Same drift/coverage guard as the portfolio axis above, applied to the
+ * Product Registry's separate ProductMaturity vocabulary.
+ */
+const {registryMaturities, entries: registryEntries} = readProductRegistry();
+const registryGateLabels = catalogue.registry_maturity_labels ?? {};
+const mappedRegistryMaturities = Object.keys(registryGateLabels).filter(
+  (k) => !k.startsWith('$'),
+);
+
+for (const member of registryMaturities) {
+  if (!mappedRegistryMaturities.includes(member)) {
+    brokenGate(
+      `productRegistry.ts declares ProductMaturity member '${member}' and ` +
+        `scripts/claim-gate-config.json's registry_maturity_labels has no ` +
+        `expected label for it, so a product in that state would be ` +
+        `unchecked. Add it to registry_maturity_labels.`,
+    );
+  }
+}
+for (const member of mappedRegistryMaturities) {
+  if (!registryMaturities.includes(member)) {
+    brokenGate(
+      `scripts/claim-gate-config.json's registry_maturity_labels maps ` +
+        `'${member}', which productRegistry.ts's ProductMaturity union does ` +
+        `not declare — the map has drifted.`,
+    );
+  }
+}
+
+const expectedRegistryLabels = new Set(
+  registryEntries
+    .map((e) => registryGateLabels[e.maturity])
+    .filter((l) => typeof l === 'string' && l),
+);
+if (!expectedRegistryLabels.size) {
+  brokenGate(
+    'no Product Registry maturity label is expected for any registry ' +
+      'entry, so the registry-maturity-vocabulary rule would accept anything',
+  );
+}
+
 const canonicalHosts = new Set(
   websites.map((w) => new URL(w).host.replace(/^www\./, '')),
 );
-const ctx = {canonicalHosts, expectedLabels, lifecycles};
+const ctx = {canonicalHosts, expectedLabels, expectedRegistryLabels, lifecycles};
 const ruleControls = ruleSelfTest(ctx);
 
 let pages;
@@ -611,7 +730,8 @@ for (const page of pages) {
 console.log(
   DIM(
     `checked ${pages.length} page(s) against ${PHRASES.length} banned ` +
-      `phrase(s), ${expectedLabels.size} registry-derived maturity label(s), ` +
+      `phrase(s), ${expectedLabels.size} portfolio maturity label(s), ` +
+      `${expectedRegistryLabels.size} Product Registry maturity label(s), ` +
       `and ${canonicalHosts.size} canonical host(s); ` +
       `${phraseControls} phrase control(s) and ${ruleControls} rule control(s) passed`,
   ),
