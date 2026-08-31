@@ -5,19 +5,29 @@
 // reviewed change. A new/broken registry entry renders "pending" by
 // default rather than publishing a dead link.
 //
-// Verified 2026-08-23 (do not re-add without re-verifying):
-//   - agent-assembly.com: 200, live.
-//   - octans.horo.run / circinus.horo.run / ophiuchus.horo.run: NXDOMAIN —
-//     lands in HORO-286.
+// Verified 2026-08-23, re-verified 2026-08-31 against live Cloudflare DNS +
+// HTTP (do not re-add without re-verifying):
+//   - agent-assembly.com: 200, live (unchanged since 2026-08-23).
+//   - circinus.horo.run / ophiuchus.horo.run: now provisioned and live (200)
+//     as of 2026-08-31 — HORO-286's DNS/deploy work for these two landed
+//     outside this repo (product-team-owned Cloudflare Pages deploys), so
+//     the allowlist is catching up to reality rather than causing it.
+//   - octans.horo.run: still NXDOMAIN — no Cloudflare Pages/Workers surface
+//     exists to bind it to, and provisioning one needs Cloudflare Pages API
+//     scope this session's DNS-only token does not carry. Stays pending.
 //   - horonomy/{octans,circinus,ophiuchus} GitHub repos are PRIVATE, so
-//     githubUrl is not a usable fallback for those three (would trade one
-//     dead/inaccessible link for another).
+//     githubUrl is not a usable fallback for any of the three — including
+//     the two now live, since a private repo link is not a public fallback
+//     either.
 //   - familyAliasUrl (e.g. agent-assembly.horo.run) must never be linked —
 //     it is not in this allowlist and check:claims' canonical-link rule
-//     would fail the build if it were rendered as an href.
+//     would fail the build if it were rendered as an href. As of 2026-08-31
+//     agent-assembly.horo.run still has no DNS record at all (HORO-286's
+//     redirect/alias AC needs Cloudflare Redirect Rules, another scope this
+//     token doesn't carry).
 
 /** @type {ReadonlySet<string>} */
-export const LIVE_HOSTS = new Set(['agent-assembly.com']);
+export const LIVE_HOSTS = new Set(['agent-assembly.com', 'circinus.horo.run', 'ophiuchus.horo.run']);
 
 /**
  * @param {{canonicalUrl: string}} entry
