@@ -8,7 +8,7 @@ import ConstellationMap from './ConstellationMap';
 import HeroCopy from './HeroCopy';
 import HeroCtaGroup from './HeroCtaGroup';
 import AnnotationCard from './AnnotationCard';
-import ProductCards from './ProductCards';
+import SystemMap from '@site/src/components/SystemMap';
 import {LAYERS} from './layers';
 import styles from './HeroUniverse.module.css';
 
@@ -18,7 +18,8 @@ import styles from './HeroUniverse.module.css';
  * A positioned scene composes the layers back-to-front per the z-index model in
  * `./layers.ts`: SceneLayers → AmbientEffects → ObserverSpider → EnvironmentProps
  * → ConstellationMap → the HTML overlay (HeroCopy + HeroCtaGroup + AnnotationCard).
- * The ProductCards row sits below the scene and owns the `#products` anchor.
+ * The SystemMap row sits below the scene and owns the `#products` anchor
+ * (HORO-284 PR-2 — was `ProductCards`, sourced from the stale `products.ts`).
  *
  * SSR-safe: every raster asset loads through `useBaseUrl` inside its layer
  * component; there is no `window`/`document` access at module or render top level.
@@ -51,7 +52,7 @@ export default function HeroUniverse(): React.ReactElement {
         </div>
       </div>
 
-      <ProductCards />
+      <SystemMap />
     </div>
   );
 }

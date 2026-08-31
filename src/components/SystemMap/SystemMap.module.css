@@ -1,6 +1,6 @@
-/* The card row sits fully below the scene: the scene bottom stays clear so
-   the terrace and the distant mountain range display uncovered. The dark
-   universe base keeps the band reading as part of the same night. */
+/* Adapted from the pre-HORO-284 `HeroUniverse/ProductCards.module.css` —
+   same "glass card" visual language, extended with the registry's
+   category/problem/relationship fields in place of the old tagline/blurb. */
 .section {
   position: relative;
   padding: 44px 0 64px;
@@ -20,8 +20,6 @@
   gap: 14px;
   padding: 22px 20px;
   border-radius: 14px;
-  /* Dark translucent "glass": a soft top-lit gradient over a blurred base,
-     hairline inset highlight for the pane edge. */
   background: linear-gradient(
       165deg,
       rgba(28, 32, 42, 0.72) 0%,
@@ -38,8 +36,7 @@
     box-shadow 0.2s ease;
 }
 
-.card:hover,
-.card.active {
+.card:hover {
   text-decoration: none;
   transform: translateY(-4px);
   border-color: var(--hn-gold);
@@ -54,8 +51,6 @@
     0 0 22px rgba(201, 164, 92, 0.28);
 }
 
-/* Visible keyboard focus ring — distinct from hover, always shown on
-   keyboard focus even where hover glow is suppressed. */
 .card:focus-visible {
   outline: none;
   border-color: var(--hn-gold-bright);
@@ -80,31 +75,7 @@
   box-shadow: 0 0 6px rgba(224, 185, 120, 0.6);
 }
 
-/* Coming-soon products are still in design/estimation: shown as a dimmed
-   roadmap entry, never interactive. No pointer, no navigation, no hover lift —
-   `pointer-events: none` also neutralizes the shared `.card:hover` rules. */
-.comingSoon {
-  pointer-events: none;
-  cursor: default;
-  opacity: 0.55;
-}
-
-/* "Coming soon" label replacing the "Learn more →" affordance on roadmap cards. */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  padding: 3px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--hn-line-strong);
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--hn-muted);
-}
-
-/* The primary product carries a standing gold accent. */
+/* The order:0 product (AI Agent Assembly) carries a standing gold accent. */
 .primary {
   border-color: rgba(201, 164, 92, 0.55);
   box-shadow:
@@ -113,7 +84,6 @@
     0 10px 28px rgba(6, 8, 16, 0.45);
 }
 
-/* Small constellation glyph on the left of each card. */
 .glyph {
   flex: 0 0 auto;
   width: 40px;
@@ -123,8 +93,7 @@
 }
 
 .card:hover .glyph,
-.card:focus-visible .glyph,
-.card.active .glyph {
+.card:focus-visible .glyph {
   transform: scale(1.08);
 }
 
@@ -139,6 +108,13 @@
   fill: var(--hn-gold-bright);
 }
 
+/* Fallback ring for a registry entry with no plotted constellation shape yet
+   (Octans/Circinus/Ophiuchus — see SystemMap's `Glyph` doc comment). */
+.glyphFallbackRing {
+  stroke: var(--hn-gold);
+  opacity: 0.7;
+}
+
 .primary .glyphNode {
   filter: drop-shadow(0 0 3px rgba(224, 185, 120, 0.9));
 }
@@ -146,16 +122,10 @@
 .cardBody {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
-/* Product name + maturity pill. `flex-wrap` rather than shrinking or
-   truncating either one. With a label as long as "RELEASE CANDIDATE" the pill
-   wraps onto its own line below the name at every breakpoint measured
-   (320-1920), which is what lets `.maturity` safely be `nowrap`; a shorter
-   label would sit inline on the name's baseline. Cards stay equal height
-   because the grid stretches them, not because of this row. */
 .nameRow {
   display: flex;
   align-items: baseline;
@@ -171,11 +141,14 @@
   color: var(--hn-ink);
 }
 
-/* Maturity of a product that is not yet generally available (currently
-   "RELEASE CANDIDATE"). Mono + muted so it reads as metadata about the
-   product, never as part of its name. `--hn-muted` on the card's glass base
-   clears WCAG AA for small text — measured 7.18:1 against the composited
-   background. */
+.primary .name {
+  color: var(--hn-gold-bright);
+}
+
+/* Product stage pill — see `registryMaturityLabels.ts`'s header for why this
+   is a separate axis/vocabulary from the portfolio-stage pill it visually
+   mirrors. `--hn-muted` on this card's glass base clears WCAG AA for small
+   text (measured 7.18:1, same background as the prior ProductCards pill). */
 .maturity {
   display: inline-flex;
   align-items: center;
@@ -190,41 +163,51 @@
   white-space: nowrap;
 }
 
-.primary .name {
-  color: var(--hn-gold-bright);
+.category {
+  font-family: var(--hn-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hn-gold);
 }
 
-.blurb {
+.problem {
   margin: 0;
-  flex: 1;
   font-size: 13.5px;
   line-height: 1.55;
   color: var(--hn-muted);
+}
+
+.relationship {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--hn-muted);
+  opacity: 0.85;
 }
 
 .more {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  margin-top: 2px;
   font-size: 13px;
   font-weight: 600;
   color: var(--hn-gold);
 }
 
 .card:hover .more,
-.card:focus-visible .more,
-.card.active .more {
+.card:focus-visible .more {
   color: var(--hn-gold-bright);
 }
 
-/* Arrow nudges forward on interaction to signal the link affordance. */
 .arrow {
   transition: transform 0.2s ease;
 }
 
 .card:hover .arrow,
-.card:focus-visible .arrow,
-.card.active .arrow {
+.card:focus-visible .arrow {
   transform: translateX(3px);
 }
 
@@ -259,13 +242,10 @@
   }
 
   .card:hover,
-  .card.active,
   .card:hover .glyph,
   .card:focus-visible .glyph,
-  .card.active .glyph,
   .card:hover .arrow,
-  .card:focus-visible .arrow,
-  .card.active .arrow {
+  .card:focus-visible .arrow {
     transform: none;
   }
 }
