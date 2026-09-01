@@ -158,9 +158,11 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // HORO-293: renamed from horonomy-mascot.png — the mark's own visual
-    // content already said "Horonom"; only the stale filename lagged.
-    image: 'img/horonom-mascot.png',
+    // HORO-293: purpose-made ~1200x630 OG/social-preview card (H mark +
+    // wordmark, dark-native palette) replaces the mascot illustration,
+    // which was only ever a stopgap for this slot. See
+    // design/brand/og-image-source.html for the reproducible source.
+    image: 'img/og-image.png',
     colorMode: {
       // The brand is dark-native; light mode is not part of the design system.
       defaultMode: 'dark',

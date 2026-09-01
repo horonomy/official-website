@@ -2,25 +2,59 @@
 
 Usage guidance for the Horonom corporate mark as it is consumed by this
 site (and, transitively, by anything that copies these assets or their
-token values — see "Relationship to Horo Run" below). This is guidance for
-consuming the existing assets, not a canonical *source-file* directory —
-see "Open items" for what that would still require.
+token values — see "Relationship to Horo Run" below).
+
+## Canonical source
+
+**`static/img/logo.svg` is the canonical, editable vector source for the
+Horonom mark** (owner decision, HORO-293, 2026-09-01) — not a separate
+Figma/Illustrator master. It is a clean, hand-authored SVG (four stroked
+arc paths + three filled rects forming the "H"), directly editable as-is;
+inventing a separate master source when this file already serves that
+purpose would only create a second thing to keep in sync. `favicon.svg` is
+a scaled/composited derivative of the same mark (see its own file for the
+`translate`/`scale` transform), not an independent source.
+
+The mark is also the GitHub organization's avatar
+(`https://github.com/horonomy`, avatar asset id `296725033`) — visually
+confirmed identical (same ring/arc/H construction, same palette) to
+`static/img/logo.svg`, reconciling the two as the same canonical asset
+rather than two independently-maintained marks.
 
 ## Where the assets live
 
-The production-consumed corporate brand assets are web-optimized SVG/PNG
-exports in [`static/img/`](../../static/img/), not under `design/`:
+The production-consumed corporate brand assets live in
+[`static/img/`](../../static/img/), not under `design/`:
 
 | File | Used for |
 |---|---|
-| [`static/img/logo.svg`](../../static/img/logo.svg) | Navbar logo (`docusaurus.config.ts` → `themeConfig.navbar.logo`) |
-| [`static/img/favicon.svg`](../../static/img/favicon.svg) | Site favicon |
-| [`static/img/horonom-mascot.png`](../../static/img/horonom-mascot.png) | OG/social-preview image (`docusaurus.config.ts` → `themeConfig.image`) — see the open item below, this is a stopgap, not a purpose-made social card |
+| [`static/img/logo.svg`](../../static/img/logo.svg) | **Canonical source.** Navbar logo (`docusaurus.config.ts` → `themeConfig.navbar.logo`) |
+| [`static/img/favicon.svg`](../../static/img/favicon.svg) | Site favicon — scaled/composited derivative of `logo.svg` |
+| [`static/img/og-image.png`](../../static/img/og-image.png) | OG/social-preview image (`docusaurus.config.ts` → `themeConfig.image`), 1200×630 |
+| [`static/img/horonom-mascot.png`](../../static/img/horonom-mascot.png) | Hero illustration only — no longer used for OG (see "OG/social-preview asset" below) |
 
-Both `logo.svg` and `favicon.svg` already carry the real Horonom mark
-(`aria-label="Horonom"`) — confirmed by audit (HORO-293, 2026-08-31). There
-is currently no separate vector/editable *source* file for the mark beyond
-these production SVG exports; see "Open items."
+`logo.svg` and `favicon.svg` carry the real Horonom mark
+(`aria-label="Horonom"`) — confirmed by audit (HORO-293, 2026-08-31).
+
+## OG/social-preview asset
+
+`static/img/og-image.png` (1200×630, PNG) is a purpose-made social card:
+the H mark at left, "Horonom" wordmark at right, Graphite (`#0F1115`)
+background, Ink (`#F4F5F7`) wordmark, Signal Cyan (`#00B2FF`) mark accent —
+the same dark-native palette as the rest of the site, not a crop of the
+mascot illustration.
+
+**Reproducible generation**: [`og-image-source.html`](./og-image-source.html)
+is the exact HTML/CSS/SVG source rendered to produce it — a static
+1200×630 `<div>` with the mark inlined as SVG and the wordmark as styled
+text, no build step or template engine involved. To regenerate: serve this
+directory over local HTTP (`python3 -m http.server`, file:// is blocked by
+most headless-browser tooling), open `og-image-source.html` at a
+1200×630 viewport, and screenshot the page (exact viewport size, no
+scaling/cropping needed — the page is already sized to the target
+dimensions). No new build-time dependency was added to this repo for
+this — `og-image.png` is a checked-in static asset, generated once, the
+same way `horonom-mascot.png` already was.
 
 For general (non-brand) design reference material — homepage direction
 canvases, content-governance docs, screenshots — see the parent
@@ -94,24 +128,11 @@ pre-rebrand spelling. Renamed and merged in
 (HORO-293). No other legacy `horonomy-*` brand asset filenames are known to
 remain in `static/img/` as of this audit.
 
-## Open items (not resolved by this document)
+## Status
 
-These require actual design work and are explicitly **not** attempted
-here — this pass is documentation only, not new asset production:
-
-1. **No dedicated OG/social-preview asset.** `themeConfig.image` currently
-   reuses `horonom-mascot.png` — a mascot illustration, not a purpose-made
-   social card. Most sites use a distinct ~1200×630 card designed for the
-   link-preview context (title/wordmark treatment, safe-crop margins for
-   how platforms crop previews). Reusing/cropping the existing mascot image
-   and relabeling it would not close this gap — it would still be the same
-   asset. This needs a human/designer to produce a real social-preview
-   image.
-2. **No canonical *source-file* location for the mark itself.** This
-   document covers where the production exports live and how to use them,
-   but there is still no vector/editable master (e.g. Figma/Illustrator
-   source, or even a checked-in `.svg` explicitly labeled as source-of-truth
-   distinct from the web-optimized export) under `design/brand/`. HORO-293's
-   own acceptance criteria call for "canonical Horonom corporate
-   wordmark/logo source... in one documented location" — that is still
-   open pending real design authoring.
+Both items previously tracked here as open — a canonical source location
+and a dedicated OG/social-preview asset — are resolved (HORO-293,
+2026-09-01), per "Canonical source" and "OG/social-preview asset" above.
+Remaining brand-usage gaps (a formal usage spec beyond the conservative
+defaults above, GitHub/Atlassian avatar audit beyond the reconciliation
+already noted) are tracked under HORO-294, not this document.
