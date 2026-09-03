@@ -236,25 +236,13 @@
   }
 }
 
+/* Below the desktop breakpoint the two-column hero collapses to a single
+   column (see HeroUniverse.module.css). The wide sky map has no room here —
+   scaled down, its constellation labels overlap and crowd out the headline —
+   so hide it and let the hero lead with the headline. The product cards below
+   still carry each product's real constellation glyph, so the theme is kept. */
 @media (max-width: 996px) {
   .root {
-    position: relative;
-    top: 0;
-    right: auto;
-    width: 100%;
-    margin: 0 auto;
-    display: block;
-  }
-
-  .name {
-    font-size: 26px;
-  }
-
-  .sky {
-    font-size: 15px;
-  }
-
-  .tagline {
-    font-size: 18px;
+    display: none;
   }
 }
