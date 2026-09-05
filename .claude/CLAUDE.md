@@ -4,12 +4,12 @@
 Read the org baseline first: [horonomy/.github/CLAUDE.md](https://github.com/horonomy/.github/blob/main/CLAUDE.md).
 It owns company-wide policy — see [`governance/README.md`](https://github.com/horonomy/.github/blob/main/governance/README.md)
 for the full Company -> Product -> Repository precedence rule. This file adds
-only what is true of *this* repository (`horonomy/official-website-wt-HORO-511`) and does not repeat the
+only what is true of *this* repository (`horonomy/official-website`) and does not repeat the
 baseline; it may add to or strengthen a company rule, never weaken a
 non-waivable one.
 
 Adopted governance_version: 1. Regenerate this block with
-`python3 scripts/repo_bootstrap.py adopt official-website-wt-HORO-511 --org horonomy` from a
+`python3 scripts/repo_bootstrap.py adopt official-website --org horonomy` from a
 `horonomy/.github` checkout — do not hand-edit between the markers.
 <!-- END GENERATED: horonom_adoption -->
 
