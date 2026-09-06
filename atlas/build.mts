@@ -30,10 +30,15 @@ mkdirSync(DIST_DIR, {recursive: true});
 // content hashes alone. Falls back to 'local' outside CI so a developer's
 // local build doesn't need a real SHA to run.
 const buildCommit = process.env.GITHUB_SHA ?? 'local';
-const html = renderPage([...PRODUCT_REGISTRY], resolveDestination).replace(
-  '</head>',
-  `  <meta name="horonom:build-commit" content="${buildCommit}" />\n</head>`,
-);
+const renderedPage = renderPage([...PRODUCT_REGISTRY], resolveDestination);
+if (!renderedPage.includes('</head>')) {
+  // Fail loud rather than silently building an artifact with no
+  // provenance marker — exactly the failure class HORO-612 exists to
+  // eliminate. A future change to render.mjs's template must not be able
+  // to quietly drop this.
+  throw new Error("renderPage() output has no '</head>' tag — cannot embed the build-commit marker.");
+}
+const html = renderedPage.replace('</head>', `  <meta name="horonom:build-commit" content="${buildCommit}" />\n</head>`);
 writeFileSync(join(DIST_DIR, 'index.html'), html);
 
 const customCss = readFileSync(join(REPO_ROOT, 'src', 'css', 'custom.css'), 'utf8');
