@@ -44,7 +44,18 @@ test('renders entries in ascending order regardless of input order', () => {
 
 test('a live product gets a real anchor to its canonical URL', () => {
   const html = renderPage(FIXTURE, resolve);
-  assert.match(html, /<a class="hn-atlas-card__link" href="https:\/\/live\.example">Visit Live One/);
+  assert.match(html, /<a class="hn-atlas-card__link" href="https:\/\/live\.example"[^>]*>Visit Live One/);
+});
+
+test('a live product’s anchor carries HORO-595 analytics data attributes', () => {
+  const html = renderPage(FIXTURE, resolve);
+  const cardStart = html.indexOf('Live One');
+  const cardEnd = html.indexOf('</li>', cardStart);
+  const cardHtml = html.slice(cardStart, cardEnd);
+  assert.match(cardHtml, /data-ga-event="product_card_click"/);
+  assert.match(cardHtml, /data-product-slug="live-one"/);
+  assert.match(cardHtml, /data-product-status="beta"/);
+  assert.match(cardHtml, /data-destination-type="marketing"/);
 });
 
 test('a pending product gets no anchor at all — not a disabled link', () => {

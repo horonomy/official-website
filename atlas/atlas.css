@@ -169,3 +169,59 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Consent banner (HORO-595) — minimal, matches existing token/pill idiom
+   rather than introducing new design language. */
+.hn-atlas-consent {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hn-space-4);
+  padding: var(--hn-space-4);
+  background: var(--hn-surface, #16171d);
+  border-top: 1px solid var(--hn-border, rgba(255, 255, 255, 0.12));
+}
+
+.hn-atlas-consent__text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--hn-faint);
+  max-width: 60ch;
+}
+
+.hn-atlas-consent__actions {
+  display: flex;
+  gap: var(--hn-space-2);
+  flex-shrink: 0;
+}
+
+.hn-atlas-consent__accept,
+.hn-atlas-consent__decline {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: var(--hn-space-2) var(--hn-space-4);
+  border-radius: 999px;
+  border: 1px solid var(--hn-border, rgba(255, 255, 255, 0.24));
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.hn-atlas-consent__accept {
+  background: #ffffff;
+  color: #0b0c10;
+  border-color: transparent;
+}
+
+.hn-atlas-consent__accept:focus-visible,
+.hn-atlas-consent__decline:focus-visible {
+  outline: none;
+  box-shadow: var(--hn-focus-ring);
+}
