@@ -13,6 +13,7 @@ import {
 import {destinationLabel} from '@site/src/data/productDestinations';
 import {CONSTELLATIONS} from '@site/src/components/HeroUniverse/constellations';
 import {LAYERS} from '@site/src/components/HeroUniverse/layers';
+import {resolveDestination} from '../../../atlas/destinations.mjs';
 import styles from './SystemMap.module.css';
 
 /**
@@ -29,13 +30,21 @@ import styles from './SystemMap.module.css';
  *     surfaces rendered `id="products"`, a duplicate DOM id this component
  *     also fixes by being the one place that owns it.
  *
- * Cards render every {@link PRODUCT_REGISTRY} entry in `order` — today that's
- * all four public products, each already live at its `canonicalUrl` (the
- * `atlas/destinations.mjs` `LIVE_HOSTS` allowlist independently confirms
- * octans/circinus/ophiuchus.horo.run resolve). There is no "coming soon"
- * state here: a product only belongs in the registry once the company is
- * ready to show it publicly (see `productRegistry.ts`'s own header comment),
- * so every card is a real, clickable link.
+ * Cards render every {@link PRODUCT_REGISTRY} entry in `order`, EXCEPT one
+ * whose `canonicalUrl` host isn't on the Atlas's own `LIVE_HOSTS` allowlist
+ * (imported directly from `atlas/destinations.mjs` — one allowlist, not a
+ * duplicate). This component's original design assumed every registry entry
+ * was public-ready ("a product only belongs in the registry once the
+ * company is ready to show it publicly"); that assumption broke the moment
+ * a release-gated entry (Eridanus, `not_yet_public` per its own
+ * release-evidence record) was added to the shared registry for Atlas/
+ * catalog purposes — this card row rendered it as a real clickable link on
+ * the public homepage regardless (HORO-638 company-common reconciliation,
+ * caught live in production). Filtering to `resolveDestination(...).state
+ * === 'live'` closes that gap and keeps this file's original "no coming
+ * soon state, every card is real" invariant true by construction: a
+ * not-yet-public entry now simply doesn't get a card, rather than getting a
+ * disabled or fabricated one.
  *
  * Click tracking stays exactly as it was: only the AI Agent Assembly card
  * carries a GA4 `horonomy_product_agent_assembly_click` event with UTM
@@ -201,7 +210,9 @@ function SystemMapCard({entry}: {entry: ProductEntry}): React.ReactElement {
 }
 
 export default function SystemMap(): React.ReactElement {
-  const products = [...PRODUCT_REGISTRY].sort((a, b) => a.order - b.order);
+  const products = [...PRODUCT_REGISTRY]
+    .filter((entry) => resolveDestination(entry).state === 'live')
+    .sort((a, b) => a.order - b.order);
   return (
     <section
       id="products"
