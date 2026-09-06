@@ -28,9 +28,6 @@ on:
     - cron: "*/30 * * * *"
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 concurrency:
   group: atlas-deploy-guard
   cancel-in-progress: false
@@ -41,6 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     if: github.event_name != 'schedule'
+    permissions: {}
     steps:
       - name: Check the activation flag
         run: |
@@ -55,6 +53,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     if: github.event_name != 'push'
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -75,7 +75,7 @@ jobs:
             exit 0
           fi
 
-          LIVE_HTML="$(curl -fsSL --max-time 20 https://horo.run/)"
+          LIVE_HTML="$(curl -fsSL --proto '=https' --proto-redir '=https' --max-time 20 https://horo.run/)"
           LIVE_SHA="$(printf '%s' "$LIVE_HTML" | grep -o 'horonom:build-commit" content="[^"]*"' | head -1 | sed -E 's/.*content="([^"]*)"/\1/')"
 
           if [ -z "$LIVE_SHA" ]; then
