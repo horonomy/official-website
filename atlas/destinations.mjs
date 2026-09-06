@@ -5,20 +5,32 @@
 // reviewed change. A new/broken registry entry renders "pending" by
 // default rather than publishing a dead link.
 //
-// Verified 2026-08-23, re-verified 2026-08-31 against live Cloudflare DNS +
-// HTTP (do not re-add without re-verifying):
+// Verified 2026-08-23, re-verified 2026-08-31, reconciled to the
+// horo.run -> horonom.com migration (HORO-566/572) 2026-09-06 (HORO-594) —
+// do not re-add/remove a host without re-verifying live:
 //   - agent-assembly.com: 200, live (unchanged since 2026-08-23).
-//   - circinus.horo.run / ophiuchus.horo.run: now provisioned and live (200)
-//     as of 2026-08-31 — HORO-286's DNS/deploy work for these two landed
-//     outside this repo (product-team-owned Cloudflare Pages deploys), so
-//     the allowlist is catching up to reality rather than causing it.
-//   - octans.horo.run: provisioned this session — a minimal, honest
+//   - octans.horo.run: unchanged since 2026-08-31 — a minimal, honest
 //     "in development, no public surface yet" status page (`noindex`),
-//     deployed to its own Cloudflare Pages project and bound as a custom
-//     domain, live (200) as of 2026-08-31. Not a placeholder for a real
-//     product claim; replace with the real product surface once one exists.
-//   - horonomy/{octans,circinus,ophiuchus} GitHub repos are PRIVATE, so
-//     githubUrl is not a usable fallback for any of the three.
+//     live (200). Not a placeholder for a real product claim; replace with
+//     the real product surface once one exists.
+//   - circinus.horonom.com / ophiuchus.horonom.com / fornax.horonom.com /
+//     horologium.horonom.com: canonical marketing hosts as of the HORO-566
+//     domain migration, each confirmed 200/live 2026-09-06 (HORO-572/594).
+//     The legacy circinus.horo.run/ophiuchus.horo.run/fornax.horo.run hosts
+//     are intentionally NOT on this allowlist any more — they now issue a
+//     real 301 redirect to their horonom.com replacement (see each
+//     product's own edge Worker: ophiuchus-edge, fornax-edge; Circinus's
+//     equivalent) rather than serving a second indexable copy, per
+//     ADR-0006 §3's "avoid duplicate indexable copies" rule this file has
+//     followed since 2026-08-31.
+//   - eridanus.horo.run / eridanus.horonom.com: deliberately NOT added.
+//     horonomy/.github's metadata/release-evidence/eridanus.yaml records
+//     claimed_lifecycle: not_yet_public — no website, no docs, no hosted
+//     service exists. Adding either host here would fabricate a public
+//     surface for a release-gated product; the Eridanus registry entry
+//     renders "pending" until that changes.
+//   - horonomy/{octans,circinus,ophiuchus,horologium} GitHub repos are
+//     PRIVATE, so githubUrl is not a usable fallback for any of them.
 //   - familyAliasUrl (e.g. agent-assembly.horo.run) must never be linked —
 //     it is not in this allowlist and check:claims' canonical-link rule
 //     would fail the build if it were rendered as an href. As of 2026-08-31
@@ -31,9 +43,11 @@
 /** @type {ReadonlySet<string>} */
 export const LIVE_HOSTS = new Set([
   'agent-assembly.com',
-  'circinus.horo.run',
-  'ophiuchus.horo.run',
   'octans.horo.run',
+  'circinus.horonom.com',
+  'ophiuchus.horonom.com',
+  'fornax.horonom.com',
+  'horologium.horonom.com',
 ]);
 
 /**
