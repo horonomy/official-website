@@ -172,6 +172,20 @@ body {
 
 /* Consent banner (HORO-595) — minimal, matches existing token/pill idiom
    rather than introducing new design language. */
+/* HORO-611: the `hidden` attribute is a normal-specificity UA-stylesheet
+   rule (`[hidden]` sets `display: none`), so the plain class rule below —
+   same specificity, but declared later and winning on source order —
+   silently overrode it. The banner never
+   actually disappeared: not on first load once a choice was already
+   stored, and not after clicking Accept/Decline (analytics.mjs only ever
+   sets the `hidden` attribute, never an inline style). It stayed fixed,
+   full-width, and interactive at the bottom of the page forever, on every
+   visit, which reads exactly like "clicking doesn't do anything." This
+   explicit `[hidden]` override is what actually makes hiding work. */
+.hn-atlas-consent[hidden] {
+  display: none;
+}
+
 .hn-atlas-consent {
   position: fixed;
   left: 0;
@@ -184,6 +198,13 @@ body {
   justify-content: space-between;
   gap: var(--hn-space-4);
   padding: var(--hn-space-4);
+  /* HORO-611: on a real touchscreen, a fixed bottom:0 element sits flush
+     against the iOS home-indicator / Android gesture-nav safe area, and
+     the layout viewport `bottom:0` anchors to can extend past the visible
+     area while the browser's own URL/toolbar chrome is showing. Padding
+     with the actual safe-area inset (0 on browsers that don't support it)
+     keeps the real tappable buttons clear of both. */
+  padding-bottom: calc(var(--hn-space-4) + env(safe-area-inset-bottom, 0px));
   background: var(--hn-surface, #16171d);
   border-top: 1px solid var(--hn-border, rgba(255, 255, 255, 0.12));
 }
@@ -207,6 +228,15 @@ body {
   font-size: 13px;
   font-weight: 600;
   padding: var(--hn-space-2) var(--hn-space-4);
+  /* HORO-611: the padding above alone renders at ~34px tall — below the
+     44px (iOS HIG) / 48dp (Material) minimum recommended touch target.
+     Real fingertip contact area is far less precise than a pointer-event
+     coordinate in automated testing, so a target this small is a
+     plausible cause of "renders but isn't reliably clickable" that a
+     script clicking exact center coordinates would never catch. */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   border-radius: 999px;
   border: 1px solid var(--hn-border, rgba(255, 255, 255, 0.24));
   background: transparent;
