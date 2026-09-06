@@ -24,7 +24,16 @@ const DIST_DIR = join(ATLAS_DIR, 'dist');
 
 mkdirSync(DIST_DIR, {recursive: true});
 
-const html = renderPage([...PRODUCT_REGISTRY], resolveDestination);
+// HORO-612: embed the commit this build was produced from so a deployed
+// artifact's provenance can be checked directly against `main`'s current
+// tip (see .github/workflows/atlas-deploy-guard.yml) without guessing from
+// content hashes alone. Falls back to 'local' outside CI so a developer's
+// local build doesn't need a real SHA to run.
+const buildCommit = process.env.GITHUB_SHA ?? 'local';
+const html = renderPage([...PRODUCT_REGISTRY], resolveDestination).replace(
+  '</head>',
+  `  <meta name="horonom:build-commit" content="${buildCommit}" />\n</head>`,
+);
 writeFileSync(join(DIST_DIR, 'index.html'), html);
 
 const customCss = readFileSync(join(REPO_ROOT, 'src', 'css', 'custom.css'), 'utf8');
