@@ -172,6 +172,20 @@ body {
 
 /* Consent banner (HORO-595) — minimal, matches existing token/pill idiom
    rather than introducing new design language. */
+/* HORO-611: the `hidden` attribute is a normal-specificity UA-stylesheet
+   rule (`[hidden]` sets `display: none`), so the plain class rule below —
+   same specificity, but declared later and winning on source order —
+   silently overrode it. The banner never
+   actually disappeared: not on first load once a choice was already
+   stored, and not after clicking Accept/Decline (analytics.mjs only ever
+   sets the `hidden` attribute, never an inline style). It stayed fixed,
+   full-width, and interactive at the bottom of the page forever, on every
+   visit, which reads exactly like "clicking doesn't do anything." This
+   explicit `[hidden]` override is what actually makes hiding work. */
+.hn-atlas-consent[hidden] {
+  display: none;
+}
+
 .hn-atlas-consent {
   position: fixed;
   left: 0;
