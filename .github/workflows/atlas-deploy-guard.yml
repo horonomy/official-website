@@ -1,0 +1,119 @@
+# HORO-612: deploy-atlas.yml's deploy job silently SKIPS (not fails) when
+# vars.ATLAS_DEPLOY_ENABLED isn't 'true' — that's how the Atlas's entire
+# deploy pipeline went unnoticed as never-having-run for its whole history
+# (every historical run: conclusion=skipped, no red anywhere to catch it).
+# This workflow turns that class of failure loud instead of silent:
+#
+#   1. deploy-enabled: fails the build (not skip) if the activation flag
+#      is ever missing/false again. Runs on push/dispatch only — a repo
+#      variable doesn't change on its own between pushes, so a schedule
+#      run here would just be a no-op check adding noise.
+#   2. production-matches-main: fails if the live horo.run artifact's
+#      embedded build-commit marker doesn't match main's current tip.
+#      Runs on a schedule only (not push/dispatch) to give the real deploy
+#      time to complete first — a push landing right before a scheduled
+#      tick is skipped rather than flagged, to avoid a flaky false-positive
+#      red on every ordinary merge (see the age check below).
+#
+# Invariant this depends on: every path atlas/build.mts reads at build time
+# (productRegistry.ts, atlas/**, src/css/custom.css) must stay covered by
+# the path list in the diff check below. A future import from elsewhere in
+# src/ would silently escape this filter — update the list if that happens.
+name: Atlas deploy guard
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: atlas-deploy-guard
+  cancel-in-progress: false
+
+jobs:
+  deploy-enabled:
+    name: ATLAS_DEPLOY_ENABLED must be true
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: github.event_name != 'schedule'
+    permissions: {}
+    steps:
+      - name: Check the activation flag
+        run: |
+          if [ "${{ vars.ATLAS_DEPLOY_ENABLED }}" != "true" ]; then
+            echo "::error::ATLAS_DEPLOY_ENABLED is not 'true' — deploy-atlas.yml's deploy job is silently SKIPPING on every push. This is the exact failure mode HORO-612 exists to catch. Set the repo variable to 'true' (Settings -> Secrets and variables -> Actions -> Variables) unless the Atlas is deliberately being taken offline." >&2
+            exit 1
+          fi
+          echo "ATLAS_DEPLOY_ENABLED=true — deploy-atlas.yml is eligible to run."
+
+  production-matches-main:
+    name: production build-commit matches main's tip
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: github.event_name != 'push'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Compare live production against main
+        run: |
+          MAIN_SHA="$(git rev-parse HEAD)"
+
+          # A commit younger than the schedule interval may not have
+          # finished deploying yet — checking it now would be a race, not a
+          # real signal. Skip until the next tick instead of risking a
+          # flaky false-positive red on every ordinary merge.
+          COMMIT_AGE_SECS=$(( $(date +%s) - $(git log -1 --format=%ct HEAD) ))
+          if [ "$COMMIT_AGE_SECS" -lt 1800 ]; then
+            echo "main's tip is only ${COMMIT_AGE_SECS}s old — within the deploy's propagation window. Skipping this run; the next scheduled tick will check it."
+            exit 0
+          fi
+
+          LIVE_HTML="$(curl -fsSL --proto '=https' --proto-redir '=https' --max-time 20 https://horo.run/)"
+          LIVE_SHA="$(printf '%s' "$LIVE_HTML" | grep -o 'horonom:build-commit" content="[^"]*"' | head -1 | sed -E 's/.*content="([^"]*)"/\1/')"
+
+          if [ -z "$LIVE_SHA" ]; then
+            echo "::error::Could not find the horonom:build-commit marker in https://horo.run/ at all — either the deployed artifact predates HORO-612's marker, or the site is serving something unexpected (redirect, error page)." >&2
+            exit 1
+          fi
+
+          if [ "$LIVE_SHA" = "local" ]; then
+            echo "::error::Production was published from a local build (marker == 'local'), not a CI run — deploy-atlas.yml's Actions-driven pipeline was bypassed. Redeploy via deploy-atlas.yml so production carries a real commit SHA." >&2
+            exit 1
+          fi
+
+          if ! [[ "$LIVE_SHA" =~ ^[0-9a-f]{7,40}$ ]]; then
+            echo "::error::The build-commit marker in production ('$LIVE_SHA') isn't a recognizable commit SHA — can't compare it to main. Investigate manually." >&2
+            exit 1
+          fi
+
+          echo "main tip:    $MAIN_SHA"
+          echo "live commit: $LIVE_SHA"
+
+          if [ "$LIVE_SHA" = "$MAIN_SHA" ]; then
+            echo "Production matches main's current tip."
+            exit 0
+          fi
+
+          if ! git cat-file -e "$LIVE_SHA" 2>/dev/null; then
+            echo "::error::Live commit $LIVE_SHA isn't a commit reachable in this checkout's history — can't determine whether production is actually behind main. Investigate manually." >&2
+            exit 1
+          fi
+
+          # A push to main that doesn't touch Atlas-relevant paths never
+          # changes the built output, so an older live commit is expected,
+          # not a deploy failure, as long as nothing that would change the
+          # build changed between the two commits.
+          if git diff --quiet "$LIVE_SHA" HEAD -- atlas/ src/data/productRegistry.ts src/css/custom.css; then
+            echo "No Atlas-relevant changes between $LIVE_SHA and main — production is stale in commit terms only, not in content. OK."
+            exit 0
+          fi
+
+          echo "::error::Production (commit $LIVE_SHA) is behind main ($MAIN_SHA) AND the diff between them touches Atlas-relevant paths — an eligible push did not reach production. Check deploy-atlas.yml's recent runs." >&2
+          exit 1
