@@ -43,9 +43,9 @@ export async function open(page, surface, info, {degraded=false,noJavaScript=fal
   // Neutral captures must establish their own real pointer state before paint.
   await page.mouse.move(0,0);
   await json(info, surface.name+'-environment', {
-    sourceCommit:process.env.QA_SOURCE_COMMIT ?? execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
+    sourceCommit:process.env.QA_SOURCE_COMMIT ?? execFileSync('/usr/bin/git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
     freshBuild:!!process.env.QA_SOURCE_COMMIT,
-    dirty:process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim(),
+    dirty:process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('/usr/bin/git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim(),
     browser:page.context().browser().version(), platform:os.platform(), architecture:os.arch(),
     viewport:page.viewportSize(), project:info.project.name, url:surface.url, keyboardTraversal:traversalKey(info), consentInput:info.project.use.hasTouch?'tap':'pointer click',
     network:degraded?'loopback; decorative assets and all external requests blocked':'loopback plus existing canonical Google font stylesheet and family files only; analytics blocked', fonts, physicalDevice:false,

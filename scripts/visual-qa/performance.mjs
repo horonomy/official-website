@@ -9,8 +9,8 @@ import {cumulativeLayoutShift} from './performance-metrics.mjs';
 
 const out='design/validation-reports/.generated/performance';
 await mkdir(out,{recursive:true});
-const sourceCommit=process.env.QA_SOURCE_COMMIT??execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
-const dirty=process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim();
+const sourceCommit=process.env.QA_SOURCE_COMMIT??execFileSync('/usr/bin/git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+const dirty=process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('/usr/bin/git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim();
 await writeFile(out+'/summary.json',JSON.stringify({sourceCommit,dirty,status:'incomplete',samples:[],failures:['Capture has not completed.']},null,2)+'\n');
 const browser=await chromium.launch();
 const samples=[];

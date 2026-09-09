@@ -9,8 +9,8 @@ export function validateReview(review) {
   if(!Array.isArray(review.files)||!review.files.length||review.files.some(f=>f.startsWith('/')||!/^((chromium|firefox|webkit)-(desktop|tablet|mobile)\/)?[a-z0-9/-]+\.png$/.test(f)||f.includes('..')))throw new Error('Baseline review requires explicit image paths');
 }
 if(process.argv[1]?.endsWith('baseline-review.mjs')) {
-  const base=process.argv[2]??'origin/main';
-  const files=execFileSync('git',['diff','--name-only',base+'...HEAD'],{encoding:'utf8'}).trim().split('\n');
+  if(process.argv[2]&&process.argv[2]!=='origin/main')throw new Error('Baseline comparison only supports origin/main');
+  const files=execFileSync('/usr/bin/git',['diff','--name-only','origin/main...HEAD','--'],{encoding:'utf8'}).trim().split('\n');
   const changed=files.filter(f=>f.startsWith('scripts/visual-qa/baselines/')&&f.endsWith('.png'));
   if(changed.length){
     const reviewPath='scripts/visual-qa/baselines/review.json';
