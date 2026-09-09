@@ -4,6 +4,7 @@ import {execFileSync, spawn} from 'node:child_process';
 import {mkdir, writeFile, readFile} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 import os from 'node:os';
+import {canonicalFontRequest, settled} from './fonts.mjs';
 
 const out='design/validation-reports/.generated/performance';
 await mkdir(out,{recursive:true});
@@ -23,7 +24,7 @@ try {
         const context=await browser.newContext({viewport,locale:'en-US',timezoneId:'UTC',colorScheme:'dark',serviceWorkers:'block',deviceScaleFactor:1});
         const page=await context.newPage();
         const origin='http://127.0.0.1:'+port;
-        await context.route('**/*',route=>new URL(route.request().url()).origin===origin ? route.continue() : route.abort('blockedbyclient'));
+        await context.route('**/*',route=>(new URL(route.request().url()).origin===origin || (route.request().method()==='GET'&&canonicalFontRequest(new URL(route.request().url())))) ? route.continue() : route.abort('blockedbyclient'));
         const cdp=await context.newCDPSession(page);
         await cdp.send('Network.enable');
         await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
@@ -42,7 +43,9 @@ try {
         const traceName=surface+'-'+device+'-'+run+'.trace.json.gz';
         await cdp.send('Tracing.start',{categories:'devtools.timeline,blink.user_timing,v8.execute',transferMode:'ReturnAsStream'});
         await page.goto(origin+'/',{waitUntil:'load'});
-        await page.evaluate(()=>document.fonts.ready);
+        await settled(page);
+        const fonts=await page.evaluate(()=>[...document.fonts].map(face=>({family:face.family,status:face.status})));
+        if(surface==='website')for(const family of ['Space Grotesk','IBM Plex Mono'])if(!fonts.some(face=>face.family.replace(/[\"']/g,'')===family&&face.status==='loaded'))throw new Error('Canonical font unavailable: '+family);
         const decline=page.getByRole('button',{name:surface==='website'?'Reject':'Decline',exact:true});
         if(await decline.isVisible())await decline.click();
         await page.evaluate(()=>document.addEventListener('click',event=>{
@@ -76,7 +79,7 @@ try {
         // CLS uses the standard maximum session window, not an unbounded sum.
         let cls=0,session=0,first=0,last=0;
         for(const shift of values.shifts){if(shift.start-last>1000||shift.start-first>5000){session=0;first=shift.start;}session+=shift.value;last=shift.start;cls=Math.max(cls,session);}
-        const sample={surface,device,run,viewport,observationMs:values.end-start,lcpMs:values.lcp,cls,
+        const sample={surface,device,run,viewport,observationMs:values.end-start,fonts,lcpMs:values.lcp,cls,
           maxObservedInteractionMs:values.events.length?Math.max(...values.events.map(e=>e.duration)):null,
           eventTimings:values.events, trustedClickToTwoRafMs:values.actionFrames,
           maxTrustedClickToTwoRafMs:values.actionFrames.length?Math.max(...values.actionFrames):null,sceneLongTasks:values.longTasks.filter(e=>e.start>=start),
@@ -97,7 +100,7 @@ try {
 finally {
   await browser.close();server.kill('SIGTERM');
   const report={sourceCommit,dirty,freshBuild:!!process.env.QA_SOURCE_COMMIT,browser:browser.version(),platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model,
-    method:'Three fresh contexts per surface/viewport; cache disabled; loopback/no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; external network blocked.',
+    method:'Three fresh contexts per surface/viewport; cache disabled; local assets plus existing canonical Google font CSS/families; no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; all other external network blocked.',
     limitations:['Local lab, not physical-device evidence.','Observed event duration is not field INP; no observed entries means unavailable, not zero. Trusted click to two RAF callbacks is a local response opportunity proxy, not confirmed display presentation.','RAF intervals are cadence, not scripting/render cost. Trace and total scripting/layout/style durations require attribution against a same-device baseline for effect p95 and new long-task acceptance.','No golden performance baseline was automatically approved.'],samples,failures};
   if(process.env.QA_PERF_BASELINE){
     try{

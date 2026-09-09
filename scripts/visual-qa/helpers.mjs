@@ -18,7 +18,7 @@ export async function json(info, name, value) {
 export async function open(page, surface, info, {degraded=false,noJavaScript=false}={}) {
   await page.context().route('**/*', route => {
     const url = new URL(route.request().url());
-    if (url.origin !== new URL(surface.url).origin && (degraded || !canonicalFontRequest(url))) return route.abort('blockedbyclient');
+    if (url.origin !== new URL(surface.url).origin && (degraded || route.request().method()!=='GET' || !canonicalFontRequest(url))) return route.abort('blockedbyclient');
     if (degraded && ['image','font'].includes(route.request().resourceType())) return route.abort('failed');
     return route.continue();
   });

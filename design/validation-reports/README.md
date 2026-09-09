@@ -9,7 +9,13 @@ WCAG criteria, human task efficiency, physical-device performance or MVP accepta
 Use Node 22 and pnpm 10. No running server, browser operation, account, telemetry,
 remote URL or credential is needed. The harness owns loopback ports 4174/4175 and
 refuses to reuse an existing server. It serves only `build/` and `atlas/dist/`.
-All requests outside that test's local origin are blocked. External product links
+Normal website mode permits only its existing exact Google Fonts stylesheet and
+Space Grotesk / IBM Plex Mono font files, and requires those families to load.
+All other external requests (including analytics) are blocked; failed-assets mode
+blocks fonts too. Font network failure fails normal-mode checks instead of passing
+fallback typography as the intended design. Atlas currently links no font
+stylesheet; its actual system fallback is recorded without inventing webfont
+conformance. External product links
 are inspected and receive trusted keyboard/pointer/touch activation with navigation
 cancelled in the test; destination availability is the product registry's concern.
 
@@ -29,7 +35,7 @@ for the run, and report dirty/untracked work. Calling the underlying tools direc
 marks `freshBuild: false` and is diagnostic evidence only. `check:visual` defaults to Chromium; CI explicitly uses all three engines.
 The viewport matrix is desktop 1440×1000, tablet 834×1112, mobile 390×844 at DPR 1.
 Every surface gets real normal/reduced/focus/pointer screenshots, WCAG AA axe scans,
-runtime reduced-motion switching, static/no-JavaScript, failed images/fonts with no
+runtime reduced-motion switching and equivalent-reload pixel stability, static/no-JavaScript, failed images/fonts with no
 backdrop blur, 320px reflow, 200% text and forced-color views. The living scene also
 checks user pause persistence. All assertions remain active for existing defects.
 A failure exits nonzero and retains evidence; fixing source is the resolution.
@@ -78,7 +84,8 @@ session-window CLS, observed interaction Event Timing, trusted-click response op
 heap size and total script/style/layout time. Initial lab ceilings are LCP 2500ms,
 CLS 0.1 and observed interaction / trusted-click response 200ms. A failed ceiling fails the command.
 
-These are unthrottled loopback **lab** measurements. Event Timing is a practical
+These are unthrottled **lab** measurements of local assets plus the website's
+existing external font dependency; network conditions can affect the latter. Event Timing is a practical
 interaction sample, not field INP; absent entries remain unavailable. The trusted-click proxy measures event timestamp to two RAF callbacks; this is a
 response opportunity, not confirmed display presentation. Six measured actions are
 required. RAF cadence is not effect execution time or device FPS. Use Chrome DevTools to inspect the
