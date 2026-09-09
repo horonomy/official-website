@@ -50,7 +50,7 @@ function pickWeighted(
   return table[0].c;
 }
 
-// Small LCG PRNG: stable within a session but varied across reloads.
+// Small LCG PRNG for a repeatable decorative sky across reloads and resizes.
 function makeRng(seed: number): () => number {
   let s = seed >>> 0;
   return () => {
@@ -67,13 +67,14 @@ export function createStarField(canvas: HTMLCanvasElement): StarField {
     throw new Error('Decorative canvas context unavailable');
   }
 
-  const rand = makeRng(Math.floor(Date.now() % 2147483647) + 1);
   let width = 0;
   let height = 0;
   let dpr = 1;
   let stars: Star[] = [];
 
   function buildStars(): void {
+    // Reset for every geometry rebuild so static frames retain their identity.
+    const rand = makeRng(873);
     // Dense field: ~2.7× the previous density so the sky clearly reads as
     // alive. Capped so very large screens stay cheap (only alpha animates).
     const count = Math.min(420, Math.round((width * height) / 6000));
