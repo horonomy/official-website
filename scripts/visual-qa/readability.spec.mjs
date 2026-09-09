@@ -1,3 +1,4 @@
+import {settled} from './fonts.mjs';
 import {test, expect} from '@playwright/test';
 import {surfaces, open, capture, layout, scan} from './helpers.mjs';
 
@@ -17,6 +18,7 @@ for (const surface of surfaces) test(surface.name+' reflows narrow text and reta
   await capture(page,info,surface.name+'-text-200');
   await layout(page);
   await page.reload({waitUntil:'load'});
+  await settled(page);
   await scan(page,info,surface.name+'-readability');
   // Axe reads author colors in forced-colors mode, unlike the actual system-color paint.
   // Retain the real forced-color image for contrast review instead of reporting a false ratio.
