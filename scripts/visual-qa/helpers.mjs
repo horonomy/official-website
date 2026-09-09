@@ -125,3 +125,23 @@ export async function unobscured(control, info, name) {
   expect.soft(state.insideViewport,name+' remains inside the viewport').toBe(true);
   expect.soft(state.receivesInput,name+' receives input without an overlay intercepting it').toBe(true);
 }
+
+export async function cardTextWithinContent(page, info) {
+  const rows=await page.locator('.hn-atlas-card__name, .hn-atlas-card__link').evaluateAll(elements=>elements.map(element=>{
+    const card=element.closest('.hn-atlas-card'),bounds=card.getBoundingClientRect(),style=getComputedStyle(card);
+    const contentLeft=bounds.left+parseFloat(style.borderLeftWidth)+parseFloat(style.paddingLeft);
+    const contentRight=bounds.right-parseFloat(style.borderRightWidth)-parseFloat(style.paddingRight);
+    const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT),ranges=[];
+    while(walker.nextNode()) {
+      if(!walker.currentNode.textContent.trim())continue;
+      const range=document.createRange();range.selectNodeContents(walker.currentNode);
+      for(const rect of range.getClientRects())ranges.push({left:rect.left,right:rect.right,width:rect.width,top:rect.top,bottom:rect.bottom});
+    }
+    return {tag:element.tagName,text:element.textContent.trim(),href:element.getAttribute('href'),font:getComputedStyle(element).font,contentLeft,contentRight,ranges};
+  }));
+  await json(info,'atlas-text-200-reflow-320-card-ranges',rows);
+  expect.soft(rows.length,'Atlas enlarged card text is present').toBeGreaterThan(0);
+  for(const row of rows) {
+    expect.soft(row.ranges.length>0&&row.ranges.every(rect=>rect.left>=row.contentLeft&&rect.right<=row.contentRight),'Card text stays inside its content edges: '+JSON.stringify(row)).toBe(true);
+  }
+}
