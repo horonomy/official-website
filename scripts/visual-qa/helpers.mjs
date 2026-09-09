@@ -55,18 +55,22 @@ export async function open(page, surface, info, {degraded=false,noJavaScript=fal
 export async function capture(page, info, name) {
   await info.attach(name, {body:await page.screenshot({fullPage:false}),contentType:'image/png'});
 }
-export async function layout(page) {
+export async function layout(page, stage='current view') {
   const state=await page.evaluate(()=>{
-    const width=innerWidth,scrollWidth=document.documentElement.scrollWidth;
-    const offenders=scrollWidth>width?[...document.querySelectorAll('body *')].filter(element=>{
-      const bounds=element.getBoundingClientRect();return bounds.width>0&&bounds.right>width;
-    }).slice(0,12).map(element=>{
-      const bounds=element.getBoundingClientRect(),style=getComputedStyle(element);
-      return {tag:element.tagName,class:element.getAttribute('class'),text:element.textContent?.trim().slice(0,80),left:bounds.left,right:bounds.right,width:bounds.width,fontFamily:style.fontFamily,fontSize:style.fontSize,overflowWrap:style.overflowWrap};
-    }):[];
+    const width=innerWidth,scrollWidth=document.documentElement.scrollWidth,offenders=[];
+    if(scrollWidth>width)for(const element of document.querySelectorAll('body *')) {
+      const bounds=element.getBoundingClientRect();
+      if(!bounds.width)continue;
+      const range=document.createRange();range.selectNodeContents(element);
+      const content=range.getBoundingClientRect();
+      if(bounds.right<=width&&content.right<=width)continue;
+      const style=getComputedStyle(element);
+      offenders.push({tag:element.tagName,class:element.getAttribute('class'),text:element.textContent?.trim().slice(0,80),left:bounds.left,right:bounds.right,width:bounds.width,contentLeft:content.left,contentRight:content.right,contentWidth:content.width,fontFamily:style.fontFamily,fontSize:style.fontSize,overflowWrap:style.overflowWrap});
+      if(offenders.length===12)break;
+    }
     return {width,scrollWidth,offenders};
   });
-  expect.soft(state.scrollWidth<=state.width,'Page must not overflow horizontally: '+JSON.stringify(state)).toBe(true);
+  expect.soft(state.scrollWidth<=state.width,'Page must not overflow horizontally ('+stage+'): '+JSON.stringify(state)).toBe(true);
   await expect.soft(page.locator('h1')).toBeVisible();
 }
 export async function scan(page, info, name) {
