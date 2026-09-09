@@ -10,6 +10,7 @@ for (const surface of surfaces) test(surface.name+' supports visible keyboard an
   await capture(page,info,surface.name+'-skip-focus');
   await page.keyboard.press('Enter');
   const target = page.locator(surface.action).first();
+  const unfocused=await target.evaluate(e=>({outline:getComputedStyle(e).outline,boxShadow:getComputedStyle(e).boxShadow}));
   let reached=false;
   const focus=[];
   for (let i=0;i<40;i++) {
@@ -26,8 +27,8 @@ for (const surface of surfaces) test(surface.name+' supports visible keyboard an
   await json(info,surface.name+'-focus-style',style);
   expect.soft(style.visible,'Focus must be in viewport').toBe(true);
   const transparent=color=>color==='transparent'||/rgba\([^)]*,\s*0\)/.test(color);
-  const outline=style.outlineWidth>0&&!['none','hidden'].includes(style.outlineStyle)&&!transparent(style.outlineColor);
-  const shadow=style.boxShadow!=='none'&&!transparent(style.boxShadow)&&/[1-9]\d*(?:\.\d+)?px/.test(style.boxShadow);
+  const outline=style.outline!==unfocused.outline&&style.outlineWidth>0&&!['none','hidden'].includes(style.outlineStyle)&&!transparent(style.outlineColor);
+  const shadow=style.boxShadow!==unfocused.boxShadow&&style.boxShadow!=='none'&&!transparent(style.boxShadow)&&/[1-9]\d*(?:\.\d+)?px/.test(style.boxShadow);
   expect.soft(outline||shadow,'Nonzero, nontransparent focus indicator').toBe(true);
   await capture(page,info,surface.name+'-keyboard-focus');
   // Record actual trusted activation without leaving the public local evidence boundary.
