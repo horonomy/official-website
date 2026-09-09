@@ -99,6 +99,10 @@ session-window CLS, observed interaction Event Timing, trusted-click response op
 heap size and total script/style/layout time. Initial lab ceilings are LCP 2500ms,
 CLS 0.1 and observed interaction / trusted-click response 200ms. A failed ceiling fails the command.
 
+CLS uses the first actual shift and strict one-second/five-second session boundaries
+from the [pinned Chrome Web Vitals reference](https://github.com/GoogleChrome/web-vitals/blob/582ee7450ca5c60a947edbfd95ad53e135ca5dde/src/lib/LayoutShiftManager.ts).
+Raw eligible shift entries remain in each summary sample for recalculation.
+
 These are unthrottled **lab** measurements of local assets plus the website's
 existing external font dependency; network conditions can affect the latter. Event Timing is a practical
 interaction sample, not field INP; absent entries remain unavailable. The trusted-click proxy measures event timestamp to two RAF callbacks; this is a
