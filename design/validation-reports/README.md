@@ -19,6 +19,18 @@ conformance. External product links
 are inspected and receive trusted keyboard/pointer/touch activation with navigation
 cancelled in the test; destination availability is the product registry's concern.
 
+Readiness protocol `required-render-v2` (HORO-890) waits for the document load,
+active stylesheets, used fonts and required visible images/backgrounds. It observes
+the browser's actual resource requests without starting probe downloads or reading
+CORS-protected stylesheet rules. Missing required resources fail normal mode;
+the explicit degraded mode permits its intentionally failed image/font requests.
+Lazy/offscreen decoration does not extend viewport readiness. Plain browser state
+is polled from Node so the no-JavaScript path does not rely on page-world promises.
+Unrelated network activity is not a rendering requirement; Playwright
+[discourages network idleness as test readiness](https://playwright.dev/docs/api/class-page#page-wait-for-load-state).
+The utility command includes real-browser delayed/missing-resource regressions,
+so install all three browser engines before running it.
+
 ```bash
 corepack pnpm@10 install --frozen-lockfile --ignore-scripts
 corepack pnpm@10 exec playwright install chromium firefox webkit
@@ -118,6 +130,13 @@ means those relative criteria are **unassessed**, not passed. Set
 `QA_PERF_BASELINE=/path/to/summary.json` for a same-environment comparison: missing
 metrics/mismatched environments fail. Baselines must be complete, clean, freshly built captures with a valid source SHA, no failures, and all twelve unique expected surface/viewport/run cells with matching viewport dimensions and at least thirty seconds of observation. Diagnostic, failed, duplicated or malformed evidence is rejected before comparison. Median LCP/trusted-click response regressions
 above 10% fail. Keep absolute values and trace findings in the PR.
+
+The recorded performance method now includes `required-render-v2`. Earlier
+HORO-874 captures used network-idle readiness and remain observations of that
+protocol; they are not comparable baselines for the new method. The strict method
+equality check rejects that comparison. Buffered LCP/CLS and the thirty-second
+scene observation remain intact; the readiness protocol change still requires
+fresh performance captures before acceptance.
 
 Raw traces are capped at 64 MiB per sample before compression; only twelve samples
 are captured. No native/private product evidence belongs in these public artifacts.
