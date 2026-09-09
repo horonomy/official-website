@@ -1,6 +1,6 @@
 import {settled} from './fonts.mjs';
 import {test, expect} from '@playwright/test';
-import {surfaces, open, capture, layout, scan, traversalKey} from './helpers.mjs';
+import {surfaces, open, capture, layout, scan, traversalKey, cardTextWithinContent} from './helpers.mjs';
 
 for (const surface of surfaces) test(surface.name+' reflows narrow text and retains forced-color focus', async ({page}, info) => {
   await page.emulateMedia({reducedMotion:'reduce'});
@@ -17,6 +17,13 @@ for (const surface of surfaces) test(surface.name+' reflows narrow text and reta
   });
   await capture(page,info,surface.name+'-text-200');
   await layout(page,'200% text');
+  if(surface.name==='atlas') {
+    await page.setViewportSize({width:320,height:844});
+    await info.attach('atlas-text-200-reflow-320',{body:await page.screenshot({fullPage:true}),contentType:'image/png'});
+    await layout(page,'320px with 200% text');
+    await cardTextWithinContent(page,info);
+    await page.setViewportSize(info.project.use.viewport);
+  }
   await page.reload({waitUntil:'load'});
   await settled(page);
   await scan(page,info,surface.name+'-readability');
