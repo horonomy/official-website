@@ -39,6 +39,10 @@ runtime reduced-motion switching and equivalent-reload pixel stability, static/n
 backdrop blur, 320px reflow, 200% text and forced-color views. The living scene also
 checks user pause persistence. All assertions remain active for existing defects.
 A failure exits nonzero and retains evidence; fixing source is the resolution.
+macOS WebKit uses native Option-Tab (`Alt+Tab`) to traverse links, recorded in each
+environment attachment; other engines/platforms use Tab. This follows
+[Apple's keyboard navigation contract](https://support.apple.com/guide/safari/keyboard-shortcuts-and-gestures-cpsh003/mac)
+without changing host preferences or programmatically focusing the target.
 No CSS animation suppression is added to the reduced-motion test's screenshots.
 
 The output under `.generated/` is ignored by Git. Open `.generated/report/index.html`

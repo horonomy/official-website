@@ -12,6 +12,9 @@ export const surfaces = [
   {name:'website', url:'http://127.0.0.1:4174/', action:'#observatory a[href="/#products"]', decline:'Reject'},
   {name:'atlas', url:'http://127.0.0.1:4175/', action:'.hn-atlas-card__link', decline:'Decline'},
 ];
+export function traversalKey(info) {
+  return process.platform==='darwin'&&info.project.use.browserName==='webkit'?'Alt+Tab':'Tab';
+}
 export async function json(info, name, value) {
   await info.attach(name, {body:Buffer.from(JSON.stringify(value,null,2)),contentType:'application/json'});
 }
@@ -39,7 +42,7 @@ export async function open(page, surface, info, {degraded=false,noJavaScript=fal
     freshBuild:!!process.env.QA_SOURCE_COMMIT,
     dirty:process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim(),
     browser:page.context().browser().version(), platform:os.platform(), architecture:os.arch(),
-    viewport:page.viewportSize(), project:info.project.name, url:surface.url,
+    viewport:page.viewportSize(), project:info.project.name, url:surface.url, keyboardTraversal:traversalKey(info),
     network:degraded?'loopback; decorative assets and all external requests blocked':'loopback plus existing canonical Google font stylesheet and family files only; analytics blocked', fonts, physicalDevice:false,
   });
   return errors;
