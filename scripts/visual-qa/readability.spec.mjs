@@ -7,7 +7,7 @@ for (const surface of surfaces) test(surface.name+' reflows narrow text and reta
   await open(page,surface,info);
   await page.setViewportSize({width:320,height:844});
   await capture(page,info,surface.name+'-reflow-320');
-  await layout(page);
+  await layout(page,'320px reflow');
   await page.setViewportSize(info.project.use.viewport);
   // Change computed text sizes, not page zoom: this exercises text enlargement alone.
   await page.evaluate(() => {
@@ -16,7 +16,7 @@ for (const surface of surfaces) test(surface.name+' reflows narrow text and reta
     elements.forEach((e,i)=>{if(e instanceof HTMLElement)e.style.fontSize=parseFloat(sizes[i])*2+'px';});
   });
   await capture(page,info,surface.name+'-text-200');
-  await layout(page);
+  await layout(page,'200% text');
   await page.reload({waitUntil:'load'});
   await settled(page);
   await scan(page,info,surface.name+'-readability');
