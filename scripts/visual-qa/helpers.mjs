@@ -70,3 +70,15 @@ export async function compare(page, info, name) {
   validateReview(manifest);
   await expect.soft(page).toHaveScreenshot(name+'.png', {animations:'allow',maxDiffPixels:0});
 }
+
+export async function repeatLoad(page, info, name) {
+  await page.mouse.move(0,0);
+  const frames=[];
+  for(let run=0;run<2;run++) {
+    await page.reload({waitUntil:'load'});
+    await page.evaluate(()=>document.fonts.ready);
+    frames.push(await page.screenshot());
+    await info.attach(name+'-load-'+(run+1),{body:frames[run],contentType:'image/png'});
+  }
+  expect.soft(frames[1].equals(frames[0]),'Equivalent reduced scenes must survive independent reloads without pixel drift').toBe(true);
+}
