@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Horonom v1 CSS token source contract",
+  "description": "A role-to-CSS reference manifest, not a second token-value store or a runtime generator. Paths are relative to the repository root except $schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "version", "source", "consumers", "contracts", "tokens", "authoring"],
+  "properties": {
+    "$schema": {"const": "./design-token-contract.schema.json"},
+    "version": {"const": 1},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["file", "selector", "prefix"],
+      "properties": {
+        "file": {"const": "src/css/custom.css"},
+        "selector": {"const": "first top-level :root"},
+        "prefix": {"const": "--hn-"}
+      }
+    },
+    "consumers": {
+      "type": "object", "additionalProperties": false, "required": ["website", "atlas"],
+      "properties": {"website": {"const": "src/"}, "atlas": {"const": "atlas/tokens.mjs"}}
+    },
+    "contracts": {
+      "type": "object", "additionalProperties": false, "required": ["visual", "motion", "accessibility"],
+      "properties": {"visual": {"type": "string", "minLength": 1}, "motion": {"type": "string", "minLength": 1}, "accessibility": {"type": "string", "minLength": 1}}
+    },
+    "tokens": {
+      "type": "object", "additionalProperties": false,
+      "required": ["surface.canvas", "surface.panel", "text.heading", "text.body", "text.secondary", "font.sans", "font.mono", "focus.color", "focus.ring"],
+      "patternProperties": {"^[a-z][a-zA-Z0-9]*(\\.[a-zA-Z0-9]+)+$": {"$ref": "#/$defs/token"}}
+    },
+    "authoring": {
+      "type": "object", "additionalProperties": false, "required": ["values", "responsive", "motion", "validation", "distribution"],
+      "properties": {"values": {"type": "string", "minLength": 1}, "responsive": {"type": "string", "minLength": 1}, "motion": {"type": "string", "minLength": 1}, "validation": {"type": "string", "minLength": 1}, "distribution": {"type": "string", "minLength": 1}}
+    }
+  },
+  "$defs": {
+    "token": {
+      "type": "object", "additionalProperties": false, "required": ["type", "css"],
+      "properties": {
+        "type": {"enum": ["color", "dimension", "fontFamily", "shadow", "gradient", "filter", "duration", "easing"]},
+        "css": {"type": "string", "pattern": "^--hn-[a-z0-9]+(?:-[a-z0-9]+)*$"}
+      }
+    }
+  }
+}

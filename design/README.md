@@ -14,6 +14,10 @@ and gap analyses are historical evidence, not competing current specifications.
   semantic attention and per-class fallbacks.
 - [Reduced Motion and Accessibility Contract v1](ACCESSIBILITY_CONTRACT.md) —
   contrast, operability and rendered evidence requirements.
+- [Token source contract](design-token-contract.json) and [JSON Schema](design-token-contract.schema.json)
+  — machine-readable roles pointing to existing CSS values, without duplicating them.
+- [AI frontend checklist](AI_FRONTEND_CHECKLIST.md) — required implementation and
+  verification handoff for agents and humans.
 
 ```
 design/
