@@ -8,7 +8,7 @@ import os from 'node:os';
 const out='design/validation-reports/.generated/performance';
 await mkdir(out,{recursive:true});
 const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
-const dirty=!!execFileSync('git',['status','--porcelain','--untracked-files=no'],{encoding:'utf8'}).trim();
+const dirty=!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim();
 const browser=await chromium.launch();
 const samples=[];
 const failures=[];

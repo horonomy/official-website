@@ -68,21 +68,22 @@ resolve a failure; the normal gate must pass independently of any image acceptan
 ## Performance interpretation
 
 `perf:visual` creates three cold-load samples for website and Atlas at desktop and
-phone viewports. Each sample renders for 30 seconds with real pointer and Tab input,
+phone viewports. Each sample renders for 30 seconds with real pointer, Tab and six trusted link activations,
 keeps an actual compressed Chrome performance trace, and reports LCP, standard
-session-window CLS, observed interaction Event Timing, long tasks, RAF cadence,
+session-window CLS, observed interaction Event Timing, trusted-click response opportunities, long tasks, RAF cadence,
 heap size and total script/style/layout time. Initial lab ceilings are LCP 2500ms,
-CLS 0.1 and observed interaction 200ms. A failed ceiling fails the command.
+CLS 0.1 and observed interaction / trusted-click response 200ms. A failed ceiling fails the command.
 
 These are unthrottled loopback **lab** measurements. Event Timing is a practical
-interaction sample, not field INP; absent entries remain unavailable. RAF cadence
-is not effect execution time or device FPS. Use Chrome DevTools to inspect the
+interaction sample, not field INP; absent entries remain unavailable. The trusted-click proxy measures event timestamp to two RAF callbacks; this is a
+response opportunity, not confirmed display presentation. Six measured actions are
+required. RAF cadence is not effect execution time or device FPS. Use Chrome DevTools to inspect the
 trace's `qa-scene-start` / `qa-scene-end` interval and attribute effect scripting and
 render work against the same-device baseline before asserting the constitution's
 4ms/6ms effect p95 or no newly introduced long tasks/layout shifts. No baseline
 means those relative criteria are **unassessed**, not passed. Set
 `QA_PERF_BASELINE=/path/to/summary.json` for a same-environment comparison: missing
-metrics/mismatched environments fail; median LCP/observed interaction regressions
+metrics/mismatched environments fail; median LCP/trusted-click response regressions
 above 10% fail. Keep absolute values and trace findings in the PR.
 
 Raw traces are capped at 64 MiB per sample before compression; only twelve samples
