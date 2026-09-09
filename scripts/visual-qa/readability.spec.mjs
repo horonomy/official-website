@@ -1,6 +1,6 @@
 import {settled} from './fonts.mjs';
 import {test, expect} from '@playwright/test';
-import {surfaces, open, capture, layout, scan} from './helpers.mjs';
+import {surfaces, open, capture, layout, scan, traversalKey} from './helpers.mjs';
 
 for (const surface of surfaces) test(surface.name+' reflows narrow text and retains forced-color focus', async ({page}, info) => {
   await page.emulateMedia({reducedMotion:'reduce'});
@@ -23,7 +23,7 @@ for (const surface of surfaces) test(surface.name+' reflows narrow text and reta
   // Axe reads author colors in forced-colors mode, unlike the actual system-color paint.
   // Retain the real forced-color image for contrast review instead of reporting a false ratio.
   await page.emulateMedia({forcedColors:'active'});
-  await page.keyboard.press('Tab');
+  await page.keyboard.press(traversalKey(info));
   await expect.soft(page.locator(':focus')).toHaveText(/Skip to/);
   await capture(page,info,surface.name+'-forced-colors');
   expect.soft(await page.evaluate(()=>matchMedia('(forced-colors: active)').matches)).toBe(true);
