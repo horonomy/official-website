@@ -41,6 +41,11 @@ for (const surface of surfaces) test(surface.name+' supports visible keyboard an
   await target.hover();
   await capture(page,info,surface.name+'-pointer');
   await page.evaluate(()=>delete document.documentElement.dataset.qaActivation);
-  if (info.project.use.hasTouch) await target.tap(); else await target.click();
+  if (info.project.use.hasTouch) {
+    const box=await target.boundingBox();
+    expect.soft(box.width,'Primary touch target width').toBeGreaterThanOrEqual(44);
+    expect.soft(box.height,'Primary touch target height').toBeGreaterThanOrEqual(44);
+    await target.tap();
+  } else await target.click();
   await expect(page.locator('html')).toHaveAttribute('data-qa-activation','true');
 });
