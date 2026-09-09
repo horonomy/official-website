@@ -5,6 +5,7 @@ import {mkdir, writeFile, readFile} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 import os from 'node:os';
 import {canonicalFontRequest, settled} from './fonts.mjs';
+import {cumulativeLayoutShift} from './performance-metrics.mjs';
 
 const out='design/validation-reports/.generated/performance';
 await mkdir(out,{recursive:true});
@@ -77,9 +78,8 @@ try {
         await writeFile(out+'/'+traceName,gzipSync(Buffer.concat(chunks)));
         const delta=name=>(final.metrics.find(x=>x.name===name)?.value??0)-(initial.metrics.find(x=>x.name===name)?.value??0);
         // CLS uses the standard maximum session window, not an unbounded sum.
-        let cls=0,session=0,first=0,last=0;
-        for(const shift of values.shifts){if(shift.start-last>1000||shift.start-first>5000){session=0;first=shift.start;}session+=shift.value;last=shift.start;cls=Math.max(cls,session);}
-        const sample={surface,device,run,viewport,observationMs:values.end-start,fonts,lcpMs:values.lcp,cls,
+        const cls=cumulativeLayoutShift(values.shifts);
+        const sample={surface,device,run,viewport,observationMs:values.end-start,fonts,lcpMs:values.lcp,cls,layoutShifts:values.shifts,
           maxObservedInteractionMs:values.events.length?Math.max(...values.events.map(e=>e.duration)):null,
           eventTimings:values.events, trustedClickToTwoRafMs:values.actionFrames,
           maxTrustedClickToTwoRafMs:values.actionFrames.length?Math.max(...values.actionFrames):null,sceneLongTasks:values.longTasks.filter(e=>e.start>=start),
