@@ -8,35 +8,29 @@ import styles from './AmbientEffects.module.css';
 /**
  * Ambient decorative layer for the HeroUniverse hero (HORO-5).
  *
- * Enhances — rather than repaints — the already-starred sky backdrop with a few
- * subtle, GPU-friendly effects:
+ * Adds subtle decoration above the already-starred sky backdrop:
  *   - a dense, gently twinkling canvas star field (`./starfield.ts`) — a
  *     living field of stars that breathe;
  *   - occasional meteors / shooting stars that streak across the sky
  *     (`./meteors.ts`), on their own canvas layered above the star field;
  *   - two slow-drifting haze clouds (navy / gold / soft purple gradients);
- *   - a wind-driven star-dust field of tiny motes that fade in, drift, and fade
- *     out, their travel scaled by an ambient breeze (`--wind`, HORO-8);
- *   - light cursor + scroll parallax, applied through CSS custom properties so
- *     only compositor-friendly `transform`s change.
+ *   - star-dust motes whose CSS drift uses the fixed `--wind` baseline.
  *
- * Purely decorative (`aria-hidden`) and sits at `z = ambient`, above the sky
- * backdrop but below the observer and content layers.
+ * The decoration is `aria-hidden` at `z = ambient`, below the observer and
+ * content. Its sibling button controls the shared scene pause preference.
  *
  * SSR-safe: all `window`/`canvas` work happens inside `useEffect`, guarded for
- * the browser. The dust nodes come from a fixed, deterministic config so server
- * and client markup match (no hydration mismatch). Under
- * `prefers-reduced-motion: reduce` the star field renders a single static
- * frame, the haze/parallax/dust animations are disabled in CSS, the gust driver
- * is not attached, and no parallax listeners are added — the layer is fully
- * static.
+ * the browser. Fixed dust markup matches SSR. `createSceneMotion` owns one
+ * canvas clock, pause, visibility, runtime reduced-motion changes and renderer
+ * failure. CSS follows that scene state: reduced motion and pause retain a
+ * static scene; hidden scenes suspend work. No pointer or scroll driver runs.
  */
 
 /**
  * Fixed star-dust motes. Deterministic (no runtime randomness) so SSR and the
  * client render identical markup. `dx`/`dy` are each mote's base drift vector
  * in px — mostly rightward, as if the breeze moves across the scene — scaled at
- * runtime by `--wind`. Negative delays stagger the field so it is already in
+ * by the fixed `--wind` baseline. Negative delays stagger the field so it is already in
  * motion at first paint. Palette: soft starlight, gold, and purple.
  */
 interface DustMote {
