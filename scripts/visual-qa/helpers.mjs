@@ -36,7 +36,9 @@ export async function open(page, surface, info, {degraded=false,noJavaScript=fal
   }
   await expect(page.locator('h1')).toBeVisible();
   const decline = page.getByRole('button', {name:surface.decline,exact:true});
-  if (await decline.isVisible()) await decline.click();
+  if (await decline.isVisible()) {
+    if(info.project.use.hasTouch) await decline.tap(); else await decline.click();
+  }
   // Removing the consent control can expose a link underneath the pointer.
   // Neutral captures must establish their own real pointer state before paint.
   await page.mouse.move(0,0);
@@ -45,7 +47,7 @@ export async function open(page, surface, info, {degraded=false,noJavaScript=fal
     freshBuild:!!process.env.QA_SOURCE_COMMIT,
     dirty:process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim(),
     browser:page.context().browser().version(), platform:os.platform(), architecture:os.arch(),
-    viewport:page.viewportSize(), project:info.project.name, url:surface.url, keyboardTraversal:traversalKey(info),
+    viewport:page.viewportSize(), project:info.project.name, url:surface.url, keyboardTraversal:traversalKey(info), consentInput:info.project.use.hasTouch?'tap':'pointer click',
     network:degraded?'loopback; decorative assets and all external requests blocked':'loopback plus existing canonical Google font stylesheet and family files only; analytics blocked', fonts, physicalDevice:false,
   });
   return errors;

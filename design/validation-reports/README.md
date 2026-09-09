@@ -43,6 +43,10 @@ macOS WebKit uses native Option-Tab (`Alt+Tab`) to traverse links, recorded in e
 environment attachment; other engines/platforms use Tab. This follows
 [Apple's keyboard navigation contract](https://support.apple.com/guide/safari/keyboard-shortcuts-and-gestures-cpsh003/mac)
 without changing host preferences or programmatically focusing the target.
+Touch projects dismiss consent and activate primary actions with native taps.
+Neutral captures park the real pointer outside content after consent dismissal;
+separate tests deliberately produce hover/focus states. Both temporal stability
+frames are retained for pixel review.
 No CSS animation suppression is added to the reduced-motion test's screenshots.
 
 The output under `.generated/` is ignored by Git. Open `.generated/report/index.html`
