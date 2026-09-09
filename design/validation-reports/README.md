@@ -61,8 +61,10 @@ are Playwright interaction traces; they are distinct from the performance traces
 CI uploads the self-contained HTML report/data and performance directory as `rendered-visual-qa-<commit>` for seven days, even on test
 failure. Local `results.json` duplicates PNGs as base64 and stays out of the CI artifact;
 the HTML report retains every image, JSON attachment and failure trace. Link that artifact and selected public screenshots in PR Self-verification.
-Commit only a small curated set under the ticket directory, plus its report; avoid
-committing HTML reports, raw traces or duplicate full-page media.
+Attach a bounded selection of public PNGs and the compressed trace bundle to the
+owning Jira ticket through the authorized evidence workflow. Commit the ticket
+report and a small manifest containing capture SHA, hashes and stable attachment
+links. Do not duplicate those images, HTML reports or raw traces in Git.
 
 ## Baselines require a deliberate review
 
