@@ -94,3 +94,23 @@ test('one scene clock preserves static preference, pause and visibility across i
   assert.equal(states.at(-1).paused, true, 'pause survives the scene being mounted again');
   revisit.destroy();
 });
+
+test('renderer exceptions stop scheduling and release siblings without replacing semantic content', t => {
+  const env = fixture(t);
+  const element = {dataset: {}, innerHTML: '<a href="/products">Browse products</a>'};
+  const states = [];
+  let released = 0;
+  const renderer = {resize() {}, static() {}, frame() { throw new Error('canvas unavailable'); }, destroy() { released++; }};
+  const motion = createSceneMotion({element, factories: [() => renderer, () => renderer], onState: state => states.push(state), view: env.view, page: env.page});
+  env.tick(1);
+  assert.equal(element.dataset.hnMotion, 'failed');
+  assert.equal(released, 2);
+  assert.equal(env.frames.size, 0);
+  assert.equal(element.innerHTML, '<a href="/products">Browse products</a>');
+  motion.setPaused(false);
+  env.media.dispatchEvent(new Event('change'));
+  assert.equal(element.dataset.hnMotion, 'failed', 'failed renderers are not restarted by preference changes');
+  assert.equal(env.frames.size, 0);
+  motion.destroy();
+  assert.equal(released, 2, 'release is idempotent after failure');
+});
