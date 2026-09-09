@@ -39,6 +39,9 @@
     "shadow.large": {"type": "shadow", "css": "--hn-shadow-lg"},
     "focus.color": {"type": "color", "css": "--hn-focus-ring-color"},
     "focus.ring": {"type": "shadow", "css": "--hn-focus-ring"},
+    "motion.control": {"type": "duration", "css": "--hn-motion-control"},
+    "motion.target": {"type": "duration", "css": "--hn-motion-target"},
+    "motion.easeOut": {"type": "easing", "css": "--hn-ease-out"},
     "glass.background": {"type": "gradient", "css": "--hn-glass-bg"},
     "glass.filter": {"type": "filter", "css": "--hn-glass-blur"},
     "glass.border": {"type": "color", "css": "--hn-glass-border"},
@@ -47,7 +50,7 @@
   "authoring": {
     "values": "CSS owns values and var() aliases; this manifest maps roles without duplicating values. Role names do not create CSS aliases.",
     "responsive": "CSS media queries own overrides; custom.css documents 996px/560px, atlas/atlas.css owns its 720px grid collapse and local gutter. Atlas extraction copies only the first root block.",
-    "motion": "MOTION_CONSTITUTION.md owns v1 ranges. HORO-873 may add shared duration/easing tokens to the CSS source and extend this manifest; no such runtime tokens exist in this v1 inventory.",
+    "motion": "MOTION_CONSTITUTION.md owns v1 ranges. The CSS source provides control/target feedback durations and the out easing; reduced motion replaces transitions with immediate state. Durations never delay navigation.",
     "validation": "Validate against the sibling JSON Schema, then verify every css reference and its var() dependencies resolve in the extracted source. Schema validity alone does not prove source parity or rendered contrast.",
     "distribution": "Atlas uses its existing extractor. Other authorized web consumers record the source commit and map roles locally; do not copy corporate layout or publish a new token package. Pets does not consume this palette."
   }
