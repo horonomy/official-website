@@ -97,3 +97,17 @@ export async function repeatLoad(page, info, name) {
   }
   expect.soft(frames[1].equals(frames[0]),'Equivalent reduced scenes must survive independent reloads without pixel drift').toBe(true);
 }
+
+export async function unobscured(control, info, name) {
+  const state=await control.evaluate(element=>{
+    const r=element.getBoundingClientRect();
+    const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+    return {bounds:{x:r.x,y:r.y,width:r.width,height:r.height},
+      insideViewport:r.width>0&&r.height>0&&r.top>=0&&r.left>=0&&r.bottom<=innerHeight&&r.right<=innerWidth,
+      receivesInput:!!hit&&element.contains(hit),
+      hit:hit?{tag:hit.tagName,name:hit.getAttribute('aria-label')??hit.textContent?.trim().slice(0,80)}:null};
+  });
+  await json(info,name+'-occlusion',state);
+  expect.soft(state.insideViewport,name+' remains inside the viewport').toBe(true);
+  expect.soft(state.receivesInput,name+' receives input without an overlay intercepting it').toBe(true);
+}
