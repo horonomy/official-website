@@ -56,7 +56,17 @@ export async function capture(page, info, name) {
   await info.attach(name, {body:await page.screenshot({fullPage:false}),contentType:'image/png'});
 }
 export async function layout(page) {
-  expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Page must not overflow horizontally').toBe(true);
+  const state=await page.evaluate(()=>{
+    const width=innerWidth,scrollWidth=document.documentElement.scrollWidth;
+    const offenders=scrollWidth>width?[...document.querySelectorAll('body *')].filter(element=>{
+      const bounds=element.getBoundingClientRect();return bounds.width>0&&bounds.right>width;
+    }).slice(0,12).map(element=>{
+      const bounds=element.getBoundingClientRect(),style=getComputedStyle(element);
+      return {tag:element.tagName,class:element.getAttribute('class'),text:element.textContent?.trim().slice(0,80),left:bounds.left,right:bounds.right,width:bounds.width,fontFamily:style.fontFamily,fontSize:style.fontSize,overflowWrap:style.overflowWrap};
+    }):[];
+    return {width,scrollWidth,offenders};
+  });
+  expect.soft(state.scrollWidth<=state.width,'Page must not overflow horizontally: '+JSON.stringify(state)).toBe(true);
   await expect.soft(page.locator('h1')).toBeVisible();
 }
 export async function scan(page, info, name) {
