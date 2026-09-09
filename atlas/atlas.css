@@ -40,10 +40,10 @@ body {
 
 .hn-atlas-header__kicker {
   font-family: var(--hn-font-mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: 12px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--hn-faint);
+  color: var(--hn-muted);
   margin: 0 0 var(--hn-space-3);
 }
 
@@ -91,10 +91,10 @@ body {
 
 .hn-atlas-card__eyebrow {
   font-family: var(--hn-font-mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--hn-faint);
+  color: var(--hn-muted);
   margin: 0 0 var(--hn-space-2);
 }
 
@@ -116,7 +116,7 @@ body {
 
 .hn-atlas-card__maturity {
   font-family: var(--hn-font-mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.05em;
   color: var(--hn-muted);
   margin: 0 0 var(--hn-space-4);
@@ -146,7 +146,7 @@ body {
 
 .hn-atlas-card__pending {
   display: inline-block;
-  color: var(--hn-faint);
+  color: var(--hn-muted);
   font-size: 13px;
   font-style: italic;
 }
@@ -212,7 +212,7 @@ body {
 .hn-atlas-consent__text {
   margin: 0;
   font-size: 13px;
-  color: var(--hn-faint);
+  color: var(--hn-muted);
   max-width: 60ch;
 }
 

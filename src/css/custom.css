@@ -116,7 +116,7 @@
   --ifm-footer-background-color: #0b0d10;
   --ifm-footer-color: var(--hn-muted);
   --ifm-footer-link-color: var(--hn-muted);
-  --ifm-footer-title-color: var(--hn-faint);
+  --ifm-footer-title-color: var(--hn-muted);
   --ifm-heading-color: var(--hn-ink);
   --ifm-font-color-base: var(--hn-text);
 }
@@ -183,10 +183,10 @@ body {
 
 .footer__title {
   font-family: var(--hn-font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-size: 12px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--hn-faint);
+  color: var(--hn-muted);
 }
 
 .footer__link-item {
@@ -195,9 +195,9 @@ body {
 
 .footer__copyright {
   font-family: var(--hn-font-mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.1em;
-  color: var(--hn-faint);
+  color: var(--hn-muted);
 }
 
 /* --- Shared homepage primitives --- */
@@ -213,9 +213,9 @@ body {
   align-items: center;
   gap: 12px;
   font-family: var(--hn-font-mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--hn-faint);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--hn-muted);
   text-transform: uppercase;
 }
 
@@ -228,9 +228,9 @@ body {
 
 .hn-section-kicker {
   font-family: var(--hn-font-mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--hn-faint);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--hn-muted);
   text-transform: uppercase;
 }
 
