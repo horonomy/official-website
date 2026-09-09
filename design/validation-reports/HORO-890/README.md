@@ -17,7 +17,7 @@ intentional degraded/no-JavaScript paths, all screenshot/input assertions and
 bounded thirty-second performance observations. It makes no production UI change.
 The performance method is now `required-render-v2`; old-method comparisons fail.
 
-At clean fixture source `d9f1953`, all three real browser engines passed delayed
+At clean fixture source `d9f1953c1c80a907fcd683e6ed80f62bdc6b211b`, all three real browser engines passed delayed
 rendering, missing image/background/stylesheet/font, degraded and no-JavaScript
 scenarios. A separate black-box comparison used the unchanged legacy helper from
 `31f90e590f642decaf6a6098178506f0d04648e7`: with a real unrelated fetch still open,
@@ -26,6 +26,10 @@ Actual before/after frames were byte-identical in all three engines. The diagnos
 legacy timeout was explicitly shortened to one second; production timeouts were
 not increased. This fixture demonstrates the readiness boundary, not a reproduction
 of Firefox internals or product accessibility/performance conformance.
+
+The [bounded evidence manifest](./manifest.json) links the durable legacy comparison,
+fresh-source 18-case mobile report, native focus PNG and no-JavaScript PNG. These
+are targeted observations with their own recorded source commits.
 
 The owning PR must retain fresh exact-source 90-case and 12-trace CI evidence,
 independent review and postmerge verification. Previous HORO-874 captures retain
