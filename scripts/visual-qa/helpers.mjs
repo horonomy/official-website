@@ -68,7 +68,7 @@ export async function compare(page, info, name) {
   }
   const manifest = JSON.parse(await readFile(new URL('./baselines/review.json',import.meta.url),'utf8'));
   validateReview(manifest);
-  await expect.soft(page).toHaveScreenshot(name+'.png', {animations:'allow',maxDiffPixels:0});
+  await expect.soft(page).toHaveScreenshot(name+'.png', {animations:'allow',maxDiffPixels:0,threshold:0});
 }
 
 export async function repeatLoad(page, info, name) {
