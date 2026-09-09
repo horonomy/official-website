@@ -52,6 +52,21 @@ for (const surface of surfaces) test(surface.name+' supports visible keyboard an
   }));
   await page.keyboard.press('Enter');
   await expect(page.locator('html')).toHaveAttribute('data-qa-activation','true');
+  if(motion) {
+    await page.mouse.move(0,0);
+    await page.evaluate(()=>scrollTo(0,68));
+    await capture(page,info,'website-scrolled-navigation');
+    for(const name of ['Blog','GitHub']) {
+      const link=page.locator('.navbar').getByRole('link',{name,exact:true});
+      if(await link.isVisible()) await unobscured(link,info,'Scrolled navbar '+name);
+    }
+    for(let i=0;i<40&&!await motion.evaluate(e=>e===document.activeElement);i++) await page.keyboard.press('Shift+'+traversalKey(info));
+    await expect.soft(motion).toBeFocused();
+    await capture(page,info,'website-scrolled-motion-focus');
+    await unobscured(motion,info,'Scene motion control focused after manual scroll');
+    for(let i=0;i<40&&!await target.evaluate(e=>e===document.activeElement);i++) await page.keyboard.press(traversalKey(info));
+    await expect(target).toBeFocused();
+  }
   await target.hover();
   await capture(page,info,surface.name+'-pointer');
   await page.evaluate(()=>delete document.documentElement.dataset.qaActivation);
