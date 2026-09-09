@@ -21,11 +21,14 @@ for (const surface of surfaces) test(surface.name+' supports visible keyboard an
   expect(reached,'Primary content action reachable through Tab').toBe(true);
   const style = await target.evaluate(e=>{
     const s=getComputedStyle(e);const r=e.getBoundingClientRect();
-    return {outline:s.outline,boxShadow:s.boxShadow,visible:r.top>=0&&r.bottom<=innerHeight};
+    return {outline:s.outline,outlineWidth:parseFloat(s.outlineWidth),outlineStyle:s.outlineStyle,outlineColor:s.outlineColor,boxShadow:s.boxShadow,visible:r.top>=0&&r.bottom<=innerHeight};
   });
   await json(info,surface.name+'-focus-style',style);
   expect.soft(style.visible,'Focus must be in viewport').toBe(true);
-  expect.soft(style.outline.includes('none') && style.boxShadow==='none','Visible focus indicator').toBe(false);
+  const transparent=color=>color==='transparent'||/rgba\([^)]*,\s*0\)/.test(color);
+  const outline=style.outlineWidth>0&&!['none','hidden'].includes(style.outlineStyle)&&!transparent(style.outlineColor);
+  const shadow=style.boxShadow!=='none'&&!transparent(style.boxShadow)&&/[1-9]\d*(?:\.\d+)?px/.test(style.boxShadow);
+  expect.soft(outline||shadow,'Nonzero, nontransparent focus indicator').toBe(true);
   await capture(page,info,surface.name+'-keyboard-focus');
   // Record actual trusted activation without leaving the public local evidence boundary.
   await page.evaluate(() => document.addEventListener('click', event => {
