@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test';
-import {surfaces, open, capture, stableMotion, compare} from './helpers.mjs';
+import {surfaces, open, capture, stableMotion, compare, repeatLoad} from './helpers.mjs';
 
 for (const surface of surfaces) test(surface.name+' preserves a static reduced-motion scene on load and change', async ({page}, info) => {
   await page.emulateMedia({reducedMotion:'reduce'});
@@ -26,4 +26,5 @@ for (const surface of surfaces) test(surface.name+' preserves a static reduced-m
   await page.emulateMedia({reducedMotion:'reduce'});
   await capture(page,info,surface.name+'-runtime-reduced');
   await stableMotion(page,info,surface.name+'-reduced-change');
+  await repeatLoad(page,info,surface.name+'-reduced');
 });
