@@ -34,7 +34,10 @@ if(process.env.QA_SERVER_OWNER) {
   if(!Number.isSafeInteger(owner)||owner<=0)throw new Error('Invalid QA server owner');
   const watchdog=setInterval(()=>{
     try {process.kill(owner,0);}
-    catch {for(const server of servers)server.closeAllConnections();process.exit(1);}
+    catch {
+      for(const server of servers){server.closeAllConnections();}
+      process.exit(1);
+    }
   },1000);
   watchdog.unref();
 }

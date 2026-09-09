@@ -19,8 +19,8 @@ const percent=(values,p)=>values.length ? [...values].sort((a,b)=>a-b)[Math.ceil
 const server=spawn(process.execPath,['scripts/visual-qa/server.mjs'],{stdio:['ignore','pipe','inherit'],env:{...process.env,QA_SERVER_OWNER:String(process.pid)}});
 try {
   await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(new Error('QA server exited '+code)));});
-  for (const [surface,port] of [['website',4174],['atlas',4175]]) {
-    for (const [device,viewport] of [['desktop',{width:1440,height:1000}],['mobile',{width:390,height:844}]]) {
+  for (const {surface,port} of [{surface:'website',port:4174},{surface:'atlas',port:4175}]) {
+    for (const {device,viewport} of [{device:'desktop',viewport:{width:1440,height:1000}},{device:'mobile',viewport:{width:390,height:844}}]) {
       for (let run=1;run<=3;run++) {
         const context=await browser.newContext({viewport,locale:'en-US',timezoneId:'UTC',colorScheme:'dark',serviceWorkers:'block',deviceScaleFactor:1});
         const page=await context.newPage();
@@ -46,7 +46,7 @@ try {
         await page.goto(origin+'/',{waitUntil:'load'});
         await settled(page);
         const fonts=await page.evaluate(()=>[...document.fonts].map(face=>({family:face.family,status:face.status})));
-        if(surface==='website')for(const family of ['Space Grotesk','IBM Plex Mono'])if(!fonts.some(face=>face.family.replace(/[\"']/g,'')===family&&face.status==='loaded'))throw new Error('Canonical font unavailable: '+family);
+        if(surface==='website')for(const family of ['Space Grotesk','IBM Plex Mono'])if(!fonts.some(face=>face.family.replace(/["']/g,'')===family&&face.status==='loaded'))throw new Error('Canonical font unavailable: '+family);
         const decline=page.getByRole('button',{name:surface==='website'?'Reject':'Decline',exact:true});
         if(await decline.isVisible())await decline.click();
         await page.evaluate(()=>document.addEventListener('click',event=>{
@@ -73,7 +73,14 @@ try {
         await cdp.send('Tracing.end');
         const {stream}=await completed;
         const chunks=[];let bytes=0;
-        while(true){const r=await cdp.send('IO.read',{handle:stream,size:1048576});const chunk=Buffer.from(r.data,r.base64Encoded?'base64':'utf8');bytes+=chunk.length;if(bytes>64*1024*1024)throw new Error('Trace exceeds 64 MiB raw cap');chunks.push(chunk);if(r.eof)break;}
+        while(true){
+          const r=await cdp.send('IO.read',{handle:stream,size:1048576});
+          const chunk=Buffer.from(r.data,r.base64Encoded?'base64':'utf8');
+          bytes+=chunk.length;
+          if(bytes>64*1024*1024){throw new Error('Trace exceeds 64 MiB raw cap');}
+          chunks.push(chunk);
+          if(r.eof)break;
+        }
         await cdp.send('IO.close',{handle:stream});
         await writeFile(out+'/'+traceName,gzipSync(Buffer.concat(chunks)));
         const delta=name=>(final.metrics.find(x=>x.name===name)?.value??0)-(initial.metrics.find(x=>x.name===name)?.value??0);

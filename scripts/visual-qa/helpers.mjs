@@ -32,7 +32,7 @@ export async function open(page, surface, info, {degraded=false,noJavaScript=fal
   await settled(page,{noJavaScript});
   const fonts=await page.evaluate(()=>[...document.fonts].map(face=>({family:face.family,status:face.status})));
   if(surface.name==='website'&&!degraded) {
-    for(const family of ['Space Grotesk','IBM Plex Mono']) expect(fonts.some(face=>face.family.replace(/[\"']/g,'')===family&&face.status==='loaded'),'Canonical '+family+' font loaded').toBe(true);
+    for(const family of ['Space Grotesk','IBM Plex Mono']) expect(fonts.some(face=>face.family.replace(/["']/g,'')===family&&face.status==='loaded'),'Canonical '+family+' font loaded').toBe(true);
   }
   await expect(page.locator('h1')).toBeVisible();
   const decline = page.getByRole('button', {name:surface.decline,exact:true});
