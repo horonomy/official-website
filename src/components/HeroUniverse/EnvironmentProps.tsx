@@ -22,7 +22,8 @@ export default function EnvironmentProps(): React.ReactElement {
     <div
       className={styles.root}
       style={{zIndex: LAYERS.props}}
-      aria-hidden="true">
+      aria-hidden="true"
+      data-hn-decoration="">
       {/* Position-anchored glow overlays over the baked light sources. */}
       <div className={styles.groundGlows}>
         <span className={`${styles.glow} ${styles.brazierA}`} />

@@ -1,4 +1,5 @@
 import React from 'react';
+import {createSceneMotion} from '../primitives/sceneMotion.mjs';
 import {LAYERS} from './layers';
 import {createStarField} from './starfield';
 import {createMeteorShower} from './meteors';
@@ -7,35 +8,29 @@ import styles from './AmbientEffects.module.css';
 /**
  * Ambient decorative layer for the HeroUniverse hero (HORO-5).
  *
- * Enhances — rather than repaints — the already-starred sky backdrop with a few
- * subtle, GPU-friendly effects:
+ * Adds subtle decoration above the already-starred sky backdrop:
  *   - a dense, gently twinkling canvas star field (`./starfield.ts`) — a
  *     living field of stars that breathe;
  *   - occasional meteors / shooting stars that streak across the sky
  *     (`./meteors.ts`), on their own canvas layered above the star field;
  *   - two slow-drifting haze clouds (navy / gold / soft purple gradients);
- *   - a wind-driven star-dust field of tiny motes that fade in, drift, and fade
- *     out, their travel scaled by an ambient breeze (`--wind`, HORO-8);
- *   - light cursor + scroll parallax, applied through CSS custom properties so
- *     only compositor-friendly `transform`s change.
+ *   - star-dust motes whose CSS drift uses the fixed `--wind` baseline.
  *
- * Purely decorative (`aria-hidden`) and sits at `z = ambient`, above the sky
- * backdrop but below the observer and content layers.
+ * The decoration is `aria-hidden` at `z = ambient`, below the observer and
+ * content. Its sibling button controls the shared scene pause preference.
  *
  * SSR-safe: all `window`/`canvas` work happens inside `useEffect`, guarded for
- * the browser. The dust nodes come from a fixed, deterministic config so server
- * and client markup match (no hydration mismatch). Under
- * `prefers-reduced-motion: reduce` the star field renders a single static
- * frame, the haze/parallax/dust animations are disabled in CSS, the gust driver
- * is not attached, and no parallax listeners are added — the layer is fully
- * static.
+ * the browser. Fixed dust markup matches SSR. `createSceneMotion` owns one
+ * canvas clock, pause, visibility, runtime reduced-motion changes and renderer
+ * failure. CSS follows that scene state: reduced motion and pause retain a
+ * static scene; hidden scenes suspend work. No pointer or scroll driver runs.
  */
 
 /**
  * Fixed star-dust motes. Deterministic (no runtime randomness) so SSR and the
  * client render identical markup. `dx`/`dy` are each mote's base drift vector
  * in px — mostly rightward, as if the breeze moves across the scene — scaled at
- * runtime by `--wind`. Negative delays stagger the field so it is already in
+ * by the fixed `--wind` baseline. Negative delays stagger the field so it is already in
  * motion at first paint. Palette: soft starlight, gold, and purple.
  */
 interface DustMote {
@@ -75,134 +70,78 @@ export default function AmbientEffects(): React.ReactElement {
   const rootRef = React.useRef<HTMLDivElement>(null);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const meteorCanvasRef = React.useRef<HTMLCanvasElement>(null);
+  const controller = React.useRef<ReturnType<typeof createSceneMotion> | null>(null);
+  const [ready, setReady] = React.useState(false);
+  const [state, setState] = React.useState({
+    mode: 'static', paused: false, reduced: false,
+  });
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
-    const root = rootRef.current;
-    if (!canvas || !root || typeof window === 'undefined') return;
-
-    const field = createStarField(canvas);
     const meteorCanvas = meteorCanvasRef.current;
-    const shower = meteorCanvas ? createMeteorShower(meteorCanvas) : null;
-
-    const parent = canvas.parentElement;
-    const observer =
-      parent && typeof ResizeObserver !== 'undefined'
-        ? new ResizeObserver(() => {
-            field.resize();
-            shower?.resize();
-          })
-        : null;
-    if (observer && parent) observer.observe(parent);
-
-    const reduceMotion =
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
-
-    // Parallax: write pointer/scroll offset into CSS custom properties and let
-    // the compositor translate the layers. Skipped entirely for reduced motion.
-    let frame = 0;
-    let px = 0;
-    let py = 0;
-    let sy = 0;
-
-    const apply = (): void => {
-      frame = 0;
-      root.style.setProperty('--hn-amb-px', px.toFixed(3));
-      root.style.setProperty('--hn-amb-py', py.toFixed(3));
-      root.style.setProperty('--hn-amb-sy', sy.toFixed(2));
-    };
-    const schedule = (): void => {
-      if (!frame) frame = window.requestAnimationFrame(apply);
-    };
-
-    const onPointerMove = (e: PointerEvent): void => {
-      px = e.clientX / window.innerWidth - 0.5; // -0.5..0.5
-      py = e.clientY / window.innerHeight - 0.5;
-      schedule();
-    };
-    const onScroll = (): void => {
-      sy = window.scrollY || 0;
-      schedule();
-    };
-
-    if (!reduceMotion) {
-      window.addEventListener('pointermove', onPointerMove, {passive: true});
-      window.addEventListener('scroll', onScroll, {passive: true});
-    }
-
-    // Ambient breeze: a slow gust driver that eases the `--wind` custom property
-    // up to an occasional gust and lets it decay back to the calm baseline. The
-    // dust drift (CSS) scales its travel by this value, so the field breathes
-    // with the breeze. Cadence is randomized (~5–12s) so it never feels
-    // mechanical. Skipped entirely for reduced motion — `--wind` then holds at
-    // the calm baseline declared in CSS and the scene stays static.
-    const WIND_CALM = 0.18;
-    let windValue = WIND_CALM; // eased, written to CSS each frame
-    let windTarget = WIND_CALM; // gust peak, decays back toward calm
-    let windFrame = 0;
-    let nextGustAt = 0;
-    const scheduleGust = (now: number): void => {
-      nextGustAt = now + 5000 + Math.random() * 7000; // ~5–12s
-    };
-    const windTick = (now: number): void => {
-      windFrame = window.requestAnimationFrame(windTick);
-      if (now >= nextGustAt) {
-        windTarget = 0.35 + Math.random() * 0.65; // gust 0.35–1.0
-        scheduleGust(now);
-      }
-      // Gust target decays back to calm; the written value eases toward it, so
-      // each gust reads as an organic rise and fall rather than a step.
-      windTarget += (WIND_CALM - windTarget) * 0.012;
-      windValue += (windTarget - windValue) * 0.05;
-      root.style.setProperty('--wind', windValue.toFixed(3));
-    };
-    if (!reduceMotion) {
-      scheduleGust(window.performance?.now?.() ?? 0);
-      windFrame = window.requestAnimationFrame(windTick);
-    }
-
+    const scene = rootRef.current?.closest<HTMLElement>('[data-hn-motion]');
+    if (!canvas || !meteorCanvas || !scene) return;
+    const motion = createSceneMotion({
+      element: scene,
+      factories: [
+        () => createStarField(canvas),
+        () => createMeteorShower(meteorCanvas),
+      ],
+      onState: setState,
+    });
+    controller.current = motion;
+    setReady(true);
     return () => {
-      field.destroy();
-      shower?.destroy();
-      if (observer) observer.disconnect();
-      if (frame) window.cancelAnimationFrame(frame);
-      if (windFrame) window.cancelAnimationFrame(windFrame);
-      if (!reduceMotion) {
-        window.removeEventListener('pointermove', onPointerMove);
-        window.removeEventListener('scroll', onScroll);
-      }
+      motion.destroy();
+      controller.current = null;
     };
   }, []);
 
+  let controlLabel = state.paused ? 'Resume scene motion' : 'Pause scene motion';
+  if (state.reduced) controlLabel = 'Reduced motion enabled';
+  if (state.mode === 'failed') controlLabel = 'Scene motion unavailable';
+
   return (
-    <div
-      ref={rootRef}
-      className={styles.root}
-      style={{zIndex: LAYERS.ambient}}
-      aria-hidden="true">
-      <canvas ref={canvasRef} className={styles.canvas} />
-      <canvas ref={meteorCanvasRef} className={styles.meteorCanvas} />
-      <div className={`${styles.haze} ${styles.hazeA}`} />
-      <div className={`${styles.haze} ${styles.hazeB}`} />
-      {DUST.map((mote, i) => (
-        <span
-          key={i}
-          className={styles.dust}
-          style={
-            {
-              top: mote.top,
-              left: mote.left,
-              '--hn-dust-size': `${mote.size}px`,
-              '--hn-dust-color': mote.color,
-              '--hn-dust-dx': `${mote.dx}px`,
-              '--hn-dust-dy': `${mote.dy}px`,
-              '--hn-dust-dur': `${mote.dur}s`,
-              '--hn-dust-delay': `${mote.delay}s`,
-              '--hn-dust-peak': mote.peak,
-            } as React.CSSProperties
-          }
-        />
-      ))}
-    </div>
+    <>
+      <div
+        ref={rootRef}
+        className={styles.root}
+        style={{zIndex: LAYERS.ambient}}
+        aria-hidden="true"
+        data-hn-decoration="">
+        <canvas ref={canvasRef} className={styles.canvas} />
+        <canvas ref={meteorCanvasRef} className={styles.meteorCanvas} />
+        <div className={`${styles.haze} ${styles.hazeA}`} />
+        <div className={`${styles.haze} ${styles.hazeB}`} />
+        {DUST.map(mote => (
+          <span
+            key={`${mote.top}-${mote.left}`}
+            className={styles.dust}
+            style={
+              {
+                top: mote.top,
+                left: mote.left,
+                '--hn-dust-size': `${mote.size}px`,
+                '--hn-dust-color': mote.color,
+                '--hn-dust-dx': `${mote.dx}px`,
+                '--hn-dust-dy': `${mote.dy}px`,
+                '--hn-dust-dur': `${mote.dur}s`,
+                '--hn-dust-delay': `${mote.delay}s`,
+                '--hn-dust-peak': mote.peak,
+              } as React.CSSProperties
+            }
+          />
+        ))}
+      </div>
+      <button
+        type="button"
+        hidden={!ready}
+        className={styles.motionControl}
+        aria-pressed={state.paused || state.reduced}
+        disabled={state.reduced || state.mode === 'failed'}
+        onClick={() => controller.current?.setPaused(!state.paused)}>
+        {controlLabel}
+      </button>
+    </>
   );
 }

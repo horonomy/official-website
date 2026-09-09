@@ -28,14 +28,21 @@
 }
 
 /* Keyboard focus ring — hidden until the group is focused via the keyboard. */
+.focusSeparator,
 .focusRing {
   fill: none;
-  stroke: var(--hn-gold-bright);
+  stroke: var(--hn-focus-ring-color);
   stroke-width: 2;
+  vector-effect: non-scaling-stroke;
   opacity: 0;
-  transition: opacity 160ms ease;
 }
 
+.focusSeparator {
+  stroke: var(--hn-graphite);
+  stroke-width: 6;
+}
+
+.constellation:focus-visible .focusSeparator,
 .constellation:focus-visible .focusRing {
   opacity: 1;
 }
@@ -49,7 +56,7 @@
   stroke-linejoin: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  transition: stroke-dashoffset 600ms ease, stroke 200ms ease, opacity 200ms ease;
+  transition: stroke-dashoffset var(--hn-motion-target) var(--hn-ease-out), stroke var(--hn-motion-target) var(--hn-ease-out), opacity var(--hn-motion-target) var(--hn-ease-out);
 }
 
 /* Faint internal star-map chords inside the primary constellation. */
@@ -59,12 +66,12 @@
   opacity: 0.35;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  transition: stroke-dashoffset 600ms ease, opacity 200ms ease;
+  transition: stroke-dashoffset var(--hn-motion-target) var(--hn-ease-out), opacity var(--hn-motion-target) var(--hn-ease-out);
 }
 
 .node {
   fill: var(--hn-gold-bright);
-  transition: fill 200ms ease, opacity 200ms ease, filter 200ms ease;
+  transition: fill var(--hn-motion-target) var(--hn-ease-out), opacity var(--hn-motion-target) var(--hn-ease-out), filter var(--hn-motion-target) var(--hn-ease-out);
 }
 
 /* The brightest anchor star (e.g. Canopus, the keel of Argo Navis): larger and
@@ -86,7 +93,7 @@
   font-family: var(--hn-font-sans);
   font-size: 20px;
   font-weight: 600;
-  transition: fill 200ms ease, opacity 200ms ease;
+  transition: fill var(--hn-motion-target) var(--hn-ease-out), opacity var(--hn-motion-target) var(--hn-ease-out);
 }
 
 /* Astronomical sub-label — the real constellation name (e.g. "Argo Navis"),
@@ -99,14 +106,14 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   opacity: 0.85;
-  transition: fill 200ms ease, opacity 200ms ease;
+  transition: fill var(--hn-motion-target) var(--hn-ease-out), opacity var(--hn-motion-target) var(--hn-ease-out);
 }
 
 .tagline {
   fill: var(--hn-muted);
   font-family: var(--hn-font-sans);
   font-size: 14px;
-  transition: fill 200ms ease, opacity 200ms ease;
+  transition: fill var(--hn-motion-target) var(--hn-ease-out), opacity var(--hn-motion-target) var(--hn-ease-out);
 }
 
 /* Sub-region labels naming the parts of a large constellation (e.g. the four
@@ -120,11 +127,9 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   opacity: 0.5;
-  transition: opacity 200ms ease, fill 200ms ease;
+  transition: opacity var(--hn-motion-target) var(--hn-ease-out), fill var(--hn-motion-target) var(--hn-ease-out);
 }
 
-.constellation:hover .region,
-.constellation:focus-visible .region,
 .active .region {
   fill: var(--hn-gold-bright);
   opacity: 0.9;
@@ -172,8 +177,6 @@
 
 /* ---- Active: hover, keyboard focus, or externally-driven `active` class.
    Lines draw in, nodes brighten, the label is emphasised. ---- */
-.constellation:hover .link,
-.constellation:focus-visible .link,
 .active .link {
   stroke: var(--hn-gold-bright);
   stroke-width: 1.4;
@@ -181,38 +184,28 @@
   opacity: 1;
 }
 
-.constellation:hover .chord,
-.constellation:focus-visible .chord,
 .active .chord {
   stroke: var(--hn-gold-bright);
   stroke-dashoffset: 0;
   opacity: 0.7;
 }
 
-.constellation:hover .node,
-.constellation:focus-visible .node,
 .active .node {
   fill: var(--hn-gold-bright);
   opacity: 1;
   filter: drop-shadow(0 0 6px rgba(224, 185, 120, 0.95));
 }
 
-.constellation:hover .name,
-.constellation:focus-visible .name,
 .active .name {
   fill: var(--hn-gold-bright);
   font-weight: 700;
 }
 
-.constellation:hover .sky,
-.constellation:focus-visible .sky,
 .active .sky {
   fill: var(--hn-gold-bright);
   opacity: 1;
 }
 
-.constellation:hover .tagline,
-.constellation:focus-visible .tagline,
 .active .tagline {
   fill: var(--hn-ink);
   opacity: 1;
@@ -223,7 +216,7 @@
   .link,
   .chord {
     stroke-dashoffset: 0;
-    transition: stroke 200ms ease, opacity 200ms ease;
+    transition: none;
   }
 
   .focusRing,
@@ -257,4 +250,9 @@
   .tagline {
     font-size: 18px;
   }
+}
+
+@media (forced-colors: active) {
+  .focusRing { stroke: Highlight; }
+  .focusSeparator { stroke: Canvas; }
 }
