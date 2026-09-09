@@ -1,0 +1,202 @@
+{
+  "ticket": "HORO-874",
+  "captureCommit": "577cf73118d182618205b1f6c5695eee7f98ca36",
+  "freshBuild": true,
+  "dirty": false,
+  "run": {
+    "startTime": "2026-09-09T14:20:55.749Z",
+    "duration": 246332.042,
+    "expected": 90,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "hostTools": {
+    "macOS": "26.4.1",
+    "node": "23.11.0",
+    "pnpm": "10.34.5"
+  },
+  "platform": "darwin",
+  "architecture": "arm64",
+  "cpu": "Apple M3 Max",
+  "browsers": [
+    "153.0.8010.12",
+    "155.0",
+    "26.6"
+  ],
+  "viewports": {
+    "desktop": [
+      1440,
+      1000
+    ],
+    "tablet": [
+      834,
+      1112
+    ],
+    "mobile": [
+      390,
+      844
+    ]
+  },
+  "automatedCases": 90,
+  "accessibility": {
+    "scans": 54,
+    "definiteViolations": 0,
+    "incompleteScans": 54,
+    "incompleteDetail": "capture-report.json Jira attachment; not universal contrast or WCAG conformance"
+  },
+  "performance": {
+    "method": "Three fresh contexts per surface/viewport; cache disabled; local assets plus existing canonical Google font CSS/families; no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; all other external network blocked.",
+    "samples": 12,
+    "trustedActions": 72,
+    "metrics": [
+      {
+        "surface": "website",
+        "viewport": "desktop",
+        "samples": 3,
+        "medianLcpMs": 176,
+        "maximumCls": 0.0005051311728395062,
+        "maximumObservedEventMs": 48,
+        "maximumTrustedClickToTwoRafMs": 34.199999928474426,
+        "sceneLongTaskCount": 0
+      },
+      {
+        "surface": "website",
+        "viewport": "mobile",
+        "samples": 3,
+        "medianLcpMs": 216,
+        "maximumCls": 0.00043204906471679453,
+        "maximumObservedEventMs": 56,
+        "maximumTrustedClickToTwoRafMs": 32,
+        "sceneLongTaskCount": 0
+      },
+      {
+        "surface": "atlas",
+        "viewport": "desktop",
+        "samples": 3,
+        "medianLcpMs": 28,
+        "maximumCls": 0,
+        "maximumObservedEventMs": 32,
+        "maximumTrustedClickToTwoRafMs": 33,
+        "sceneLongTaskCount": 0
+      },
+      {
+        "surface": "atlas",
+        "viewport": "mobile",
+        "samples": 3,
+        "medianLcpMs": 28,
+        "maximumCls": 0,
+        "maximumObservedEventMs": 32,
+        "maximumTrustedClickToTwoRafMs": 33.10000002384186,
+        "sceneLongTaskCount": 0
+      }
+    ],
+    "limitations": [
+      "Local lab, not physical-device evidence.",
+      "Observed event duration is not field INP; no observed entries means unavailable, not zero. Trusted click to two RAF callbacks is a local response opportunity proxy, not confirmed display presentation.",
+      "RAF intervals are cadence, not scripting/render cost. Trace and total scripting/layout/style durations require attribution against a same-device baseline for effect p95 and new long-task acceptance.",
+      "No golden performance baseline was automatically approved."
+    ]
+  },
+  "baselineApproval": "None; observations only",
+  "attachments": [
+    {
+      "file": "HORO-874-577cf731-capture-report.json",
+      "bytes": 414306,
+      "sha256": "5b537eb61781657c94dac7cae23e67bda8a8ae4557e8cf168d7c1cf511323496",
+      "attachmentId": "10117",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10117"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-desktop-atlas-normal.png",
+      "bytes": 121715,
+      "sha256": "3c819a3812fa85641dd29c6e7dc867d1a153c502e123aab3d335c9d4557af0c4",
+      "attachmentId": "10118",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10118"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-desktop-website-forced-colors.png",
+      "bytes": 892913,
+      "sha256": "7fbd1a4cdf04f12ca51e64a69bb4c61c8ba30ac7f9867eaab9ca59ce797583fe",
+      "attachmentId": "10119",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10119"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-desktop-website-normal.png",
+      "bytes": 1230697,
+      "sha256": "032dad6c809a399b99785f1681c0425e11c6a00d85a591d56ea2c20fb4841c03",
+      "attachmentId": "10120",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10120"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-desktop-website-reduced.png",
+      "bytes": 1235944,
+      "sha256": "17cb93545752d37e59c67b6d44eebbe4637c694ec609fc82e4ea20d8a4810eeb",
+      "attachmentId": "10121",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10121"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-mobile-atlas-normal.png",
+      "bytes": 59669,
+      "sha256": "243e744e4c2f260f88cd5a68ae7f8420a5c010a3c243ed84d9c4465490213b9d",
+      "attachmentId": "10122",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10122"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-mobile-atlas-reduced.png",
+      "bytes": 59669,
+      "sha256": "243e744e4c2f260f88cd5a68ae7f8420a5c010a3c243ed84d9c4465490213b9d",
+      "attachmentId": "10123",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10123"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-mobile-website-failed-assets.png",
+      "bytes": 176415,
+      "sha256": "f35f6a00e2be0183f1b95b49e82c9fbba26e1a3951e85053b44f7e2fe825dbd6",
+      "attachmentId": "10124",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10124"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-mobile-website-normal.png",
+      "bytes": 265684,
+      "sha256": "77a4c04e86858939ec677ed4e7f99ed941364bb430b933d2dbc0472f57d57a73",
+      "attachmentId": "10125",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10125"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-tablet-atlas-normal.png",
+      "bytes": 131718,
+      "sha256": "f2d14b7d337f6c595c6c3725b8d504fe428f542beea9ebeb482fb771d90a250e",
+      "attachmentId": "10126",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10126"
+    },
+    {
+      "file": "HORO-874-577cf731-chromium-tablet-website-normal.png",
+      "bytes": 713806,
+      "sha256": "47389e4570e86c6597dcedea75d54ff4473c92bdbe28412b560b161378bd6092",
+      "attachmentId": "10127",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10127"
+    },
+    {
+      "file": "HORO-874-577cf731-firefox-mobile-atlas-keyboard-focus.png",
+      "bytes": 73656,
+      "sha256": "d80e1d31d8ca3c3643d69054805923b1c30ffc556ef1079a6513cbd58c81919b",
+      "attachmentId": "10128",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10128"
+    },
+    {
+      "file": "HORO-874-577cf731-performance-traces.zip",
+      "bytes": 5828492,
+      "sha256": "6eadb2fbd1662561f29703132fd5cfdb9871ae1c8fe9b41ed792612fa373a6c0",
+      "attachmentId": "10129",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10129"
+    },
+    {
+      "file": "HORO-874-577cf731-webkit-desktop-website-motion-control-focus.png",
+      "bytes": 1831877,
+      "sha256": "11a516a14d311a1a692fac27e1275350208a3cdf035f418899e1f19acb92cee9",
+      "attachmentId": "10130",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10130"
+    }
+  ]
+}
