@@ -1,6 +1,6 @@
 /** Comparable evidence must be a complete, clean capture of all expected lab cells. */
 export function validatePerformanceBaseline(base, current) {
-  for(const [label, report] of [['Baseline',base],['Current capture',current]]) {
+  for(const {label,report} of [{label:'Baseline',report:base},{label:'Current capture',report:current}]) {
     if(!report || report.status!=='complete' || report.freshBuild!==true || report.dirty!==false || !/^[0-9a-f]{40}$/.test(report.sourceCommit??'') || !Array.isArray(report.failures) || report.failures.length) {
       throw new Error(label+' must be complete, clean, freshly built evidence with source provenance and no failures');
     }
