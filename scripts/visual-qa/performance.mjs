@@ -15,7 +15,7 @@ const browser=await chromium.launch();
 const samples=[];
 const failures=[];
 const percent=(values,p)=>values.length ? [...values].sort((a,b)=>a-b)[Math.ceil(values.length*p)-1] : null;
-const server=spawn(process.execPath,['scripts/visual-qa/server.mjs'],{stdio:['ignore','pipe','inherit']});
+const server=spawn(process.execPath,['scripts/visual-qa/server.mjs'],{stdio:['ignore','pipe','inherit'],env:{...process.env,QA_SERVER_OWNER:String(process.pid)}});
 try {
   await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(new Error('QA server exited '+code)));});
   for (const [surface,port] of [['website',4174],['atlas',4175]]) {

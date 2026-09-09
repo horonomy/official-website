@@ -15,5 +15,5 @@ export default defineConfig({
     serviceWorkers:'block', actionTimeout:10000, navigationTimeout:20000,
     screenshot:'only-on-failure', trace:'retain-on-failure'},
   projects: browsers.flatMap(browserName => Object.entries(viewports).map(([name, viewport]) => ({name:browserName+'-'+name,use:{browserName,viewport,hasTouch:name==='mobile'}}))),
-  webServer: {command:'node scripts/visual-qa/server.mjs', cwd:resolve(import.meta.dirname,'../..'), url:'http://127.0.0.1:4174', reuseExistingServer:false, timeout:15000},
+  webServer: {env:{QA_SERVER_OWNER:String(process.pid)}, command:'node scripts/visual-qa/server.mjs', cwd:resolve(import.meta.dirname,'../..'), url:'http://127.0.0.1:4174', reuseExistingServer:false, timeout:15000},
 });
