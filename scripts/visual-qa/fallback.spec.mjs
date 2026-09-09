@@ -6,7 +6,7 @@ for (const surface of surfaces) test(surface.name+' retains content without Java
     const context=await browser.newContext({...info.project.use,javaScriptEnabled:mode!=='no-javascript',reducedMotion:'reduce'});
     try {
       const page=await context.newPage();
-      await open(page,surface,info,{degraded:mode==='failed-assets'});
+      await open(page,surface,info,{degraded:mode==='failed-assets',noJavaScript:mode==='no-javascript'});
       if (mode==='failed-assets') await page.addStyleTag({content:'* {backdrop-filter:none !important;-webkit-backdrop-filter:none !important;}'});
       await capture(page,info,surface.name+'-'+mode);
       await layout(page);
