@@ -6,7 +6,7 @@ import os from 'node:os';
 import AxeBuilder from '@axe-core/playwright';
 
 export const surfaces = [
-  {name:'website', url:'http://127.0.0.1:4174/', action:'a[href="/#products"]', decline:'Reject'},
+  {name:'website', url:'http://127.0.0.1:4174/', action:'#observatory a[href="/#products"]', decline:'Reject'},
   {name:'atlas', url:'http://127.0.0.1:4175/', action:'.hn-atlas-card__link', decline:'Decline'},
 ];
 export async function json(info, name, value) {

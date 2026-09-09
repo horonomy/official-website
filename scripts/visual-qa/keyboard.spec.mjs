@@ -15,7 +15,7 @@ for (const surface of surfaces) test(surface.name+' supports visible keyboard an
   for (let i=0;i<40;i++) {
     if (await target.evaluate(e=>e===document.activeElement)) {reached=true;break;}
     await page.keyboard.press('Tab');
-    focus.push(await page.locator(':focus').evaluate(e=>({tag:e.tagName,name:e.getAttribute('aria-label') ?? e.textContent?.trim().slice(0,100)})));
+    focus.push(await page.evaluate(()=>{const e=document.activeElement;return {tag:e?.tagName,name:e?.getAttribute('aria-label') ?? e?.textContent?.trim().slice(0,100)};}));
   }
   await json(info,surface.name+'-tab-order',focus);
   expect(reached,'Primary content action reachable through Tab').toBe(true);
