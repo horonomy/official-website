@@ -63,7 +63,7 @@ try {
           await page.waitForTimeout(1000);
         }
         const final=await cdp.send('Performance.getMetrics');
-        const values=await page.evaluate(()=>{performance.mark('qa-scene-end');return window.__horoQA;});
+        const values=await page.evaluate(()=>{performance.mark('qa-scene-end');return {...window.__horoQA,end:performance.now()};});
         const completed=new Promise(resolve=>cdp.once('Tracing.tracingComplete',resolve));
         await cdp.send('Tracing.end');
         const {stream}=await completed;
@@ -75,7 +75,7 @@ try {
         // CLS uses the standard maximum session window, not an unbounded sum.
         let cls=0,session=0,first=0,last=0;
         for(const shift of values.shifts){if(shift.start-last>1000||shift.start-first>5000){session=0;first=shift.start;}session+=shift.value;last=shift.start;cls=Math.max(cls,session);}
-        const sample={surface,device,run,viewport,lcpMs:values.lcp,cls,
+        const sample={surface,device,run,viewport,observationMs:values.end-start,lcpMs:values.lcp,cls,
           maxObservedInteractionMs:values.events.length?Math.max(...values.events.map(e=>e.duration)):null,
           eventTimings:values.events, trustedClickToTwoRafMs:values.actionFrames,
           maxTrustedClickToTwoRafMs:values.actionFrames.length?Math.max(...values.actionFrames):null,sceneLongTasks:values.longTasks.filter(e=>e.start>=start),
