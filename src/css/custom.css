@@ -197,6 +197,7 @@ body {
 
 .footer__link-item {
   font-size: 14px;
+  max-width: 100%;
 }
 
 .footer__copyright {
