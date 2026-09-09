@@ -11,10 +11,8 @@
  * a touch of scene purple). Only per-star alpha changes each frame, so the work
  * stays cheap and compositor-friendly.
  *
- * Client-only: callers must instantiate inside a `useEffect` (it touches
- * `window`, `canvas`, and `requestAnimationFrame`). Honors
- * `prefers-reduced-motion: reduce` by drawing a single static frame of the same
- * dense field and never starting the animation loop.
+ * Client-only renderer: createSceneMotion owns its clock, preference changes,
+ * pause, visibility and failure isolation. This module schedules no work itself.
  */
 
 type Star = {
@@ -61,28 +59,19 @@ function makeRng(seed: number): () => number {
   };
 }
 
-export type StarField = {
-  resize: () => void;
-  destroy: () => void;
-};
+export type StarField = import('../primitives/sceneMotion.mjs').SceneRenderer;
 
 export function createStarField(canvas: HTMLCanvasElement): StarField {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
-    return {resize: () => {}, destroy: () => {}};
+    throw new Error('Decorative canvas context unavailable');
   }
 
   const rand = makeRng(Math.floor(Date.now() % 2147483647) + 1);
-  const reduceMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
-
   let width = 0;
   let height = 0;
   let dpr = 1;
   let stars: Star[] = [];
-  let raf = 0;
-  let start = 0;
 
   function buildStars(): void {
     // Dense field: ~2.7× the previous density so the sky clearly reads as
@@ -121,7 +110,7 @@ export function createStarField(canvas: HTMLCanvasElement): StarField {
     canvas.style.height = `${height}px`;
     ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     buildStars();
-    if (reduceMotion) drawStatic();
+    drawStatic();
   }
 
   function drawStar(s: Star, alpha: number): void {
@@ -149,27 +138,22 @@ export function createStarField(canvas: HTMLCanvasElement): StarField {
   }
 
   function frame(t: number): void {
-    if (!start) start = t;
-    const elapsed = (t - start) / 1000;
+    const elapsed = t / 1000;
     ctx!.clearRect(0, 0, width, height);
 
     for (const s of stars) {
       const a = s.base + s.amp * Math.sin(elapsed * s.speed + s.phase);
       drawStar(s, Math.max(0, Math.min(1, a)));
     }
-
-    raf = window.requestAnimationFrame(frame);
   }
 
   resize();
-  if (!reduceMotion) {
-    raf = window.requestAnimationFrame(frame);
-  }
 
   return {
     resize,
+    frame,
+    static: drawStatic,
     destroy: () => {
-      if (raf) window.cancelAnimationFrame(raf);
       stars = [];
     },
   };

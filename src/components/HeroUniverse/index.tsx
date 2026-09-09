@@ -28,7 +28,7 @@ export default function HeroUniverse(): React.ReactElement {
   return (
     <div className={styles.universe}>
       {/* The observatory star-map scene — target of the `/#observatory` nav/footer link. */}
-      <div id="observatory" className={styles.scene}>
+      <div id="observatory" className={styles.scene} data-hn-motion="static">
         {/* back → front */}
         <SceneLayers />
         <AmbientEffects />

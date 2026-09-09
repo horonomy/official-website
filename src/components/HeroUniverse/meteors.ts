@@ -6,16 +6,14 @@
  * nothing. Meteors enter from the upper-right and travel down-left along a
  * shallow, slightly varied angle — echoing the baked streaks in the sky
  * backdrop — with randomised length, speed, brightness, and colour temperature
- * (starlight white / soft gold). One appears on load, then every ~6–14s.
+ * (starlight white / soft gold). Events are at least 20 active seconds apart.
  *
  * Cheap and compositor-friendly: at most a few meteors are alive at once, the
  * canvas only paints the active streaks each frame, and nothing runs when the
  * scene is idle beyond a single clear.
  *
- * Client-only: callers must instantiate inside a `useEffect` (it touches
- * `window`, `canvas`, and `requestAnimationFrame`). Honors
- * `prefers-reduced-motion: reduce` by drawing a single static streak and never
- * starting the animation loop.
+ * Client-only renderer: createSceneMotion owns its clock, preference changes,
+ * pause, visibility and failure isolation. This module schedules no work itself.
  */
 
 type Meteor = {
@@ -61,31 +59,22 @@ function makeRng(seed: number): () => number {
   };
 }
 
-export type MeteorShower = {
-  resize: () => void;
-  destroy: () => void;
-};
+export type MeteorShower = import('../primitives/sceneMotion.mjs').SceneRenderer;
 
-const MAX_METEORS = 3;
+const MAX_METEORS = 1;
 
 export function createMeteorShower(canvas: HTMLCanvasElement): MeteorShower {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
-    return {resize: () => {}, destroy: () => {}};
+    throw new Error('Decorative canvas context unavailable');
   }
 
   const rand = makeRng(Math.floor(Date.now() % 2147483647) + 1);
-  const reduceMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
-
   let width = 0;
   let height = 0;
   let dpr = 1;
   let meteors: Meteor[] = [];
-  let raf = 0;
-  let last = 0;
-  let nextSpawnAt = 0; // ms timestamp; 0 → spawn on the first frame
+  let nextSpawnAt = 20000; // Active scene time; never catch up after a pause.
 
   function spawn(): void {
     if (meteors.length >= MAX_METEORS) return;
@@ -103,7 +92,7 @@ export function createMeteorShower(canvas: HTMLCanvasElement): MeteorShower {
       width: 1 + rand() * 1.2,
       color: pickWeighted(rand, METEOR_COLORS),
       age: 0,
-      ttl: 1.1 + rand() * 0.9,
+      ttl: 0.6 + rand() * 0.3,
       fade: 0.35,
     });
   }
@@ -155,43 +144,23 @@ export function createMeteorShower(canvas: HTMLCanvasElement): MeteorShower {
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if (reduceMotion) drawStatic();
+    drawStatic();
   }
 
-  // Reduced-motion / no-loop paint: a single subtle static streak so the sky
-  // still hints at a shooting star without any motion.
+  // Reduced motion omits meteors; the static sky remains underneath.
   function drawStatic(): void {
     ctx!.clearRect(0, 0, width, height);
-    if (width === 0 || height === 0) return;
-    const angle = 160 * (Math.PI / 180);
-    meteors = [
-      {
-        x: width * 0.7,
-        y: height * 0.22,
-        vx: Math.cos(angle),
-        vy: Math.sin(angle),
-        len: 150,
-        width: 1.6,
-        color: '229,231,235',
-        age: 0.5,
-        ttl: 2,
-        fade: 0.35,
-      },
-    ];
-    drawMeteor(meteors[0]);
     meteors = [];
   }
 
-  function frame(t: number): void {
-    if (!last) last = t;
-    const dt = Math.min(0.05, (t - last) / 1000);
-    last = t;
+  function frame(t: number, delta: number): void {
+    const dt = delta / 1000;
 
     ctx!.clearRect(0, 0, width, height);
 
     if (t >= nextSpawnAt) {
       spawn();
-      nextSpawnAt = t + 6000 + rand() * 8000; // next in ~6–14s
+      nextSpawnAt = t + 20000 + rand() * 10000; // no more than one event per 20 seconds
     }
 
     for (const m of meteors) {
@@ -203,19 +172,15 @@ export function createMeteorShower(canvas: HTMLCanvasElement): MeteorShower {
     meteors = meteors.filter(
       (m) => m.age < m.ttl && m.x > -m.len && m.y < height + m.len,
     );
-
-    raf = window.requestAnimationFrame(frame);
   }
 
   resize();
-  if (!reduceMotion) {
-    raf = window.requestAnimationFrame(frame);
-  }
 
   return {
     resize,
+    frame,
+    static: drawStatic,
     destroy: () => {
-      if (raf) window.cancelAnimationFrame(raf);
       meteors = [];
     },
   };

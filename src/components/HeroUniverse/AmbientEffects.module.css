@@ -3,38 +3,65 @@
   inset: 0;
   pointer-events: none;
   overflow: hidden;
-  /* Parallax inputs, written by the effect. Declared here so the calc()s below
-     are always valid, even before the first pointer/scroll event. */
-  --hn-amb-px: 0;
-  --hn-amb-py: 0;
-  --hn-amb-sy: 0;
-  /* Ambient breeze strength, written by the gust driver in JS. Calm baseline
-     ~0.18, easing up to occasional gusts (max 1.0) and back. Declared here so
-     the dust drift calc()s are valid before the first frame — and so the layer
-     holds at this calm value when the driver is skipped (reduced motion). */
+  /* Static breeze amplitude; the scene clock owns all optional movement. */
   --wind: 0.18;
 }
 
-/* Canvas star field: dense twinkling starfield. Parallax drifts it opposite the
-   pointer and lifts it slightly as the page scrolls. `will-change: transform`
-   keeps the movement on the compositor. Any few-px edge reveal shows the sky
-   backdrop layer beneath — never the page background. */
+.motionControl {
+  position: absolute;
+  top: var(--hn-space-3);
+  right: var(--hn-space-4);
+  z-index: 8;
+  min-height: 44px;
+  padding: var(--hn-space-2) var(--hn-space-3);
+  border: 1px solid var(--hn-muted);
+  border-radius: var(--hn-radius-sm);
+  background: var(--hn-panel);
+  color: var(--hn-text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.motionControl:hover,
+.motionControl:focus-visible {
+  border-color: var(--hn-focus-ring-color);
+}
+
+.motionControl:focus-visible {
+  outline: none;
+  box-shadow: var(--hn-focus-ring);
+}
+
+.motionControl:disabled {
+  cursor: default;
+  color: var(--hn-muted);
+}
+
+.motionControl[hidden] {
+  display: none;
+}
+
+:global([data-hn-motion='static']) .haze {
+  transform: none;
+}
+
+:global([data-hn-motion='static']) .dust {
+  transform: none;
+  opacity: var(--hn-dust-peak, 0.5);
+}
+
+/* The scene clock animates opacity. The canvas never tracks the pointer. */
 .canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  transform: translate3d(
-    calc(var(--hn-amb-px) * -10px),
-    calc(var(--hn-amb-py) * -10px + var(--hn-amb-sy) * 0.04px),
-    0
-  );
-  will-change: transform;
+
 }
 
 /* Meteor layer: shooting stars streak across on their own canvas above the star
-   field. The meteors self-animate in JS, so this canvas takes no parallax — it
-   just fills the scene. Under reduced motion it holds a single static streak. */
+   field. The scene clock drives this canvas; reduced motion clears it. */
 .meteorCanvas {
   position: absolute;
   inset: 0;

@@ -311,6 +311,21 @@ body {
   }
 }
 
+/* Scene-owned lifecycle shared by Canvas and CSS decoration. Semantic links
+   and content never receive this marker and remain interactive in every mode. */
+[data-hn-motion]:not([data-hn-motion='running']) [data-hn-decoration] * {
+  animation-play-state: paused !important;
+}
+
+[data-hn-motion='static'] [data-hn-decoration] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+[data-hn-motion='failed'] [data-hn-decoration] {
+  display: none;
+}
+
 /* Visually hidden, still announced. Used to name the axis a maturity label
    belongs to where the label's own text cannot carry it without cluttering the
    card (AAASM-5616). Not `display: none` — that would remove it from the
