@@ -5,7 +5,7 @@
   color: var(--hn-muted) !important;
 }
 .faint {
-  color: var(--hn-faint) !important;
+  color: var(--hn-muted) !important;
 }
 
 .h2 {
@@ -46,9 +46,9 @@
 
 .loreLabel {
   font-family: var(--hn-font-mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--hn-faint);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--hn-muted);
   line-height: 2;
 }
 .loreLabel span {
@@ -69,7 +69,7 @@
   flex-direction: column;
   gap: 14px;
   font-family: var(--hn-font-mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.1em;
 }
 
@@ -235,7 +235,7 @@ a.legendRow:hover {
   border: 1px solid rgba(0, 178, 255, 0.35);
 }
 .badgeResearch {
-  color: var(--hn-faint);
+  color: var(--hn-muted);
   border: 1px solid rgba(229, 231, 235, 0.18);
 }
 
@@ -251,14 +251,14 @@ a.legendRow:hover {
   line-height: 1.6;
   color: var(--hn-muted);
 }
-/* `--hn-muted`, not `--hn-faint`: at 11px this is WCAG "small text" and needs
+/* `--hn-muted`, not `--hn-faint`: at 12px this is WCAG "small text" and needs
    4.5:1, which `--hn-faint` on the card's glass base does not reach. The mono
    face, uppercase transform and letter-spacing already separate this line from
    `.productBody` above it, so the shared colour costs no hierarchy. */
 .productMeta {
   font-family: var(--hn-font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  font-size: 12px;
+  letter-spacing: 0.1em;
   color: var(--hn-muted);
 }
 

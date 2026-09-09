@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import {resolveAttentionTarget} from '../primitives/attention.mjs';
 import {LAYERS} from './layers';
 import {PRODUCT_REGISTRY, type ProductEntry} from '@site/src/data/productRegistry';
 import {destinationLabel} from '@site/src/data/productDestinations';
@@ -68,12 +69,12 @@ function Constellation({
   entry,
   shape,
   active,
-  onActivate,
+  onInteraction,
 }: {
   entry: ProductEntry;
   shape: Shape;
   active: boolean;
-  onActivate?: (id: string | null) => void;
+  onInteraction: (source: 'focus' | 'hover', id: string | null) => void;
 }): React.ReactElement {
   const isPrimary = entry.order === 0;
   const [lx, ly] = shape.label;
@@ -81,10 +82,12 @@ function Constellation({
   const figures = shape.figures ?? [shape.nodes.map((_, i) => i)];
 
   const glowHandlers = {
-    onMouseEnter: () => onActivate?.(entry.id),
-    onMouseLeave: () => onActivate?.(null),
-    onFocus: () => onActivate?.(entry.id),
-    onBlur: () => onActivate?.(null),
+    onPointerEnter: (event: React.PointerEvent) => {
+      if (event.pointerType !== 'touch') onInteraction('hover', entry.id);
+    },
+    onPointerLeave: () => onInteraction('hover', null),
+    onFocus: () => onInteraction('focus', entry.id),
+    onBlur: () => onInteraction('focus', null),
   };
 
   const groupClassName = clsx(
@@ -103,6 +106,8 @@ function Constellation({
         width={box.width}
         height={box.height}
       />
+      {/* The graphite backing separates the cyan focus ring from the sky. */}
+      <rect className={styles.focusSeparator} x={box.x} y={box.y} width={box.width} height={box.height} rx={12} aria-hidden="true" />
       {/* Keyboard focus ring — revealed via :focus-visible in CSS. */}
       <rect
         className={styles.focusRing}
@@ -206,22 +211,12 @@ export default function ConstellationMap({
   activeId,
   onActivate,
 }: ConstellationMapProps = {}): React.ReactElement {
-  // Self-contained active state so the map works standalone. An external
-  // `activeId` (once HORO-9 wires it through `index.tsx`) takes precedence,
-  // but internal hover/focus still drives the standalone experience.
-  const [internalActiveId, setInternalActiveId] = React.useState<string | null>(
-    null,
-  );
-
-  const resolvedActiveId = internalActiveId ?? activeId ?? null;
-
-  const handleActivate = React.useCallback(
-    (id: string | null) => {
-      setInternalActiveId(id);
-      onActivate?.(id);
-    },
-    [onActivate],
-  );
+  const [inputs, setInputs] = React.useState<{focus: string | null; hover: string | null}>({focus: null, hover: null});
+  const resolvedActiveId = resolveAttentionTarget({...inputs, selection: activeId});
+  const handleInteraction = React.useCallback((source: 'focus' | 'hover', id: string | null) => {
+    setInputs(current => current[source] === id ? current : {...current, [source]: id});
+  }, []);
+  React.useEffect(() => { onActivate?.(resolvedActiveId); }, [onActivate, resolvedActiveId]);
 
   const shaped = PRODUCT_REGISTRY.filter((entry) => CONSTELLATIONS[entry.id]);
 
@@ -240,7 +235,7 @@ export default function ConstellationMap({
           entry={entry}
           shape={CONSTELLATIONS[entry.id]}
           active={resolvedActiveId === entry.id}
-          onActivate={handleActivate}
+          onInteraction={handleInteraction}
         />
       ))}
     </svg>

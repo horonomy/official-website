@@ -54,3 +54,13 @@ test('throws if the declaration count falls below the floor', () => {
 test('throws if no top-level :root block exists', () => {
   assert.throws(() => extractTokens('.foo { color: red; }'));
 });
+
+test('token documentation cannot become an Atlas declaration or replace its source root', () => {
+  const css = `/* Example: :root { --hn-example: wrong; } */
+:root {
+  /* --hn-breakpoint: 560px */
+  --hn-color: cyan;
+  --hn-alias: var(--hn-color);
+}`;
+  assert.equal(extractTokens(css, 2), ':root {\n  --hn-color: cyan;\n  --hn-alias: var(--hn-color);\n}\n');
+});
