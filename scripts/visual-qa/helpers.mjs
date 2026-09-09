@@ -37,6 +37,9 @@ export async function open(page, surface, info, {degraded=false,noJavaScript=fal
   await expect(page.locator('h1')).toBeVisible();
   const decline = page.getByRole('button', {name:surface.decline,exact:true});
   if (await decline.isVisible()) await decline.click();
+  // Removing the consent control can expose a link underneath the pointer.
+  // Neutral captures must establish their own real pointer state before paint.
+  await page.mouse.move(0,0);
   await json(info, surface.name+'-environment', {
     sourceCommit:process.env.QA_SOURCE_COMMIT ?? execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
     freshBuild:!!process.env.QA_SOURCE_COMMIT,
@@ -67,6 +70,8 @@ export async function stableMotion(page, info, name) {
   const first = await page.screenshot();
   await page.waitForTimeout(300);
   const second = await page.screenshot();
+  await info.attach(name+'-frame-1',{body:first,contentType:'image/png'});
+  await info.attach(name+'-frame-2',{body:second,contentType:'image/png'});
   expect.soft(second.equals(first), 'Reduced motion must render a stable frame (including JS/Canvas)').toBe(true);
 }
 export async function compare(page, info, name) {
