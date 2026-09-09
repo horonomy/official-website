@@ -13,12 +13,14 @@ await mkdir(out,{recursive:true});
 const sourceCommit=process.env.QA_SOURCE_COMMIT??execFileSync('/usr/bin/git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const dirty=process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('/usr/bin/git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim();
 await writeFile(out+'/summary.json',JSON.stringify({sourceCommit,dirty,status:'incomplete',samples:[],failures:['Capture has not completed.']},null,2)+'\n');
-const browser=await chromium.launch();
+let browser;
+let server;
 const samples=[];
 const failures=[];
 const percent=(values,p)=>values.length ? [...values].sort((a,b)=>a-b)[Math.ceil(values.length*p)-1] : null;
-const server=spawn(process.execPath,['scripts/visual-qa/server.mjs'],{stdio:['ignore','pipe','inherit'],env:{...process.env,QA_SERVER_OWNER:String(process.pid)}});
 try {
+  browser=await chromium.launch();
+  server=spawn(process.execPath,['scripts/visual-qa/server.mjs'],{stdio:['ignore','pipe','inherit'],env:{...process.env,QA_SERVER_OWNER:String(process.pid)}});
   await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(new Error('QA server exited '+code)));});
   for (const {surface,port} of [{surface:'website',port:4174},{surface:'atlas',port:4175}]) {
     for (const {device,viewport} of [{device:'desktop',viewport:{width:1440,height:1000}},{device:'mobile',viewport:{width:390,height:844}}]) {
@@ -106,10 +108,10 @@ try {
   }
 } catch(error){failures.push(error.message);}
 finally {
-  try { await browser.close(); } catch(error) { failures.push('Browser cleanup failed: '+error.message); }
-  try { server.kill('SIGTERM'); } catch(error) { failures.push('Server cleanup failed: '+error.message); }
+  try { await browser?.close(); } catch(error) { failures.push('Browser cleanup failed: '+error.message); }
+  try { server?.kill('SIGTERM'); } catch(error) { failures.push('Server cleanup failed: '+error.message); }
 }
-const report={sourceCommit,dirty,freshBuild:!!process.env.QA_SOURCE_COMMIT,browser:browser.version(),platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model,
+const report={sourceCommit,dirty,freshBuild:!!process.env.QA_SOURCE_COMMIT,browser:browser?.version()??null,platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model,
   method:'Three fresh contexts per surface/viewport; cache disabled; local assets plus existing canonical Google font CSS/families; no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; all other external network blocked.',
   limitations:['Local lab, not physical-device evidence.','Observed event duration is not field INP; no observed entries means unavailable, not zero. Trusted click to two RAF callbacks is a local response opportunity proxy, not confirmed display presentation.','RAF intervals are cadence, not scripting/render cost. Trace and total scripting/layout/style durations require attribution against a same-device baseline for effect p95 and new long-task acceptance.','No golden performance baseline was automatically approved.'],samples,failures};
 report.status=failures.length?'failed':'complete';
