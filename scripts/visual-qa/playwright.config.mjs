@@ -10,7 +10,7 @@ export default defineConfig({
   updateSnapshots: 'none',
   snapshotPathTemplate: '{testDir}/baselines/{platform}/{projectName}/{arg}{ext}',
   outputDir: '../../design/validation-reports/.generated/results',
-  reporter: [['list'], ['html', {outputFolder:'design/validation-reports/.generated/report',open:'never'}], ['json', {outputFile:'design/validation-reports/.generated/results.json'}]],
+  reporter: [['list'], ['html', {outputFolder:resolve(import.meta.dirname,'../../design/validation-reports/.generated/report'),open:'never'}], ['json', {outputFile:resolve(import.meta.dirname,'../../design/validation-reports/.generated/results.json')}]],
   use: {locale:'en-US', timezoneId:'UTC', colorScheme:'dark', deviceScaleFactor:1,
     serviceWorkers:'block', actionTimeout:10000, navigationTimeout:20000,
     screenshot:'only-on-failure', trace:'retain-on-failure'},
