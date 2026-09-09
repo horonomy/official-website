@@ -69,15 +69,18 @@ jobs:
       - name: Check product claims
         run: pnpm check:claims
 
+      # Use the lockfile-pinned CLI; project creation must not install a mutable range.
       - name: Ensure the Cloudflare Pages project exists (idempotent)
         run: |
-          npx --yes wrangler@3 pages project create "$PAGES_PROJECT" \
+          pnpm exec wrangler pages project create "$PAGES_PROJECT" \
             --production-branch=main \
             || echo "Pages project already exists — continuing."
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v4
         with:
+          # Preserve the publish CLI used before adding the local Wrangler 3 pin.
+          wranglerVersion: "4.130.0"
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: >-
