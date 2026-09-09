@@ -6,7 +6,7 @@ import {existsSync} from 'node:fs';
 import {validateReview} from './baseline-review.mjs';
 import os from 'node:os';
 import AxeBuilder from '@axe-core/playwright';
-import {canonicalFontRequest, settled} from './fonts.mjs';
+import {canonicalFontRequest, observeReadiness, settled} from './fonts.mjs';
 
 export const surfaces = [
   {name:'website', url:'http://127.0.0.1:4174/', action:'#observatory a[href="/#products"]', decline:'Reject'},
@@ -27,6 +27,7 @@ export async function open(page, surface, info, {degraded=false,noJavaScript=fal
   });
   const errors=[];
   page.on('pageerror', error => errors.push(error.message));
+  observeReadiness(page,{url:surface.url,degraded});
   const response = await page.goto(surface.url, {waitUntil:'load'});
   expect(response.status()).toBe(200);
   await settled(page,{noJavaScript});
