@@ -42,7 +42,7 @@ own visual metaphor and page structure.
 | Elevation | `--hn-shadow-sm/md/lg` | Resting/hover shadow depth |
 | Focus | `--hn-focus-ring-color`, `--hn-focus-ring` | The one `:focus-visible` treatment; every interactive primitive should key off this pair, not invent its own outline |
 | Breakpoints | `996px` (tablet), `560px` (mobile) | Documented as comments, not custom properties — `@media` can't read `var()` |
-| Motion | `@media (prefers-reduced-motion: reduce)` block | Zeroes animation/transition duration site-wide; product sites should keep an equivalent block rather than opt out |
+| Motion | [Motion Constitution](design/MOTION_CONSTITUTION.md) and [accessibility contract](design/ACCESSIBILITY_CONTRACT.md) | Per-class causes, interruption and static replacements; the existing global duration reset alone is insufficient |
 | Glass surfaces | `--hn-glass-bg`, `--hn-glass-blur`, `--hn-glass-border`, `--hn-glass-highlight` | Navbar/footer/card translucency system |
 
 Adoption is incremental by design — no standalone package or npm-published

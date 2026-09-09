@@ -10,6 +10,11 @@ Start with the [Visual Design Constitution v1](VISUAL_DESIGN_CONSTITUTION.md)
 marketing, operational work and Pets Lives Here. Existing screenshots, canvases
 and gap analyses are historical evidence, not competing current specifications.
 
+- [Motion Constitution v1](MOTION_CONSTITUTION.md) — causes, timings, interruption,
+  semantic attention and per-class fallbacks.
+- [Reduced Motion and Accessibility Contract v1](ACCESSIBILITY_CONTRACT.md) —
+  contrast, operability and rendered evidence requirements.
+
 ```
 design/
 └── v1/

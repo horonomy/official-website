@@ -6,6 +6,9 @@ slices, not evidence that today's rendered surfaces already conform. Its directi
 is **Celestial Instrument × Quiet Magic × Precision Engineering**: a readable
 instrument in a celestial setting, with meaningful, restrained signs of life.
 
+Read with the [Motion Constitution](MOTION_CONSTITUTION.md) and
+[Reduced Motion and Accessibility Contract](ACCESSIBILITY_CONTRACT.md).
+
 ## Authority and scope
 
 Company governance and product-owned truth remain authoritative. This contract
