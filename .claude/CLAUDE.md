@@ -32,6 +32,10 @@ Design system, tokens, and homepage composition are documented in `README.md`.
 Design tokens live in `src/css/custom.css`; the site is dark-native by design
 (light mode is intentionally disabled).
 
+For visual/reference-slice work, read the [current design contracts](../design/README.md)
+and [AI frontend checklist](../design/AI_FRONTEND_CHECKLIST.md) before implementation.
+They govern presentation and verification; product-owned truth remains authoritative.
+
 ## Stack
 
 - **Framework**: Docusaurus 3.10.x (classic preset) + React 19, TypeScript.

@@ -10,6 +10,10 @@ architecture (Hero → Lore → Philosophy → Products → Manifesto), from the
 
 ## Design system
 
+The [Visual Design Constitution v1](design/VISUAL_DESIGN_CONSTITUTION.md)
+governs the MVP reference slices. The [design index](design/README.md) links the
+current contracts and distinguishes historical references.
+
 - Base graphite `#0F1115`, ink `#F4F5F7`.
 - Type: **Space Grotesk** (display / body), **IBM Plex Mono** (labels / meta).
 - Signal **cyan** `#00B2FF` is reserved for the "active boundary" only;
@@ -17,8 +21,8 @@ architecture (Hero → Lore → Philosophy → Products → Manifesto), from the
 - Dark-native — light mode is disabled by design.
 
 Tokens live in `src/css/custom.css`. The homepage composition is
-`src/pages/index.tsx` → `src/components/Hero` (canvas star field + the First
-Horologer figure, in `sky.ts`) and `src/components/Sections`.
+`src/pages/index.tsx` → `src/components/HeroUniverse` (layered observatory scene
+and the First Horologer) and `src/components/Sections`.
 
 ### Shared design system (HORO-283)
 
@@ -38,7 +42,7 @@ own visual metaphor and page structure.
 | Elevation | `--hn-shadow-sm/md/lg` | Resting/hover shadow depth |
 | Focus | `--hn-focus-ring-color`, `--hn-focus-ring` | The one `:focus-visible` treatment; every interactive primitive should key off this pair, not invent its own outline |
 | Breakpoints | `996px` (tablet), `560px` (mobile) | Documented as comments, not custom properties — `@media` can't read `var()` |
-| Motion | `@media (prefers-reduced-motion: reduce)` block | Zeroes animation/transition duration site-wide; product sites should keep an equivalent block rather than opt out |
+| Motion | [Motion Constitution](design/MOTION_CONSTITUTION.md) and [accessibility contract](design/ACCESSIBILITY_CONTRACT.md) | Per-class causes, interruption and static replacements; the existing global duration reset alone is insufficient |
 | Glass surfaces | `--hn-glass-bg`, `--hn-glass-blur`, `--hn-glass-border`, `--hn-glass-highlight` | Navbar/footer/card translucency system |
 
 Adoption is incremental by design — no standalone package or npm-published

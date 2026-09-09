@@ -1,5 +1,10 @@
 # Hero design gap analysis & engineering handoff (HORO-12)
 
+> Historical HORO-12 snapshot. Its “current” implementation and ticket statuses
+> describe that audit, not today's site. The active homepage uses `HeroUniverse`.
+> Use the [current constitution](VISUAL_DESIGN_CONSTITUTION.md); do not revive
+> the legacy pointer-tracking behavior from this handoff.
+
 Comparison of the **current** homepage against the **target** immersive hero, with
 each area mapped to its owning HORO ticket. Not published (lives under `design/`,
 outside the Docusaurus `docs/` tree).
