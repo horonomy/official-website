@@ -6,7 +6,7 @@ export function validateReview(review) {
   if(!/^HORO-\d+$/.test(review.ticket??''))throw new Error('Baseline review requires a HORO ticket');
   if(typeof review.reason!=='string'||review.reason.trim().length<12)throw new Error('Baseline review requires an explicit reason');
   if(!/^[0-9a-f]{40}$/.test(review.sourceCommit??''))throw new Error('Baseline review requires the captured source commit');
-  if(!Array.isArray(review.files)||!review.files.length||review.files.some(f=>!/^((chromium|firefox|webkit)-(desktop|tablet|mobile)\/)?[a-z0-9/-]+\.png$/.test(f)||f.includes('..')))throw new Error('Baseline review requires explicit image paths');
+  if(!Array.isArray(review.files)||!review.files.length||review.files.some(f=>f.startsWith('/')||!/^((chromium|firefox|webkit)-(desktop|tablet|mobile)\/)?[a-z0-9/-]+\.png$/.test(f)||f.includes('..')))throw new Error('Baseline review requires explicit image paths');
 }
 if(process.argv[1]?.endsWith('baseline-review.mjs')) {
   const base=process.argv[2]??'origin/main';
