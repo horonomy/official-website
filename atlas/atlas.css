@@ -86,6 +86,7 @@ body {
   border: 1px solid var(--hn-line);
   border-radius: var(--hn-radius-md);
   padding: var(--hn-space-5);
+  overflow-wrap: anywhere;
   background: var(--hn-panel);
   box-shadow: var(--hn-shadow-sm);
 }
