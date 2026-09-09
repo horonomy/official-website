@@ -57,7 +57,8 @@ for (const surface of surfaces) test(surface.name+' supports visible keyboard an
     await page.evaluate(()=>scrollTo(0,68));
     await capture(page,info,'website-scrolled-navigation');
     for(const name of ['Blog','GitHub']) {
-      const link=page.locator('.navbar').getByRole('link',{name,exact:true});
+      const link=page.locator('.navbar').getByRole('link',{name});
+      if(info.project.name.endsWith('-desktop')) await expect(link).toBeVisible();
       if(await link.isVisible()) await unobscured(link,info,'Scrolled navbar '+name);
     }
     for(let i=0;i<40&&!await motion.evaluate(e=>e===document.activeElement);i++) await page.keyboard.press('Shift+'+traversalKey(info));
