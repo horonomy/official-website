@@ -6,6 +6,7 @@ import {gzipSync} from 'node:zlib';
 import os from 'node:os';
 import {canonicalFontRequest, settled} from './fonts.mjs';
 import {cumulativeLayoutShift} from './performance-metrics.mjs';
+import {validatePerformanceBaseline} from './performance-baseline.mjs';
 
 const out='design/validation-reports/.generated/performance';
 await mkdir(out,{recursive:true});
@@ -111,14 +112,14 @@ finally {
 const report={sourceCommit,dirty,freshBuild:!!process.env.QA_SOURCE_COMMIT,browser:browser.version(),platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model,
   method:'Three fresh contexts per surface/viewport; cache disabled; local assets plus existing canonical Google font CSS/families; no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; all other external network blocked.',
   limitations:['Local lab, not physical-device evidence.','Observed event duration is not field INP; no observed entries means unavailable, not zero. Trusted click to two RAF callbacks is a local response opportunity proxy, not confirmed display presentation.','RAF intervals are cadence, not scripting/render cost. Trace and total scripting/layout/style durations require attribution against a same-device baseline for effect p95 and new long-task acceptance.','No golden performance baseline was automatically approved.'],samples,failures};
+report.status=failures.length?'failed':'complete';
 if(process.env.QA_PERF_BASELINE){
   try{
     const base=JSON.parse(await readFile(process.env.QA_PERF_BASELINE,'utf8'));
-    if(base.platform!==report.platform||base.architecture!==report.architecture||base.cpu!==report.cpu||base.browser!==report.browser||base.method!==report.method)throw new Error('Performance baseline environment mismatch');
+    validatePerformanceBaseline(base,report);
     for(const surface of ['website','atlas'])for(const device of ['desktop','mobile'])for(const metric of ['lcpMs','maxTrustedClickToTwoRafMs']){
       const old=base.samples.filter(x=>x.surface===surface&&x.device===device).map(x=>x[metric]);
       const next=samples.filter(x=>x.surface===surface&&x.device===device).map(x=>x[metric]);
-      if(old.length!==3||next.length!==3||[...old,...next].some(x=>!Number.isFinite(x)))throw new Error('Baseline metric unavailable: '+surface+'/'+device+'/'+metric);
       if(percent(next,.5)>percent(old,.5)*1.1)failures.push(surface+'/'+device+'/'+metric+': median regressed over 10%');
     }
     report.baselineCommit=base.sourceCommit;
