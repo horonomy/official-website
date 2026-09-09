@@ -2,6 +2,8 @@
 import {expect} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {validateReview} from './baseline-review.mjs';
 import os from 'node:os';
 import AxeBuilder from '@axe-core/playwright';
 
@@ -48,7 +50,7 @@ export async function scan(page, info, name) {
   const result = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']).analyze();
   // Include passing contrast pairs and incomplete regions; the latter need human review.
   await json(info, name+'-accessibility', {violations:result.violations,incomplete:result.incomplete,contrast:result.passes.filter(rule=>rule.id==='color-contrast')});
-  expect.soft(result.violations, name+' WCAG violations').toEqual([]);
+  expect.soft(result.violations.map(rule=>({id:rule.id,impact:rule.impact,targets:rule.nodes.map(node=>node.target)})), name+' WCAG violations; full contrast data is attached').toEqual([]);
 }
 export async function stableMotion(page, info, name) {
   const active = await page.evaluate(() => document.getAnimations().filter(a=>a.playState==='running' && a.effect?.getTiming().iterations===Infinity).map(a=>({target:a.effect?.target?.tagName,name:a.animationName ?? null})));
@@ -60,13 +62,11 @@ export async function stableMotion(page, info, name) {
   expect.soft(second.equals(first), 'Reduced motion must render a stable frame (including JS/Canvas)').toBe(true);
 }
 export async function compare(page, info, name) {
-  if (process.env.QA_COMPARE !== '1') {
+  if (process.env.QA_COMPARE !== '1' && !existsSync(new URL('./baselines/review.json',import.meta.url))) {
     info.annotations.push({type:'baseline',description:'Observation only; no approved visual comparison requested. Human review required.'});
     return;
   }
   const manifest = JSON.parse(await readFile(new URL('./baselines/review.json',import.meta.url),'utf8'));
-  expect(manifest.ticket).toMatch(/^HORO-\d+$/);
-  expect(manifest.reason?.trim().length).toBeGreaterThan(10);
-  expect(manifest.sourceCommit).toMatch(/^[0-9a-f]{40}$/);
+  validateReview(manifest);
   await expect.soft(page).toHaveScreenshot(name+'.png', {animations:'allow',maxDiffPixels:0});
 }

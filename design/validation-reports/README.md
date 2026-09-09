@@ -50,7 +50,9 @@ committing HTML reports, raw traces or duplicate full-page media.
 The initial capture command creates **observations**, not golden baselines. Human
 review compares equivalent normal, focus and reduced states before approval. It is
 never correct to approve existing violations merely to turn the suite green.
-`QA_COMPARE=1 pnpm check:visual` additionally compares the reduced-state PNGs, using
+Once review metadata exists, the standard gate compares reduced-state PNGs
+automatically; `QA_COMPARE=1 pnpm check:visual` also requires comparison before
+the first baseline exists. Comparisons use
 Playwright's platform/project-specific paths and zero differing pixels. It fails
 when a baseline is absent or different; automatic snapshot updates are disabled.
 Use the same OS, browser version, headless mode, fonts and device settings as the
