@@ -36,7 +36,9 @@ marks `freshBuild: false` and is diagnostic evidence only. `check:visual` defaul
 The viewport matrix is desktop 1440×1000, tablet 834×1112, mobile 390×844 at DPR 1.
 Every surface gets real normal/reduced/focus/pointer screenshots, WCAG AA axe scans,
 runtime reduced-motion switching and equivalent-reload pixel stability, static/no-JavaScript, failed images/fonts with no
-backdrop blur, 320px reflow, 200% text and forced-color views. The living scene also
+backdrop blur, 320px reflow, 200% text and forced-color views. Atlas additionally
+checks combined 320px/200% text with a full-page PNG and text-node Range containment
+inside card content edges, so a fitting page cannot hide text crossing a card border. The living scene also
 checks user pause persistence. All assertions remain active for existing defects.
 A failure exits nonzero and retains evidence; fixing source is the resolution.
 macOS WebKit uses native Option-Tab (`Alt+Tab`) to traverse links, recorded in each
