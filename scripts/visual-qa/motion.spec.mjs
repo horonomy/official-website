@@ -15,7 +15,9 @@ for (const surface of surfaces) test(surface.name+' preserves a static reduced-m
     await expect(pause).toBeVisible();
     await pause.click();
     await expect.soft(scene).toHaveAttribute('data-hn-motion','static');
+    await page.waitForTimeout(250);
     await capture(page,info,'website-paused');
+    await stableMotion(page,info,'website-paused');
     await page.reload({waitUntil:'load'});
     await expect.soft(scene).toHaveAttribute('data-hn-motion','static');
     await page.getByRole('button',{name:'Resume scene motion',exact:true}).click();
