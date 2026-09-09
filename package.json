@@ -18,8 +18,8 @@
     "build:atlas": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types atlas/build.mts",
     "test:atlas": "node --test atlas/test/*.test.mjs",
     "typecheck:atlas": "tsc -p atlas",
-    "check:visual": "playwright test --config scripts/visual-qa/playwright.config.mjs",
-    "perf:visual": "node scripts/visual-qa/performance.mjs",
+    "check:visual": "node scripts/visual-qa/run.mjs rendered",
+    "perf:visual": "node scripts/visual-qa/run.mjs performance",
     "test:visual-tools": "node --test scripts/visual-qa/*.test.mjs"
   },
   "dependencies": {

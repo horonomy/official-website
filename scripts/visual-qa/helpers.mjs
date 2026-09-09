@@ -28,8 +28,9 @@ export async function open(page, surface, info, {degraded=false}={}) {
   const decline = page.getByRole('button', {name:surface.decline,exact:true});
   if (await decline.isVisible()) await decline.click();
   await json(info, surface.name+'-environment', {
-    sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
-    dirty:!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim(),
+    sourceCommit:process.env.QA_SOURCE_COMMIT ?? execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
+    freshBuild:!!process.env.QA_SOURCE_COMMIT,
+    dirty:process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim(),
     browser:page.context().browser().version(), platform:os.platform(), architecture:os.arch(),
     viewport:page.viewportSize(), project:info.project.name, url:surface.url,
     network:'loopback; uncached; all external requests blocked', physicalDevice:false,

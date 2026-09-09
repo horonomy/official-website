@@ -34,8 +34,6 @@ jobs:
       - run: pnpm test:visual-tools
       - name: Review baseline provenance
         run: node scripts/visual-qa/baseline-review.mjs origin/main
-      - run: pnpm build
-      - run: pnpm build:atlas
       - name: Render and check all browser engines
         env:
           QA_BROWSERS: chromium,firefox,webkit

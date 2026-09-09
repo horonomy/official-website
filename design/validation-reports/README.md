@@ -24,7 +24,9 @@ QA_BROWSERS=chromium,firefox,webkit corepack pnpm@10 check:visual
 corepack pnpm@10 perf:visual
 ```
 
-`check:visual` defaults to Chromium; CI explicitly uses all three engines.
+`check:visual` and `perf:visual` rebuild both surfaces first, pin the source SHA
+for the run, and report dirty/untracked work. Calling the underlying tools directly
+marks `freshBuild: false` and is diagnostic evidence only. `check:visual` defaults to Chromium; CI explicitly uses all three engines.
 The viewport matrix is desktop 1440×1000, tablet 834×1112, mobile 390×844 at DPR 1.
 Every surface gets real normal/reduced/focus/pointer screenshots, WCAG AA axe scans,
 runtime reduced-motion switching, static/no-JavaScript, failed images/fonts with no

@@ -7,8 +7,8 @@ import os from 'node:os';
 
 const out='design/validation-reports/.generated/performance';
 await mkdir(out,{recursive:true});
-const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
-const dirty=!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim();
+const sourceCommit=process.env.QA_SOURCE_COMMIT??execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+const dirty=process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim();
 const browser=await chromium.launch();
 const samples=[];
 const failures=[];
@@ -95,7 +95,7 @@ try {
 } catch(error){failures.push(error.message);}
 finally {
   await browser.close();server.kill('SIGTERM');
-  const report={sourceCommit,dirty,browser:browser.version(),platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model,
+  const report={sourceCommit,dirty,freshBuild:!!process.env.QA_SOURCE_COMMIT,browser:browser.version(),platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model,
     method:'Three fresh contexts per surface/viewport; cache disabled; loopback/no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; external network blocked.',
     limitations:['Local lab, not physical-device evidence.','Observed event duration is not field INP; no observed entries means unavailable, not zero. Trusted click to two RAF callbacks is a local response opportunity proxy, not confirmed display presentation.','RAF intervals are cadence, not scripting/render cost. Trace and total scripting/layout/style durations require attribution against a same-device baseline for effect p95 and new long-task acceptance.','No golden performance baseline was automatically approved.'],samples,failures};
   if(process.env.QA_PERF_BASELINE){
