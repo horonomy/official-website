@@ -28,7 +28,7 @@ try {
         await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
         await cdp.send('Performance.enable');
         await page.addInitScript(()=>{
-          const q={lcp:null,shifts:[],events:[],longTasks:[],frames:[]};window.__horoQA=q;
+          const q={lcp:null,shifts:[],events:[],actionFrames:[],longTasks:[],frames:[]};window.__horoQA=q;
           for(const type of ['largest-contentful-paint','layout-shift','event','longtask']){
             new PerformanceObserver(list=>{for(const e of list.getEntries()){
               if(type==='largest-contentful-paint')q.lcp=e.startTime;
@@ -44,6 +44,12 @@ try {
         await page.evaluate(()=>document.fonts.ready);
         const decline=page.getByRole('button',{name:surface==='website'?'Reject':'Decline',exact:true});
         if(await decline.isVisible())await decline.click();
+        await page.evaluate(()=>document.addEventListener('click',event=>{
+          if(!event.target.closest?.('a'))return;
+          event.preventDefault();
+          if(event.isTrusted)requestAnimationFrame(()=>requestAnimationFrame(()=>window.__horoQA.actionFrames.push(performance.now()-event.timeStamp)));
+        }));
+        const action=page.locator(surface==='website'?'#observatory a[href="/#products"]':'.hn-atlas-card__link').first();
         const initial=await cdp.send('Performance.getMetrics');
         const start=await page.evaluate(()=>{
           performance.mark('qa-scene-start');
@@ -53,7 +59,7 @@ try {
         });
         // The pointer/keyboard inputs are real browser events while the persistent scene runs.
         for(let second=0;second<30;second++){
-          if(second%5===0){await page.mouse.move(viewport.width*(second%10===0?.7:.3),viewport.height*.4);await page.keyboard.press('Tab');}
+          if(second%5===0){await page.mouse.move(viewport.width*(second%10===0?.7:.3),viewport.height*.4);await page.keyboard.press('Tab');await action.click();}
           await page.waitForTimeout(1000);
         }
         const final=await cdp.send('Performance.getMetrics');
@@ -71,11 +77,14 @@ try {
         for(const shift of values.shifts){if(shift.start-last>1000||shift.start-first>5000){session=0;first=shift.start;}session+=shift.value;last=shift.start;cls=Math.max(cls,session);}
         const sample={surface,device,run,viewport,lcpMs:values.lcp,cls,
           maxObservedInteractionMs:values.events.length?Math.max(...values.events.map(e=>e.duration)):null,
-          eventTimings:values.events,sceneLongTasks:values.longTasks.filter(e=>e.start>=start),
+          eventTimings:values.events, trustedClickToTwoRafMs:values.actionFrames,
+          maxTrustedClickToTwoRafMs:values.actionFrames.length?Math.max(...values.actionFrames):null,sceneLongTasks:values.longTasks.filter(e=>e.start>=start),
           frameIntervalP95Ms:percent(values.frames,.95),
           scriptSeconds:delta('ScriptDuration'),layoutSeconds:delta('LayoutDuration'),styleSeconds:delta('RecalcStyleDuration'),
           jsHeapBytes:final.metrics.find(x=>x.name==='JSHeapUsedSize')?.value,trace:traceName};
         samples.push(sample);
+        if(values.actionFrames.length!==6)failures.push(surface+'/'+device+'/'+run+': expected six measured trusted actions');
+        if(sample.maxTrustedClickToTwoRafMs>200)failures.push(surface+'/'+device+'/'+run+': trusted action response exceeded 200ms');
         if(sample.lcpMs===null)failures.push(surface+'/'+device+'/'+run+': LCP unavailable');
         if(sample.lcpMs>2500||sample.cls>0.1||sample.maxObservedInteractionMs>200)failures.push(surface+'/'+device+'/'+run+': exceeds local lab LCP 2500ms / CLS 0.1 / observed interaction 200ms ceiling');
         console.log(surface,device,'run',run,JSON.stringify({lcpMs:sample.lcpMs,cls:sample.cls,longTasks:sample.sceneLongTasks.length}));
@@ -87,13 +96,13 @@ try {
 finally {
   await browser.close();server.kill('SIGTERM');
   const report={sourceCommit,dirty,browser:browser.version(),platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model,
-    method:'Three fresh contexts per surface/viewport; cache disabled; loopback/no network or CPU throttling; thirty seconds of actual scene rendering with pointer and Tab input; external network blocked.',
-    limitations:['Local lab, not physical-device evidence.','Observed event duration is not field INP; no observed entries means unavailable, not zero.','RAF intervals are cadence, not scripting/render cost. Trace and total scripting/layout/style durations require attribution against a same-device baseline for effect p95 and new long-task acceptance.','No golden performance baseline was automatically approved.'],samples,failures};
+    method:'Three fresh contexts per surface/viewport; cache disabled; loopback/no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; external network blocked.',
+    limitations:['Local lab, not physical-device evidence.','Observed event duration is not field INP; no observed entries means unavailable, not zero. Trusted click to two RAF callbacks is a local response opportunity proxy, not confirmed display presentation.','RAF intervals are cadence, not scripting/render cost. Trace and total scripting/layout/style durations require attribution against a same-device baseline for effect p95 and new long-task acceptance.','No golden performance baseline was automatically approved.'],samples,failures};
   if(process.env.QA_PERF_BASELINE){
     try{
       const base=JSON.parse(await readFile(process.env.QA_PERF_BASELINE,'utf8'));
       if(base.platform!==report.platform||base.architecture!==report.architecture||base.cpu!==report.cpu||base.browser!==report.browser||base.method!==report.method)throw new Error('Performance baseline environment mismatch');
-      for(const surface of ['website','atlas'])for(const device of ['desktop','mobile'])for(const metric of ['lcpMs','maxObservedInteractionMs']){
+      for(const surface of ['website','atlas'])for(const device of ['desktop','mobile'])for(const metric of ['lcpMs','maxTrustedClickToTwoRafMs']){
         const old=base.samples.filter(x=>x.surface===surface&&x.device===device).map(x=>x[metric]);
         const next=samples.filter(x=>x.surface===surface&&x.device===device).map(x=>x[metric]);
         if(old.length!==3||next.length!==3||[...old,...next].some(x=>!Number.isFinite(x)))throw new Error('Baseline metric unavailable: '+surface+'/'+device+'/'+metric);
