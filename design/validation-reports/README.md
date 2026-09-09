@@ -47,6 +47,10 @@ Touch projects dismiss consent and activate primary actions with native taps.
 Neutral captures park the real pointer outside content after consent dismissal;
 separate tests deliberately produce hover/focus states. Both temporal stability
 frames are retained for pixel review.
+Forced-colors media emulation is not proof of a painted system palette: this macOS
+WebKit build retains author colors even when the media query matches. Chromium
+paints the system palette in the captured evidence; native high-contrast review
+remains necessary for other platforms.
 No CSS animation suppression is added to the reduced-motion test's screenshots.
 
 The output under `.generated/` is ignored by Git. Open `.generated/report/index.html`
@@ -54,8 +58,9 @@ or use `pnpm exec playwright show-report design/validation-reports/.generated/re
 Per-test attachments contain source commit, dirty flag, browser/platform/viewport,
 real PNGs, contrast pairs, axe violations and incomplete regions. Failure traces
 are Playwright interaction traces; they are distinct from the performance traces.
-CI uploads the folder as `rendered-visual-qa-<commit>` for seven days, even on test
-failure. Link that artifact and selected public screenshots in PR Self-verification.
+CI uploads the self-contained HTML report/data and performance directory as `rendered-visual-qa-<commit>` for seven days, even on test
+failure. Local `results.json` duplicates PNGs as base64 and stays out of the CI artifact;
+the HTML report retains every image, JSON attachment and failure trace. Link that artifact and selected public screenshots in PR Self-verification.
 Commit only a small curated set under the ticket directory, plus its report; avoid
 committing HTML reports, raw traces or duplicate full-page media.
 
