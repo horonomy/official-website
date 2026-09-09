@@ -1,9 +1,11 @@
+import {settled} from './fonts.mjs';
 import {test, expect} from '@playwright/test';
 import {surfaces, open, capture, json} from './helpers.mjs';
 
 for (const surface of surfaces) test(surface.name+' supports visible keyboard and pointer activation', async ({page}, info) => {
   await open(page,surface,info);
   await page.reload({waitUntil:'load'});
+  await settled(page);
   await page.keyboard.press('Tab');
   const skip = page.locator(':focus');
   await expect(skip).toHaveText(/Skip to/);
