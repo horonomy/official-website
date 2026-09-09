@@ -116,7 +116,7 @@
 [data-theme='light'] {
   --ifm-background-color: #0f1115;
   --ifm-background-surface-color: #13171d;
-  --ifm-navbar-background-color: rgba(15, 17, 21, 0.4);
+  --ifm-navbar-background-color: var(--hn-graphite);
   --ifm-navbar-link-color: var(--hn-muted);
   --ifm-navbar-link-hover-color: var(--hn-text);
   --ifm-footer-background-color: #0b0d10;
@@ -135,20 +135,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* --- Navbar: glassmorphism — layered translucency, blur, edge refraction --- */
+html {
+  /* Keep native anchor/focus scrolling and its focus ring below sticky chrome. */
+  scroll-padding-top: calc(var(--ifm-navbar-height) + var(--hn-space-2));
+}
+
+/* --- Navbar: protected backing with the shared edge highlight --- */
 .navbar {
-  /* Layer a faint top highlight over the translucent base var so the bar reads
-     as frosted glass catching light along its upper edge. */
+  /* Opaque backing prevents scrolled scene controls from painting through links. */
   background-image: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.05),
     rgba(255, 255, 255, 0) 60%
   );
-  /* Unprefixed only: the production CSS minifier drops the standard
-     `backdrop-filter` when a `-webkit-` twin is present, leaving webkit-only —
-     which modern Chromium ignores (glass renders as `none`). Autoprefixer
-     re-adds the `-webkit-` prefix at build time for Safari. */
-  backdrop-filter: blur(16px) saturate(150%);
   /* Light glass border like the ghost "Read the Docs" button. */
   border-bottom: 1px solid rgba(229, 231, 235, 0.25);
   box-shadow: var(--hn-glass-highlight);
@@ -169,7 +168,7 @@ body {
   color: var(--hn-text);
 }
 
-/* --- Footer: glass surface matching the navbar system --- */
+/* --- Footer: glass surface using the shared edge highlight --- */
 .footer {
   /* Translucent so the graphite base shows through the frosted blur. */
   background-color: rgba(11, 13, 16, 0.6);
