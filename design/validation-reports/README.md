@@ -6,7 +6,7 @@ WCAG criteria, human task efficiency, physical-device performance or MVP accepta
 
 ## Run against this checkout
 
-Use Node 22 and pnpm 10. No running server, browser operation, account, telemetry,
+Use Node 22, pnpm 10 and `/usr/bin/git` on macOS or Linux. No running server, browser operation, account, telemetry,
 remote URL or credential is needed. The harness owns loopback ports 4174/4175 and
 refuses to reuse an existing server. It serves only `build/` and `atlas/dist/`.
 Normal website mode permits only its existing exact Google Fonts stylesheet and
@@ -86,6 +86,7 @@ Add/update `scripts/visual-qa/baselines/review.json` with `ticket` (`HORO-...`),
 `reason` (the intended visible change), `sourceCommit` (40-character capture SHA),
 and `files` (all changed PNG paths relative to `baselines/`). Run
 `node scripts/visual-qa/baseline-review.mjs origin/main`; CI enforces this metadata.
+The comparison CLI accepts only its documented `origin/main` base and uses literal Git arguments.
 The reviewer must inspect before/after images and grant approval in the PR.
 Metadata is provenance, not visual approval. Do not use `--update-snapshots` to
 resolve a failure; the normal gate must pass independently of any image acceptance.
@@ -113,7 +114,7 @@ render work against the same-device baseline before asserting the constitution's
 4ms/6ms effect p95 or no newly introduced long tasks/layout shifts. No baseline
 means those relative criteria are **unassessed**, not passed. Set
 `QA_PERF_BASELINE=/path/to/summary.json` for a same-environment comparison: missing
-metrics/mismatched environments fail; median LCP/trusted-click response regressions
+metrics/mismatched environments fail. Baselines must be complete, clean, freshly built captures with a valid source SHA, no failures, and all twelve unique expected surface/viewport/run cells with matching viewport dimensions and at least thirty seconds of observation. Diagnostic, failed, duplicated or malformed evidence is rejected before comparison. Median LCP/trusted-click response regressions
 above 10% fail. Keep absolute values and trace findings in the PR.
 
 Raw traces are capped at 64 MiB per sample before compression; only twelve samples

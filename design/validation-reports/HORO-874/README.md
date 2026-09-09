@@ -1,10 +1,16 @@
 # HORO-874 rendered verification evidence
 
-Capture source: `577cf73118d182618205b1f6c5695eee7f98ca36`, freshly built and clean, including merged HORO-873, HORO-887 and HORO-888. The following evidence-only commit adds this report and [manifest](manifest.json); it changes no rendered source or harness behavior. Local host: macOS 26.4.1 arm64, Apple M3 Max, Node 23.11.0, pnpm 10.34.5. CI independently uses Node 22 on Linux.
+Capture source: `577cf73118d182618205b1f6c5695eee7f98ca36`, freshly built and clean, including merged HORO-873, HORO-887 and HORO-888. Commit `6b0676f` originally added this report and [manifest](manifest.json). Subsequent QA repairs pin the Git executable and baseline command, retain startup/cleanup failures, validate complete comparable performance baselines, and add overflow diagnostics; they change no production rendering or measurement formula. This is the preserved macOS capture, not a claim that the later Linux gate passed. Local host: macOS 26.4.1 arm64, Apple M3 Max, Node 23.11.0, pnpm 10.34.5. CI independently uses Node 22 on Linux.
 
 The browser run passed **90/90 checks**, with no retry, skip or unexpected result: Chromium 153.0.8010.12, Firefox 155.0 and WebKit 26.6; desktop 1440×1000, tablet 834×1112, mobile 390×844; DPR 1. All 108 environment attachments identify the same clean, freshly built capture commit. Coverage includes both public surfaces, native keyboard/pointer/touch, normal/reduced/runtime-pause states, temporal and independent-reload pixel identity, no JavaScript, failed assets/fonts/backdrop blur, 320px reflow and 200% text. All **54 strict axe scans** returned zero definite violations; all 54 retained **color-contrast incomplete regions**. Those regions require manual assessment and are not WCAG or universal contrast passes.
 
 Normal website captures loaded the canonical Space Grotesk and IBM Plex Mono families. Atlas currently supplies no font stylesheet, so its actual system fallback is recorded. Failed-assets mode intentionally blocks fonts. No image masks, tolerance changes or blanket animation suppression were applied. These screenshots are observations, not approved golden baselines. Missing approval was verified to fail without creating baseline images; absent provenance and absolute/unsafe image paths also fail validation.
+
+## Subsequent Linux verification
+
+The first [Linux rendered run](https://github.com/horonomy/official-website/actions/runs/34364976610), on GitHub merge source `94d588722a4b95ad08428adc03ba37115ffbac6f` for PR head `6b0676f`, passed 87/90 checks and failed all three Atlas mobile 200% text cases. Actual PNGs show the 80px “Horonom” heading extending beyond the 390px viewport with the Linux system fallback; the 320px normal-text stage passed. The failure HTML, PNGs and interaction traces were retained. Its performance step did not run. That failure is an outstanding production repair prerequisite, not waived by the Mac pass above.
+
+Sonar's command-boundary and cleanup findings were repaired, and a separate review found malformed performance baselines could otherwise pass comparison. Four QA utility tests now pass, including failed/diagnostic provenance and duplicate/mismatched sample rejection. A real missing-browser launch probe exits 1 with a new failed summary, zero samples and the startup error; it cannot leave a prior success masquerading as the current result. The original Mac artifacts remain immutable. Updated source must pass fresh Linux 90-case and 12-trace gates before merge.
 
 ## Actual screenshots
 
