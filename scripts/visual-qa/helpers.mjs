@@ -6,6 +6,7 @@ import {existsSync} from 'node:fs';
 import {validateReview} from './baseline-review.mjs';
 import os from 'node:os';
 import AxeBuilder from '@axe-core/playwright';
+import {canonicalFontRequest, settled} from './fonts.mjs';
 
 export const surfaces = [
   {name:'website', url:'http://127.0.0.1:4174/', action:'#observatory a[href="/#products"]', decline:'Reject'},
@@ -14,10 +15,10 @@ export const surfaces = [
 export async function json(info, name, value) {
   await info.attach(name, {body:Buffer.from(JSON.stringify(value,null,2)),contentType:'application/json'});
 }
-export async function open(page, surface, info, {degraded=false}={}) {
+export async function open(page, surface, info, {degraded=false,noJavaScript=false}={}) {
   await page.context().route('**/*', route => {
     const url = new URL(route.request().url());
-    if (url.origin !== new URL(surface.url).origin) return route.abort('blockedbyclient');
+    if (url.origin !== new URL(surface.url).origin && (degraded || !canonicalFontRequest(url))) return route.abort('blockedbyclient');
     if (degraded && ['image','font'].includes(route.request().resourceType())) return route.abort('failed');
     return route.continue();
   });
@@ -25,7 +26,11 @@ export async function open(page, surface, info, {degraded=false}={}) {
   page.on('pageerror', error => errors.push(error.message));
   const response = await page.goto(surface.url, {waitUntil:'load'});
   expect(response.status()).toBe(200);
-  await page.evaluate(() => document.fonts.ready);
+  await settled(page,{noJavaScript});
+  const fonts=await page.evaluate(()=>[...document.fonts].map(face=>({family:face.family,status:face.status})));
+  if(surface.name==='website'&&!degraded) {
+    for(const family of ['Space Grotesk','IBM Plex Mono']) expect(fonts.some(face=>face.family.replace(/[\"']/g,'')===family&&face.status==='loaded'),'Canonical '+family+' font loaded').toBe(true);
+  }
   await expect(page.locator('h1')).toBeVisible();
   const decline = page.getByRole('button', {name:surface.decline,exact:true});
   if (await decline.isVisible()) await decline.click();
@@ -35,7 +40,7 @@ export async function open(page, surface, info, {degraded=false}={}) {
     dirty:process.env.QA_SOURCE_DIRTY==='true'||!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{encoding:'utf8'}).trim(),
     browser:page.context().browser().version(), platform:os.platform(), architecture:os.arch(),
     viewport:page.viewportSize(), project:info.project.name, url:surface.url,
-    network:'loopback; uncached; all external requests blocked', physicalDevice:false,
+    network:degraded?'loopback; decorative assets and all external requests blocked':'loopback plus existing canonical Google font stylesheet and family files only; analytics blocked', fonts, physicalDevice:false,
   });
   return errors;
 }
@@ -76,7 +81,7 @@ export async function repeatLoad(page, info, name) {
   const frames=[];
   for(let run=0;run<2;run++) {
     await page.reload({waitUntil:'load'});
-    await page.evaluate(()=>document.fonts.ready);
+    await settled(page);
     frames.push(await page.screenshot());
     await info.attach(name+'-load-'+(run+1),{body:frames[run],contentType:'image/png'});
   }
