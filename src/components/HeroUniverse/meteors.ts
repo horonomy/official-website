@@ -50,7 +50,8 @@ function pickWeighted(
   return table[0].c;
 }
 
-// Small LCG PRNG: stable within a session but varied across reloads.
+// Small LCG PRNG: stable across equivalent reloads so a scene that has been
+// reduced to its static presentation cannot inherit wall-clock pixel drift.
 function makeRng(seed: number): () => number {
   let s = seed >>> 0;
   return () => {
@@ -69,7 +70,7 @@ export function createMeteorShower(canvas: HTMLCanvasElement): MeteorShower {
     throw new Error('Decorative canvas context unavailable');
   }
 
-  const rand = makeRng(Math.floor(Date.now() % 2147483647) + 1);
+  const rand = makeRng(965);
   let width = 0;
   let height = 0;
   let dpr = 1;
