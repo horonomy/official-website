@@ -172,7 +172,6 @@ html {
    open. The desktop rhythm remains unchanged; this only protects touch
    activation on the mobile menu. */
 @media (pointer: coarse) and (max-width: 996px) {
-  .navbar__items--right .navbar__link,
   .navbar-sidebar__item .menu__link {
     min-height: 44px;
     display: inline-flex;
