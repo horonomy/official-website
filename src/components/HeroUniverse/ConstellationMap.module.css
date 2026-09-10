@@ -261,6 +261,17 @@
   .tagline {
     font-size: 38px;
   }
+
+  /* The plotted y positions are intentionally compact at desktop scale. Give
+     the enlarged phone labels their own readable rhythm without changing the
+     product mapping or the constellation geometry. */
+  .sky {
+    transform: translateY(16px);
+  }
+
+  .tagline {
+    transform: translateY(32px);
+  }
 }
 
 @media (forced-colors: active) {

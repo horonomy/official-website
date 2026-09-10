@@ -51,3 +51,13 @@
     max-width: 100%;
   }
 }
+
+@media (max-width: 560px) {
+  .title {
+    /* Keep the long company statement intact at the narrowest supported
+       viewport. The headline remains prominent while each word stays whole. */
+    font-size: clamp(34px, 10vw, 42px);
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+}
