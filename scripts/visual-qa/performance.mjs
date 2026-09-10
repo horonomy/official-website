@@ -4,7 +4,7 @@ import {execFileSync, spawn} from 'node:child_process';
 import {mkdir, writeFile, readFile} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 import os from 'node:os';
-import {canonicalFontRequest, settled} from './fonts.mjs';
+import {canonicalFontRequest, observeReadiness, readinessMethod, settled} from './fonts.mjs';
 import {cumulativeLayoutShift} from './performance-metrics.mjs';
 import {validatePerformanceBaseline} from './performance-baseline.mjs';
 
@@ -29,6 +29,7 @@ try {
         const page=await context.newPage();
         const origin='http://127.0.0.1:'+port;
         await context.route('**/*',route=>(new URL(route.request().url()).origin===origin || (route.request().method()==='GET'&&canonicalFontRequest(new URL(route.request().url())))) ? route.continue() : route.abort('blockedbyclient'));
+        observeReadiness(page,{url:origin});
         const cdp=await context.newCDPSession(page);
         await cdp.send('Network.enable');
         await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
@@ -112,7 +113,7 @@ finally {
   try { server?.kill('SIGTERM'); } catch(error) { failures.push('Server cleanup failed: '+error.message); }
 }
 const report={sourceCommit,dirty,freshBuild:!!process.env.QA_SOURCE_COMMIT,browser:browser?.version()??null,platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model,
-  method:'Three fresh contexts per surface/viewport; cache disabled; local assets plus existing canonical Google font CSS/families; no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; all other external network blocked.',
+  method:readinessMethod+' required document/font/render readiness; three fresh contexts per surface/viewport; cache disabled; local assets plus existing canonical Google font CSS/families; no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; all other external network blocked.',
   limitations:['Local lab, not physical-device evidence.','Observed event duration is not field INP; no observed entries means unavailable, not zero. Trusted click to two RAF callbacks is a local response opportunity proxy, not confirmed display presentation.','RAF intervals are cadence, not scripting/render cost. Trace and total scripting/layout/style durations require attribution against a same-device baseline for effect p95 and new long-task acceptance.','No golden performance baseline was automatically approved.'],samples,failures};
 report.status=failures.length?'failed':'complete';
 if(process.env.QA_PERF_BASELINE){

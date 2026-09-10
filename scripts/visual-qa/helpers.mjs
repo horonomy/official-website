@@ -6,7 +6,7 @@ import {existsSync} from 'node:fs';
 import {validateReview} from './baseline-review.mjs';
 import os from 'node:os';
 import AxeBuilder from '@axe-core/playwright';
-import {canonicalFontRequest, settled} from './fonts.mjs';
+import {canonicalFontRequest, observeReadiness, settled} from './fonts.mjs';
 
 export const surfaces = [
   {name:'website', url:'http://127.0.0.1:4174/', action:'#observatory a[href="/#products"]', decline:'Reject'},
@@ -27,6 +27,7 @@ export async function open(page, surface, info, {degraded=false,noJavaScript=fal
   });
   const errors=[];
   page.on('pageerror', error => errors.push(error.message));
+  observeReadiness(page,{url:surface.url,degraded});
   const response = await page.goto(surface.url, {waitUntil:'load'});
   expect(response.status()).toBe(200);
   await settled(page,{noJavaScript});
@@ -106,6 +107,11 @@ export async function repeatLoad(page, info, name) {
   for(let run=0;run<2;run++) {
     await page.reload({waitUntil:'load'});
     await settled(page);
+    const viewport=await page.evaluate(()=>{
+      window.scrollTo(0,0);
+      return {x:window.scrollX,y:window.scrollY};
+    });
+    expect(viewport,'Reduced-motion reload captures use the page-top viewport').toEqual({x:0,y:0});
     frames.push(await page.screenshot());
     await info.attach(name+'-load-'+(run+1),{body:frames[run],contentType:'image/png'});
   }

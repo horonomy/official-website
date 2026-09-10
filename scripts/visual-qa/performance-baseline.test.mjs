@@ -21,6 +21,7 @@ test('performance comparison rejects diagnostic provenance and noncomparable sam
     report=>{report.samples[0].maxTrustedClickToTwoRafMs=null;},
     report=>{report.samples[0].lcpMs=Infinity;},
     report=>{report.cpu='different-cpu';},
+    report=>{report.method='previous network-idle readiness protocol';},
     report=>{delete report.method;},
   ];
   for(const corrupt of corruptions) {

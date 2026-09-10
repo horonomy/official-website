@@ -1,0 +1,45 @@
+{
+  "ticket": "HORO-890",
+  "readinessMethod": "required-render-v2",
+  "fixtureSource": "d9f1953c1c80a907fcd683e6ed80f62bdc6b211b",
+  "mobileCaptureSource": "20fa879933a165c14df7b96fdbfbc640cf6296ab",
+  "mobileFreshBuild": true,
+  "mobileDirty": false,
+  "renderedCases": 18,
+  "fixtureScenarios": 21,
+  "scope": "Targeted readiness proof; full exact-source90+12 and independent review are required in the owning PR.",
+  "files": [
+    {
+      "file": "firefox-mobile-atlas-keyboard-focus.png",
+      "bytes": 73656,
+      "sha256": "d80e1d31d8ca3c3643d69054805923b1c30ffc556ef1079a6513cbd58c81919b",
+      "attachmentId": "10156",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10156",
+      "captureSource": "20fa879933a165c14df7b96fdbfbc640cf6296ab"
+    },
+    {
+      "file": "legacy-negative.json",
+      "bytes": 1863,
+      "sha256": "ad8448e1f04ee5a6ef9777d500a25455e30903ad69ec16f49a34545b08e43c30",
+      "attachmentId": "10154",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10154",
+      "captureSource": "d9f1953c1c80a907fcd683e6ed80f62bdc6b211b"
+    },
+    {
+      "file": "mobile-regression.json",
+      "bytes": 34743,
+      "sha256": "6f361a85c851cfccb8f441479e033af834f2957c367548a13058c3def85214a8",
+      "attachmentId": "10155",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10155",
+      "captureSource": "20fa879933a165c14df7b96fdbfbc640cf6296ab"
+    },
+    {
+      "file": "webkit-mobile-website-no-javascript.png",
+      "bytes": 388452,
+      "sha256": "342a9764e88925e5deb093bfbb59cb0225ff7062b04b7ec7f9f90940bae0febb",
+      "attachmentId": "10157",
+      "url": "https://lightning-dust-mite.atlassian.net/rest/api/3/attachment/content/10157",
+      "captureSource": "20fa879933a165c14df7b96fdbfbc640cf6296ab"
+    }
+  ]
+}
