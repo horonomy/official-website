@@ -240,18 +240,26 @@
   }
 
   .name {
-    /* The SVG scales with the viewport. Keep meaningful product identity at
-       or above the constitution's 12px rendered floor on the narrowest
-       supported touch viewport (320px). */
-    font-size: clamp(38px, 10vw, 46px);
+    font-size: 26px;
   }
 
   .sky {
-    font-size: clamp(38px, 10vw, 46px);
+    font-size: 15px;
   }
 
   .tagline {
-    font-size: clamp(38px, 10vw, 46px);
+    font-size: 18px;
+  }
+}
+
+/* At phone widths the SVG scales to roughly the viewport width. Increase the
+   user-space label size only there so rendered identity remains legible while
+   tablet keeps the existing balanced constellation composition. */
+@media (max-width: 560px) {
+  .name,
+  .sky,
+  .tagline {
+    font-size: 38px;
   }
 }
 
