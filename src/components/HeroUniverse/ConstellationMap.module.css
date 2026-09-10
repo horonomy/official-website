@@ -266,11 +266,11 @@
      the enlarged phone labels their own readable rhythm without changing the
      product mapping or the constellation geometry. */
   .sky {
-    transform: translateY(16px);
+    transform: translateY(40px);
   }
 
   .tagline {
-    transform: translateY(32px);
+    transform: translateY(80px);
   }
 }
 
