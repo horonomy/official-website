@@ -44,8 +44,8 @@ function pickColor(rand: () => number): string {
   return STAR_COLORS[0].c;
 }
 
-// Small deterministic-ish PRNG so the field is stable within a session but
-// varied across reloads. Seeded from the current time.
+// Small deterministic PRNG so equivalent scene states retain the same sky
+// across reloads, including their static reduced-motion presentation.
 function makeRng(seed: number): () => number {
   let s = seed >>> 0;
   return () => {
@@ -65,7 +65,7 @@ export function createSky(canvas: HTMLCanvasElement): Sky {
     return {resize: () => {}, destroy: () => {}};
   }
 
-  const rand = makeRng(Math.floor(Date.now() % 2147483647) + 1);
+  const rand = makeRng(965);
   const reduceMotion =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
