@@ -156,6 +156,30 @@ export function renderInteractionScript() {
         if (el.dataset.destinationType) params.destination_type = el.dataset.destinationType;
         gtag('event', el.dataset.gaEvent, params);
       });
+
+      // The card remains the semantic target; the constellation only mirrors
+      // its state for sighted visitors. Focus and pointer input share the same
+      // ProductFocus state, while a real destination click records selection.
+      document.addEventListener('pointerover', function (e) {
+        var card = e.target.closest('.hn-atlas-card');
+        if (card) card.dataset.atlasState = 'ProductFocus';
+      });
+      document.addEventListener('pointerout', function (e) {
+        var card = e.target.closest('.hn-atlas-card');
+        if (card && !card.contains(e.relatedTarget)) card.dataset.atlasState = 'Idle';
+      });
+      document.addEventListener('focusin', function (e) {
+        var card = e.target.closest('.hn-atlas-card');
+        if (card) card.dataset.atlasState = 'ProductFocus';
+      });
+      document.addEventListener('focusout', function (e) {
+        var card = e.target.closest('.hn-atlas-card');
+        if (card && !card.contains(e.relatedTarget)) card.dataset.atlasState = 'Idle';
+      });
+      document.addEventListener('click', function (e) {
+        var card = e.target.closest('.hn-atlas-card');
+        if (card && e.target.closest('a')) card.dataset.atlasState = 'ProductSelected';
+      });
     })();
   </script>`;
 }
