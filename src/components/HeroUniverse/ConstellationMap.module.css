@@ -240,15 +240,18 @@
   }
 
   .name {
-    font-size: 26px;
+    /* The SVG scales with the viewport. Keep meaningful product identity at
+       or above the constitution's 12px rendered floor on the narrowest
+       supported touch viewport (320px). */
+    font-size: clamp(38px, 10vw, 46px);
   }
 
   .sky {
-    font-size: 15px;
+    font-size: clamp(38px, 10vw, 46px);
   }
 
   .tagline {
-    font-size: 18px;
+    font-size: clamp(38px, 10vw, 46px);
   }
 }
 
