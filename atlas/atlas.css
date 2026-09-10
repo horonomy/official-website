@@ -83,12 +83,51 @@ body {
 }
 
 .hn-atlas-card {
+  position: relative;
   border: 1px solid var(--hn-line);
   border-radius: var(--hn-radius-md);
   padding: var(--hn-space-5);
   overflow-wrap: anywhere;
   background: var(--hn-panel);
   box-shadow: var(--hn-shadow-sm);
+}
+
+/* The figure is a quiet orientation cue behind the registry content. Its
+   opacity changes only when the corresponding card owns attention, so it
+   cannot compete with the scan path or imply a second navigation surface. */
+.hn-atlas-card__constellation {
+  position: absolute;
+  top: var(--hn-space-4);
+  right: var(--hn-space-4);
+  width: 88px;
+  height: 48px;
+  overflow: visible;
+  color: var(--hn-gold);
+  opacity: 0.28;
+  pointer-events: none;
+  transition: opacity var(--hn-motion-control) var(--hn-ease-out);
+}
+
+.hn-atlas-card__constellation path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hn-atlas-card__constellation circle {
+  fill: currentColor;
+}
+
+.hn-atlas-grid:has(.hn-atlas-card:hover) .hn-atlas-card:not(:hover) .hn-atlas-card__constellation,
+.hn-atlas-grid:has(.hn-atlas-card:focus-within) .hn-atlas-card:not(:focus-within) .hn-atlas-card__constellation {
+  opacity: 0.12;
+}
+
+.hn-atlas-card:hover .hn-atlas-card__constellation,
+.hn-atlas-card:focus-within .hn-atlas-card__constellation {
+  opacity: 0.82;
 }
 
 .hn-atlas-card__eyebrow {
@@ -165,6 +204,19 @@ body {
 @media (max-width: 560px) {
   :root {
     --hn-gutter: 20px;
+  }
+
+  .hn-atlas-card__constellation {
+    top: var(--hn-space-3);
+    right: var(--hn-space-3);
+    transform: scale(0.84);
+    transform-origin: top right;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hn-atlas-card__constellation {
+    transition: none;
   }
 }
 

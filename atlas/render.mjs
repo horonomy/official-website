@@ -32,6 +32,30 @@ export function esc(s) {
 }
 
 /**
+ * Render a quiet, non-interactive figure for the card's registry position.
+ * The list and its links remain the information architecture; this SVG only
+ * gives each registry entry a repeatable celestial mark behind that content.
+ * @param {number} order
+ */
+export function renderConstellation(order) {
+  const patterns = [
+    'M10 38 L29 16 L51 31 L76 10',
+    'M9 17 L31 38 L55 12 L78 34',
+    'M10 31 L27 11 L49 39 L72 20',
+  ];
+  const points = [
+    [[10, 38], [29, 16], [51, 31], [76, 10]],
+    [[9, 17], [31, 38], [55, 12], [78, 34]],
+    [[10, 31], [27, 11], [49, 39], [72, 20]],
+  ][Math.abs(order) % 3];
+  const line = patterns[Math.abs(order) % 3];
+  const stars = points.map(([cx, cy], index) =>
+    `<circle cx="${cx}" cy="${cy}" r="${index === 0 ? 2.5 : 2}" />`,
+  ).join('');
+  return `<svg class="hn-atlas-card__constellation" viewBox="0 0 88 48" aria-hidden="true" focusable="false"><path d="${line}" />${stars}</svg>`;
+}
+
+/**
  * @param {import('../src/data/productRegistry.js').ProductEntry[]} entries
  * @param {(entry: {canonicalUrl: string}) => {state: 'live'|'pending', href: string|null}} resolve
  * @returns {string}
@@ -73,7 +97,10 @@ export function renderPage(entries, resolve) {
             })()
           : `<span class="hn-atlas-card__pending">Not yet available.</span>`;
 
-      return `      <li class="hn-atlas-card">
+      const constellation = renderConstellation(entry.order);
+
+      return `      <li class="hn-atlas-card" data-celestial-identity="${celestial}" data-atlas-state="idle">
+        ${constellation}
         <p class="hn-atlas-card__eyebrow">${category} · <span class="hn-atlas-card__celestial">${celestial}</span></p>
         <h2 class="hn-atlas-card__name">${name}</h2>
         <p class="hn-atlas-card__problem">${problem}</p>

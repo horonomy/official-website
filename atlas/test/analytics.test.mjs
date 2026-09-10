@@ -58,6 +58,14 @@ test('the consent banner starts hidden and offers accept/decline', () => {
   assert.match(banner, /data-consent-action="decline"/);
 });
 
+test('interaction script converges pointer and keyboard attention on card state', () => {
+  const script = renderInteractionScript();
+  assert.match(script, /pointerover/);
+  assert.match(script, /focusin/);
+  assert.match(script, /ProductFocus/);
+  assert.match(script, /ProductSelected/);
+});
+
 test('the interaction script only forwards the closed-vocabulary data-* attributes, never link text/URL', () => {
   const script = renderInteractionScript();
   assert.match(script, /product_slug/);
