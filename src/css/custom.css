@@ -168,6 +168,17 @@ html {
   color: var(--hn-text);
 }
 
+/* Coarse pointers need a full-size target even when the compact navbar is
+   open. The desktop rhythm remains unchanged; this only protects touch
+   activation on the mobile menu. */
+@media (pointer: coarse) and (max-width: 996px) {
+  .navbar-sidebar__item .menu__link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
 /* --- Footer: glass surface using the shared edge highlight --- */
 .footer {
   /* Translucent so the graphite base shows through the frosted blur. */

@@ -15,6 +15,10 @@ import styles from './ObserverSpider.module.css';
 export default function ObserverSpider(): React.ReactElement {
   const keeper = useBaseUrl('/img/hero/keeper/keeper.webp');
 
+  const hideFailedDecoration = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    event.currentTarget.hidden = true;
+  };
+
   return (
     <div
       className={styles.root}
@@ -28,6 +32,7 @@ export default function ObserverSpider(): React.ReactElement {
         alt=""
         loading="eager"
         decoding="async"
+        onError={hideFailedDecoration}
       />
     </div>
   );
