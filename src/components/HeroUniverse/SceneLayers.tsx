@@ -19,6 +19,10 @@ export default function SceneLayers(): React.ReactElement {
   const background = useBaseUrl('/img/hero/background.webp');
   const ground = useBaseUrl('/img/hero/ground.webp');
 
+  const hideFailedDecoration = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    event.currentTarget.hidden = true;
+  };
+
   return (
     <div className={styles.root} aria-hidden="true">
       <img
@@ -28,6 +32,7 @@ export default function SceneLayers(): React.ReactElement {
         alt=""
         loading="eager"
         decoding="async"
+        onError={hideFailedDecoration}
       />
       <img
         className={styles.ground}
@@ -36,6 +41,7 @@ export default function SceneLayers(): React.ReactElement {
         alt=""
         loading="eager"
         decoding="async"
+        onError={hideFailedDecoration}
       />
     </div>
   );
