@@ -33,30 +33,44 @@ export function observeReadiness(page, {url,degraded=false}) {
   });
 }
 
-async function requiredState(page, state) {
+function renderedResources() {
   // Plain values also work in Firefox with JavaScript disabled. No page-world
   // promises, synthetic image requests or cross-origin stylesheet rule access.
-  const rendered=await page.evaluate(()=>{
-    const visible=element=>{
-      const r=element.getBoundingClientRect(),style=getComputedStyle(element);
-      return r.width>0&&r.height>0&&r.bottom>0&&r.right>0&&r.top<innerHeight&&r.left<innerWidth&&style.visibility!=='hidden';
-    };
-    const images=[...document.images].filter(visible).map(img=>({url:img.currentSrc||img.src,complete:img.complete,width:img.naturalWidth}));
-    const backgrounds=[];
-    for(const element of document.querySelectorAll('body *'))if(visible(element)){
-      for(const pseudo of [null,'::before','::after'])backgrounds.push(getComputedStyle(element,pseudo).backgroundImage);
-    }
-    const styles=[...document.querySelectorAll('link[rel="stylesheet"]')].filter(link=>!link.disabled&&matchMedia(link.media||'all').matches).map(link=>({url:link.href,loaded:!!link.sheet}));
-    return {document:document.readyState,fonts:document.fonts.status,images,backgrounds,styles};
-  });
+  const visible=element=>{
+    const r=element.getBoundingClientRect(),style=getComputedStyle(element);
+    return r.width>0&&r.height>0&&r.bottom>0&&r.right>0&&r.top<innerHeight&&r.left<innerWidth&&style.visibility!=='hidden';
+  };
+  const images=[...document.images].filter(visible).map(img=>({url:img.currentSrc||img.src,complete:img.complete,width:img.naturalWidth}));
+  const backgrounds=[];
+  for(const element of document.querySelectorAll('body *'))if(visible(element)){
+    for(const pseudo of [null,'::before','::after'])backgrounds.push(getComputedStyle(element,pseudo).backgroundImage);
+  }
+  const styles=[...document.querySelectorAll('link[rel="stylesheet"]')].filter(link=>!link.disabled&&matchMedia(link.media||'all').matches).map(link=>({url:link.href,loaded:!!link.sheet}));
+  return {document:document.readyState,fonts:document.fonts.status,images,backgrounds,styles};
+}
+
+function documentReadiness(rendered) {
   const pending=[],failures=[];
   if(rendered.document!=='complete')pending.push('document');
   if(rendered.fonts!=='loaded')pending.push('fonts');
-  for(const sheet of rendered.styles)if(!sheet.loaded&&!(state.degraded&&canonicalFontRequest(new URL(sheet.url))))failures.push('Stylesheet unavailable: '+sheet.url);
+  return {pending,failures};
+}
+
+function stylesheetFailures(rendered, state) {
+  return rendered.styles.filter(sheet=>!sheet.loaded&&!(state.degraded&&canonicalFontRequest(new URL(sheet.url)))).map(sheet=>'Stylesheet unavailable: '+sheet.url);
+}
+
+function imageReadiness(rendered, state) {
+  const pending=[],failures=[];
   if(!state.degraded)for(const img of rendered.images){
     if(!img.complete)pending.push(img.url);
     else if(!img.width)failures.push('Image unavailable: '+img.url);
   }
+  return {pending,failures};
+}
+
+function observedReadiness(rendered, state) {
+  const pending=[],failures=[];
   for(const entry of state.requests.values()){
     // Lazy/offscreen decoration cannot hold a viewport capture. Match observed
     // background URLs against browser-computed styles; do not parse/fetch CSS.
@@ -65,6 +79,12 @@ async function requiredState(page, state) {
     else if(entry.pending)pending.push(entry.url);
   }
   return {pending,failures};
+}
+
+async function requiredState(page, state) {
+  const rendered=await page.evaluate(renderedResources);
+  const documentState=documentReadiness(rendered),imageState=imageReadiness(rendered,state),observedState=observedReadiness(rendered,state);
+  return {pending:[...documentState.pending,...imageState.pending,...observedState.pending],failures:[...documentState.failures,...stylesheetFailures(rendered,state),...imageState.failures,...observedState.failures]};
 }
 
 export async function settled(page, {noJavaScript=false}={}) {
