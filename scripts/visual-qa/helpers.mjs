@@ -107,6 +107,7 @@ export async function repeatLoad(page, info, name) {
   for(let run=0;run<2;run++) {
     await page.reload({waitUntil:'load'});
     await settled(page);
+    await expect(page.locator('#observatory')).toHaveAttribute('data-hn-motion','static');
     const viewport=await page.evaluate(()=>{
       window.scrollTo(0,0);
       return {x:window.scrollX,y:window.scrollY};
