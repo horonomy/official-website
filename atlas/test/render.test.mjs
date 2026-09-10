@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {esc, renderPage} from '../render.mjs';
+import {esc, renderConstellation, renderPage} from '../render.mjs';
 
 const FIXTURE = [
   {
@@ -35,11 +35,26 @@ test('esc escapes the five HTML-significant characters', () => {
   assert.equal(esc(`<a href="x">'&'</a>`), '&lt;a href=&quot;x&quot;&gt;&#39;&amp;&#39;&lt;/a&gt;');
 });
 
+test('constellation marks are deterministic and decorative', () => {
+  const first = renderConstellation(2);
+  assert.equal(first, renderConstellation(2));
+  assert.match(first, /class="hn-atlas-card__constellation"/);
+  assert.match(first, /aria-hidden="true"/);
+  assert.match(first, /<path d="M10 31 L27 11 L49 39 L72 20" \/>/);
+});
+
 test('renders entries in ascending order regardless of input order', () => {
   const html = renderPage(FIXTURE, resolve);
   const iLive = html.indexOf('Live One');
   const iPending = html.indexOf('Pending One');
   assert.ok(iPending < iLive, 'order:0 entry must render before order:1 entry');
+});
+
+test('each card carries its registry identity and starts idle', () => {
+  const html = renderPage(FIXTURE, resolve);
+  assert.match(html, /data-celestial-identity="Nullaris" data-atlas-state="idle"/);
+  assert.match(html, /data-celestial-identity="Testara" data-atlas-state="idle"/);
+  assert.equal((html.match(/hn-atlas-card__constellation/g) ?? []).length, 2);
 });
 
 test('a live product gets a real anchor to its canonical URL', () => {
