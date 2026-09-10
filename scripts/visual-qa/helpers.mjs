@@ -9,7 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 import {canonicalFontRequest, observeReadiness, settled} from './fonts.mjs';
 
 export const surfaces = [
-  {name:'website', url:'http://127.0.0.1:4174/', action:'#observatory a[href="/#products"]', decline:'Reject'},
+  {name:'website', url:'http://127.0.0.1:4174/', action:'#observatory a[href="/#products"]', decline:'Reject', reducedMotionState:'#observatory[data-hn-motion="static"]'},
   {name:'atlas', url:'http://127.0.0.1:4175/', action:'.hn-atlas-card__link', decline:'Decline'},
 ];
 export function traversalKey(info) {
@@ -101,13 +101,13 @@ export async function compare(page, info, name) {
   await expect.soft(page).toHaveScreenshot(name+'.png', {animations:'allow',maxDiffPixels:0,threshold:0});
 }
 
-export async function repeatLoad(page, info, name) {
+export async function repeatLoad(page, info, name, {reducedMotionState}={}) {
   await page.mouse.move(0,0);
   const frames=[];
   for(let run=0;run<2;run++) {
     await page.reload({waitUntil:'load'});
     await settled(page);
-    await expect(page.locator('#observatory')).toHaveAttribute('data-hn-motion','static');
+    if (reducedMotionState) await expect(page.locator(reducedMotionState)).toBeVisible();
     const viewport=await page.evaluate(()=>{
       window.scrollTo(0,0);
       return {x:window.scrollX,y:window.scrollY};

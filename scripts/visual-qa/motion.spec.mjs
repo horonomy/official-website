@@ -28,5 +28,5 @@ for (const surface of surfaces) test(surface.name+' preserves a static reduced-m
   await page.emulateMedia({reducedMotion:'reduce'});
   await capture(page,info,surface.name+'-runtime-reduced');
   await stableMotion(page,info,surface.name+'-reduced-change');
-  await repeatLoad(page,info,surface.name+'-reduced');
+  await repeatLoad(page,info,surface.name+'-reduced',surface);
 });
