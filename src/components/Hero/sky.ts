@@ -44,8 +44,8 @@ function pickColor(rand: () => number): string {
   return STAR_COLORS[0].c;
 }
 
-// Small deterministic-ish PRNG so the field is stable within a session but
-// varied across reloads. Seeded from the current time.
+// Small deterministic PRNG so equivalent scene states retain the same sky
+// across reloads, including their static reduced-motion presentation.
 function makeRng(seed: number): () => number {
   let s = seed >>> 0;
   return () => {
@@ -65,7 +65,7 @@ export function createSky(canvas: HTMLCanvasElement): Sky {
     return {resize: () => {}, destroy: () => {}};
   }
 
-  const rand = makeRng(Math.floor(Date.now() % 2147483647) + 1);
+  const rand = makeRng(965);
   const reduceMotion =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -80,20 +80,24 @@ export function createSky(canvas: HTMLCanvasElement): Sky {
   let nextMeteor = 0;
 
   function buildStars() {
+    // A resize can be delivered more than once while the page settles. Reset
+    // layout randomness so the final static sky depends on dimensions, not the
+    // number of asynchronous resize callbacks.
+    const layoutRand = makeRng(965);
     // Density scales with area; capped so large screens stay performant.
     const count = Math.min(340, Math.round((width * height) / 5200));
     stars = Array.from({length: count}, () => {
       // Bias stars toward the upper 78% — the ridgeline sits along the bottom.
-      const y = Math.pow(rand(), 1.35) * 0.82;
+      const y = Math.pow(layoutRand(), 1.35) * 0.82;
       return {
-        x: rand(),
+        x: layoutRand(),
         y,
-        r: 0.4 + rand() * 1.5,
-        color: pickColor(rand),
-        base: 0.25 + rand() * 0.5,
-        amp: 0.15 + rand() * 0.45,
-        speed: 0.4 + rand() * 1.6,
-        phase: rand() * Math.PI * 2,
+        r: 0.4 + layoutRand() * 1.5,
+        color: pickColor(layoutRand),
+        base: 0.25 + layoutRand() * 0.5,
+        amp: 0.15 + layoutRand() * 0.45,
+        speed: 0.4 + layoutRand() * 1.6,
+        phase: layoutRand() * Math.PI * 2,
       };
     });
   }
