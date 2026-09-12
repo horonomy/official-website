@@ -220,7 +220,7 @@ html {
 /* --- Shared homepage primitives --- */
 .hn-shell {
   width: 100%;
-  max-width: var(--hn-shell-max);
+  max-width: calc(var(--hn-shell-max) + (var(--hn-gutter) * 2));
   margin: 0 auto;
   padding-left: var(--hn-gutter);
   padding-right: var(--hn-gutter);
