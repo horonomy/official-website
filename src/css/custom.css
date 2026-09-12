@@ -219,10 +219,12 @@ html {
 
 /* --- Shared homepage primitives --- */
 .hn-shell {
+  width: 100%;
   max-width: var(--hn-shell-max);
   margin: 0 auto;
   padding-left: var(--hn-gutter);
   padding-right: var(--hn-gutter);
+  box-sizing: border-box;
 }
 
 .hn-eyebrow {
