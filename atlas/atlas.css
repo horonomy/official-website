@@ -299,6 +299,34 @@ body {
   }
 }
 
+@media (max-width: 767px) {
+  .hn-atlas-header {
+    padding-top: var(--hn-space-6);
+    padding-bottom: var(--hn-space-5);
+  }
+
+  .hn-atlas-header__title {
+    margin-bottom: var(--hn-space-3);
+  }
+
+  .hn-atlas-header__framing {
+    margin-bottom: var(--hn-space-4);
+  }
+
+  .hn-atlas-discovery {
+    padding-bottom: var(--hn-space-5);
+  }
+
+  .hn-atlas-discovery__intro {
+    margin-bottom: var(--hn-space-3);
+  }
+
+  .hn-atlas-tasks {
+    grid-template-columns: 1fr;
+    gap: var(--hn-space-4);
+  }
+}
+
 @media (max-width: 560px) {
   :root {
     --hn-gutter: 20px;

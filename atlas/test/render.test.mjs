@@ -107,8 +107,16 @@ test('task overview links to existing cards without filtering or duplicating rec
   assert.match(html, /href="#product-ai-agent-assembly">AI Agent Assembly<\/a>/);
   assert.match(html, /id="product-ai-agent-assembly" class="hn-atlas-card" tabindex="-1"/);
   assert.equal((html.match(/class="hn-atlas-card"/g) ?? []).length, 2);
-  assert.match(html, /discovery groups, not a required product stack/);
+  assert.match(html, /Discovery groups—not a required stack/);
   assert.match(html, /Atlas maturity: beta/);
+});
+
+test('skip link targets the actual product list beyond discovery without JavaScript', () => {
+  const html = renderPage(FIXTURE, resolve);
+  assert.match(html, /class="hn-atlas-skip" href="#hn-atlas-products"/);
+  assert.match(html, /<ul id="hn-atlas-products" class="hn-atlas-grid" tabindex="-1"/);
+  assert.ok(html.indexOf('class="hn-atlas-discovery"') < html.indexOf('<ul id="hn-atlas-products"'));
+  assert.match(html, /<main id="hn-atlas-main">/);
 });
 
 test('Docs is a secondary native link with a product-specific accessible name', () => {

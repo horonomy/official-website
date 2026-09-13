@@ -142,7 +142,7 @@ export function renderPage(entries, resolve) {
 ${renderAnalyticsHead()}
 </head>
 <body>
-  <a class="hn-atlas-skip" href="#hn-atlas-main">Skip to product list</a>
+  <a class="hn-atlas-skip" href="#hn-atlas-products">Skip to product list</a>
   <header class="hn-atlas-header">
     <p class="hn-atlas-header__kicker">Systems by Horonom</p>
     <h1 class="hn-atlas-header__title">Horonom Product Atlas</h1>
@@ -151,11 +151,11 @@ ${renderAnalyticsHead()}
   </header>
   <main id="hn-atlas-main">
     <section class="hn-atlas-discovery" aria-label="Find a product by task">
-      <p class="hn-atlas-discovery__intro">Start with your task, or browse the full product family below.</p>
+      <p class="hn-atlas-discovery__intro">Find a product by task.</p>
       <div class="hn-atlas-tasks">${taskGroups}</div>
-      <p class="hn-atlas-legend">These are discovery groups, not a required product stack. Atlas maturity describes development stage, not public access or an SDK version. Visit opens the current public entry; Docs opens published documentation where available.</p>
+      <p class="hn-atlas-legend">Discovery groups—not a required stack. Maturity means development stage, not access or SDK version. Visit: public entry. Docs: published documentation.</p>
     </section>
-    <ul class="hn-atlas-grid">
+    <ul id="hn-atlas-products" class="hn-atlas-grid" tabindex="-1" aria-label="Horonom products">
 ${cards}
     </ul>
   </main>
