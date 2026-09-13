@@ -68,6 +68,8 @@ export interface ProductEntry {
    * canonical URL *is* the family alias. */
   familyAliasUrl: string | null;
   docsUrl: string | null;
+  /** Public entry restriction, separate from Atlas maturity or SDK version. */
+  publicAccess?: string;
   appUrl: string | null;
   apiUrl: string | null;
   /** `null` when the product's repo is not genuinely public-visitable (e.g.
@@ -101,9 +103,8 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     // Horo Run family-alias row below.
     canonicalUrl: 'https://agent-assembly.com',
     familyAliasUrl: 'https://agent-assembly.horo.run',
-    // Not verified against the live site — leave null rather than guess a
-    // path. Fill in once confirmed to actually resolve.
-    docsUrl: null,
+    // Public documentation hub verified during the September ecosystem audit.
+    docsUrl: 'https://docs.agent-assembly.com',
     appUrl: null,
     apiUrl: null,
     githubUrl: 'https://github.com/ai-agent-assembly',
@@ -120,6 +121,7 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     problem: 'Verifies a change is safe to ship before it reaches production, across distributed services.',
     maturity: 'experimental',
     canonicalUrl: 'https://octans.horo.run',
+    publicAccess: 'In-development overview; public product and docs not yet available.',
     familyAliasUrl: null,
     docsUrl: null,
     appUrl: null,
@@ -166,6 +168,7 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     // ophiuchus.horo.run to ophiuchus.horonom.com, verified live 2026-09-06.
     // The old host now issues a real 301 redirect here (see legacyAliases).
     canonicalUrl: 'https://ophiuchus.horonom.com',
+    publicAccess: 'Invite-only CLI alpha; no hosted accounts.',
     familyAliasUrl: null,
     docsUrl: 'https://ophiuchus.horonom.com/docs',
     appUrl: null,
@@ -249,6 +252,7 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     // merely to make this resolve — that would fabricate a public surface
     // for a release-gated product.
     canonicalUrl: 'https://eridanus.horo.run',
+    publicAccess: 'Public site and docs not yet available.',
     familyAliasUrl: null,
     docsUrl: null,
     appUrl: null,

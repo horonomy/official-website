@@ -66,3 +66,19 @@ export function resolveDestination(entry) {
   }
   return {state: 'pending', href: null};
 }
+
+// Exact documentation roots verified in the September public ecosystem audit.
+// Registry values own destinations; this independent release guard prevents an
+// unreviewed docs host/path from becoming actionable merely because it is filled in.
+export const LIVE_DOCS_URLS = new Set([
+  'https://docs.agent-assembly.com',
+  'https://circinus.horonom.com/docs',
+  'https://ophiuchus.horonom.com/docs',
+  'https://docs.fornax.horonom.com',
+  'https://horologium.horonom.com/docs',
+]);
+
+/** @param {{docsUrl?: string|null}} entry @returns {string|null} */
+export function resolveDocsDestination(entry) {
+  return entry.docsUrl && LIVE_DOCS_URLS.has(entry.docsUrl) ? entry.docsUrl : null;
+}
