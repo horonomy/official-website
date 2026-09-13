@@ -106,6 +106,16 @@ async function paintedFrame(page) {
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 }
 
+async function withRenderDeadline(operation, stage) {
+  let timer;
+  try{
+    return await Promise.race([
+      operation(),
+      new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Render readiness timed out after 10 seconds while '+stage)),10000);}),
+    ]);
+  }finally{clearTimeout(timer);}
+}
+
 export async function settled(page, {noJavaScript=false}={}) {
   const state=observations.get(page);
   if(!state)throw new Error('Observe required resources before navigating');
@@ -121,7 +131,7 @@ export async function settled(page, {noJavaScript=false}={}) {
   // Script-disabled engines cannot reliably resolve decode/animation-frame
   // promises from page evaluation; their static fallback keeps transfer checks.
   if(!noJavaScript){
-    if(!state.degraded)expect(await decodedVisibleImages(page),'Required render resources failed').toEqual([]);
-    await paintedFrame(page);
+    if(!state.degraded)expect(await withRenderDeadline(()=>decodedVisibleImages(page),'decoding visible images'),'Required render resources failed').toEqual([]);
+    await withRenderDeadline(()=>paintedFrame(page),'waiting for a painted frame');
   }
 }
