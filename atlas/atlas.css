@@ -200,6 +200,10 @@ body {
 }
 
 .hn-atlas-card__eyebrow {
+  /* The decorative figure may brighten on focus; reserve its plane so it
+     cannot cross the category or celestial name at narrow widths. */
+  padding-right: calc(88px + var(--hn-space-2));
+  min-height: var(--hn-space-7);
   font-family: var(--hn-font-mono);
   font-size: 12px;
   letter-spacing: 0.1em;
