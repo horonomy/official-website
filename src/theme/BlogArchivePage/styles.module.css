@@ -1,0 +1,14 @@
+.archive :global(.hero--primary) {
+  padding-block: 32px;
+  background: var(--hn-graphite);
+  color: var(--hn-ink);
+}
+
+/* The publisher repeats the same translated Archive string below its H1. */
+.archive :global(.hero__subtitle) {
+  display: none;
+}
+
+.archive :global(.hero__title) {
+  margin-bottom: 0;
+}

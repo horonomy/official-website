@@ -219,6 +219,13 @@ export default function SystemMap(): React.ReactElement {
       className={styles.section}
       style={{zIndex: LAYERS.cards}}
       aria-label="Products">
+      <div className={clsx('hn-shell', styles.introduction)}>
+        <div className="hn-section-kicker">How the systems relate</div>
+        <h2 className={styles.title}>
+          One company. Focused systems that work independently — and fit together.
+        </h2>
+        <Link to="https://horo.run/">Explore the full Product Atlas</Link>
+      </div>
       <div className={clsx('hn-shell', styles.grid)}>
         {products.map((entry) => (
           <SystemMapCard key={entry.id} entry={entry} />
