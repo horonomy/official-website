@@ -36,6 +36,22 @@ for (const width of [320, 390, 768, 996]) {
       await close.click();
       await expect(sidebar).toHaveCount(0);
       await expect(toggle).toBeFocused();
+      // A quick reopen/Close used to retain horizontal scroll inside the
+      // publisher viewport even though the primary menu state was correct.
+      await toggle.press('Enter');
+      await page.waitForTimeout(60);
+      await close.click();
+      await expect(toggle).toBeFocused();
+      await page.waitForTimeout(350);
+      await toggle.press('Enter');
+      await page.waitForTimeout(350);
+      expect(await page.locator('.navbar-sidebar').evaluate(el => el.scrollLeft)).toBe(0);
+      const products = page.locator('.navbar-sidebar').getByRole('link', {name:'Products',exact:true});
+      await expect(products).toBeVisible();
+      const bounds = await products.boundingBox();
+      expect(bounds.x).toBeGreaterThanOrEqual(0);
+      await page.keyboard.press('Escape');
+      await expect(toggle).toBeFocused();
     });
   }
 }
