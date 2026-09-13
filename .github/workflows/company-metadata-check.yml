@@ -16,6 +16,7 @@ on:
   push:
     branches:
       - main
+      - uiux/visual-experience-overhaul
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

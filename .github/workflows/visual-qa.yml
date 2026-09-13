@@ -2,9 +2,9 @@ name: Rendered visual QA
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, uiux/visual-experience-overhaul]
   push:
-    branches: [main]
+    branches: [main, uiux/visual-experience-overhaul]
   workflow_dispatch:
 
 permissions:
@@ -33,7 +33,9 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm test:visual-tools
       - name: Review baseline provenance
-        run: node scripts/visual-qa/baseline-review.mjs origin/main
+        env:
+          REVIEW_BASE: ${{ github.base_ref || github.ref_name }}
+        run: node scripts/visual-qa/baseline-review.mjs "origin/$REVIEW_BASE"
       - name: Render and check all browser engines
         env:
           QA_BROWSERS: chromium,firefox,webkit
