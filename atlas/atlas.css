@@ -33,7 +33,7 @@ body {
 }
 
 .hn-atlas-header {
-  max-width: 720px;
+  max-width: 960px;
   margin: 0 auto;
   padding: var(--hn-space-8) var(--hn-gutter) var(--hn-space-6);
 }
@@ -62,6 +62,9 @@ body {
 }
 
 .hn-atlas-header__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--hn-cyan);
   text-decoration: none;
   font-size: 14px;
@@ -70,6 +73,69 @@ body {
 .hn-atlas-header__back:hover,
 .hn-atlas-header__back:focus-visible {
   text-decoration: underline;
+}
+
+.hn-atlas-discovery {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--hn-gutter) var(--hn-space-6);
+}
+
+.hn-atlas-discovery__intro {
+  margin: 0 0 var(--hn-space-4);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.hn-atlas-tasks {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr;
+  gap: var(--hn-space-5);
+}
+
+.hn-atlas-tasks__group {
+  min-width: 0;
+}
+
+.hn-atlas-tasks h2 {
+  margin: 0 0 var(--hn-space-2);
+  color: var(--hn-ink);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.hn-atlas-tasks__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--hn-space-3);
+}
+
+.hn-atlas-tasks a,
+.hn-atlas-card__docs {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--hn-cyan);
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.hn-atlas-tasks a:focus-visible,
+.hn-atlas-card__docs:focus-visible,
+.hn-atlas-header__back:focus-visible,
+.hn-atlas-card:focus-visible {
+  outline: none;
+  box-shadow: var(--hn-focus-ring);
+}
+
+.hn-atlas-legend {
+  max-width: 75ch;
+  margin: var(--hn-space-4) 0 0;
+  color: var(--hn-muted);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .hn-atlas-grid {
@@ -84,6 +150,9 @@ body {
 
 .hn-atlas-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  scroll-margin-top: var(--hn-space-5);
   border: 1px solid var(--hn-line);
   border-radius: var(--hn-radius-md);
   padding: var(--hn-space-5);
@@ -163,6 +232,26 @@ body {
   margin: 0 0 var(--hn-space-4);
 }
 
+.hn-atlas-card__access {
+  margin: 0 0 var(--hn-space-4);
+  color: var(--hn-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.hn-atlas-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hn-space-3);
+  margin-top: auto;
+}
+
+.hn-atlas-card__docs {
+  gap: var(--hn-space-2);
+  padding: 0 var(--hn-space-2);
+}
+
 .hn-atlas-card__link {
   display: inline-flex;
   align-items: center;
@@ -198,6 +287,11 @@ body {
 @media (max-width: 720px) {
   .hn-atlas-grid {
     grid-template-columns: 1fr;
+  }
+
+  .hn-atlas-tasks {
+    grid-template-columns: 1fr;
+    gap: var(--hn-space-3);
   }
 }
 

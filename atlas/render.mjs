@@ -20,6 +20,7 @@
 // why this page does NOT reuse that corporate pill markup.
 
 import {destinationTypeFor, renderAnalyticsHead, renderConsentBanner, renderInteractionScript} from './analytics.mjs';
+import {resolveDocsDestination} from './destinations.mjs';
 
 /** @param {string} s */
 export function esc(s) {
@@ -62,6 +63,21 @@ export function renderConstellation(order) {
  */
 export function renderPage(entries, resolve) {
   const sorted = [...entries].sort((a, b) => a.order - b.order);
+  // Editorial entry paths, never a dependency graph or a filter. Names and
+  // destinations remain owned by the same records that render the full list.
+  const taskGroups = [
+    {label: 'Operate with boundaries', ids: ['ai-agent-assembly', 'circinus']},
+    {label: 'Carry context', ids: ['ophiuchus']},
+    {label: 'Check change and evidence', ids: ['octans', 'fornax', 'horologium', 'eridanus']},
+  ].map(({label, ids}) => {
+    const products = ids.flatMap(id => {
+      const entry = sorted.find(product => product.id === id);
+      return entry ? [entry] : [];
+    });
+    if (!products.length) return '';
+    const links = products.map(entry => `<a href="#product-${esc(entry.id)}">${esc(entry.name)}</a>`).join('');
+    return `<div class="hn-atlas-tasks__group"><h2>${label}</h2><div class="hn-atlas-tasks__links">${links}</div></div>`;
+  }).join('');
 
   const cards = sorted
     .map((entry) => {
@@ -70,6 +86,7 @@ export function renderPage(entries, resolve) {
       const category = esc(entry.category);
       const problem = esc(entry.problem);
       const celestial = esc(entry.celestialIdentity);
+      const docsHref = dest.state === 'live' ? resolveDocsDestination(entry) : null;
 
       // The Atlas's own maturity pill, NOT the corporate site's
       // `title="Portfolio stage…"` pill markup: the two maturity axes are
@@ -93,19 +110,23 @@ export function renderPage(entries, resolve) {
               const slug = esc(entry.slug ?? entry.id);
               const status = esc(entry.maturity);
               const destinationType = esc(destinationTypeFor(href));
-              return `<a class="hn-atlas-card__link" href="${esc(href)}" data-ga-event="product_card_click" data-product-slug="${slug}" data-product-status="${status}" data-destination-type="${destinationType}">Visit ${name}<span aria-hidden="true"> →</span></a>`;
+              const label = entry.id === 'octans' ? 'Visit in-development overview' : `Visit ${name}`;
+              return `<a class="hn-atlas-card__link" href="${esc(href)}" data-ga-event="product_card_click" data-product-slug="${slug}" data-product-status="${status}" data-destination-type="${destinationType}">${label}<span aria-hidden="true"> →</span></a>`;
             })()
           : `<span class="hn-atlas-card__pending">Not yet available.</span>`;
 
       const constellation = renderConstellation(entry.order);
+      const access = entry.publicAccess ? `<p class="hn-atlas-card__access">Public access: ${esc(entry.publicAccess)}</p>` : '';
+      const docs = docsHref ? `<a class="hn-atlas-card__docs" href="${esc(docsHref)}" aria-label="${name} documentation">Docs<span aria-hidden="true"> ↗</span></a>` : '';
 
-      return `      <li class="hn-atlas-card" data-celestial-identity="${celestial}" data-atlas-state="idle">
+      return `      <li id="product-${esc(entry.id)}" class="hn-atlas-card" tabindex="-1" data-celestial-identity="${celestial}" data-atlas-state="idle">
         ${constellation}
         <p class="hn-atlas-card__eyebrow">${category} · <span class="hn-atlas-card__celestial">${celestial}</span></p>
         <h2 class="hn-atlas-card__name">${name}</h2>
         <p class="hn-atlas-card__problem">${problem}</p>
-        <p class="hn-atlas-card__maturity">Status: ${maturityLabel}</p>
-        ${entryPoint}
+        <p class="hn-atlas-card__maturity">Atlas maturity: ${maturityLabel}</p>
+        ${access}
+        <div class="hn-atlas-card__actions">${entryPoint}${docs}</div>
       </li>`;
     })
     .join('\n');
@@ -129,6 +150,11 @@ ${renderAnalyticsHead()}
     <a class="hn-atlas-header__back" href="https://horonom.com" data-ga-event="company_home_click" data-destination-type="marketing">← Horonom</a>
   </header>
   <main id="hn-atlas-main">
+    <section class="hn-atlas-discovery" aria-label="Find a product by task">
+      <p class="hn-atlas-discovery__intro">Start with your task, or browse the full product family below.</p>
+      <div class="hn-atlas-tasks">${taskGroups}</div>
+      <p class="hn-atlas-legend">These are discovery groups, not a required product stack. Atlas maturity describes development stage, not public access or an SDK version. Visit opens the current public entry; Docs opens published documentation where available.</p>
+    </section>
     <ul class="hn-atlas-grid">
 ${cards}
     </ul>
