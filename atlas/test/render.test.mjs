@@ -99,3 +99,41 @@ test('user-supplied strings are escaped in the output', () => {
   assert.doesNotMatch(html, /<script>alert/);
   assert.match(html, /&lt;script&gt;/);
 });
+
+test('task overview links to existing cards without filtering or duplicating records', () => {
+  const entry = {...FIXTURE[0], id: 'ai-agent-assembly', name: 'AI Agent Assembly', docsUrl: 'https://docs.agent-assembly.com'};
+  const html = renderPage([entry, FIXTURE[1]], resolve);
+  assert.match(html, /Operate with boundaries/);
+  assert.match(html, /href="#product-ai-agent-assembly">AI Agent Assembly<\/a>/);
+  assert.match(html, /id="product-ai-agent-assembly" class="hn-atlas-card" tabindex="-1"/);
+  assert.equal((html.match(/class="hn-atlas-card"/g) ?? []).length, 2);
+  assert.match(html, /Discovery groups—not a required stack/);
+  assert.match(html, /Atlas maturity: beta/);
+});
+
+test('skip link targets the actual product list beyond discovery without JavaScript', () => {
+  const html = renderPage(FIXTURE, resolve);
+  assert.match(html, /class="hn-atlas-skip" href="#hn-atlas-products"/);
+  assert.match(html, /<ul id="hn-atlas-products" class="hn-atlas-grid" tabindex="-1"/);
+  assert.ok(html.indexOf('class="hn-atlas-discovery"') < html.indexOf('<ul id="hn-atlas-products"'));
+  assert.match(html, /<main id="hn-atlas-main">/);
+});
+
+test('Docs is a secondary native link with a product-specific accessible name', () => {
+  const html = renderPage([{...FIXTURE[0], docsUrl: 'https://docs.agent-assembly.com'}], resolve);
+  assert.match(html, /class="hn-atlas-card__docs" href="https:\/\/docs\.agent-assembly\.com" aria-label="Live One documentation">Docs/);
+  assert.ok(html.indexOf('Visit Live One') < html.indexOf('Live One documentation'));
+});
+
+test('pending products never acquire Docs actions from an unrelated verified root', () => {
+  const html = renderPage([{...FIXTURE[1], docsUrl: 'https://docs.agent-assembly.com'}], resolve);
+  assert.doesNotMatch(html, /class="hn-atlas-card__docs"/);
+});
+
+test('holding-page access is explicit and separate from product maturity', () => {
+  const html = renderPage([{...FIXTURE[0], id: 'octans', publicAccess: 'In-development overview; public product and docs not yet available.'}], resolve);
+  assert.match(html, /Visit in-development overview/);
+  assert.match(html, /Public access: In-development overview/);
+  assert.match(html, /Atlas maturity: beta/);
+  assert.doesNotMatch(html, /class="hn-atlas-card__docs"/);
+});

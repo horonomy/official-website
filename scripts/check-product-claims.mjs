@@ -252,7 +252,8 @@ function readProductRegistry() {
     ? arrayMatch[1].split(/\n {2}\},\n {2}\{/).map((block) => {
         const id = block.match(/id:\s*'([^']+)'/)?.[1];
         const maturity = block.match(/maturity:\s*'([^']+)'/)?.[1];
-        return {id, maturity};
+        const docsUrl = block.match(/docsUrl:\s*'([^']+)'/)?.[1];
+        return {id, maturity, docsUrl};
       })
     : [];
   if (!registryMaturities.length || !entries.length) {
@@ -263,6 +264,15 @@ function readProductRegistry() {
     );
   }
   return {registryMaturities, entries};
+}
+
+function isPublishedDocsUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !url.username && !url.password;
+  } catch {
+    return false;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -434,7 +444,10 @@ const RULES = [
         const m = href.match(/^https?:\/\/([^/?#]+)/);
         if (!m) continue;
         const host = m[1].replace(/^www\./, '');
-        if (/agent-assembly/.test(host) && !ctx.canonicalHosts.has(host)) {
+        // Published documentation roots are separate from marketing hosts.
+        // Match the registry's exact root, never an arbitrary sibling host.
+        if (/agent-assembly/.test(host) && !ctx.canonicalHosts.has(host) &&
+            !ctx.documentationUrls.has(href.replace(/\/$/, ''))) {
           out.push(
             `${href} — host '${host}' is not a canonical product host in the ` +
               `registry (${[...ctx.canonicalHosts].join(', ')}).`,
@@ -490,6 +503,9 @@ const RULES = [
  * passed its own tests, and the gate reported the site clean.
  */
 function ruleSelfTest(ctx) {
+  for (const value of ['http://docs.example.com', 'javascript:alert(1)', '/docs', 'https://user:pass@docs.example.com']) {
+    if (isPublishedDocsUrl(value)) brokenGate('documentation URL validation admitted an unsafe registry value');
+  }
   const good = [...ctx.expectedLabels][0] ?? 'Release candidate';
   const registryGood = [...ctx.expectedRegistryLabels][0] ?? 'Beta';
   const canonical = [...ctx.canonicalHosts][0] ?? 'agent-assembly.com';
@@ -531,6 +547,14 @@ function ruleSelfTest(ctx) {
      '<a href="https://evil-agent-assembly.example.com/?a=1&b=2">x</a>', 1],
     ['canonical-link', 'wrong-cased organisation, UNQUOTED href',
      '<a href=https://github.com/AI-agent-assembly>y</a>', 1],
+    ['canonical-link', 'documentation lookalike host is not a registry root',
+     '<a href=https://docs.agent-assembly.com.evil.example>x</a>', 1],
+    ['canonical-link', 'insecure documentation URL is not a registry root',
+     '<a href=http://docs.agent-assembly.com>x</a>', 1],
+    ...[...ctx.documentationUrls].flatMap(url => [
+      ['canonical-link', 'registered documentation root, quoted', `<a href="${url}">Docs</a>`, 0],
+      ['canonical-link', 'registered documentation root, unquoted trailing slash', `<a href=${url}/>Docs</a>`, 0],
+    ]),
     ['maturity-vocabulary', 'undeclared label, quoted title',
      '<span title="Portfolio stage — axis">Totally Made Up</span>', 1],
     ['maturity-vocabulary', 'undeclared label behind a nested hidden span',
@@ -696,7 +720,13 @@ if (!expectedRegistryLabels.size) {
 const canonicalHosts = new Set(
   websites.map((w) => new URL(w).host.replace(/^www\./, '')),
 );
-const ctx = {canonicalHosts, expectedLabels, expectedRegistryLabels, lifecycles};
+const documentationUrls = new Set(
+  registryEntries.map(entry => entry.docsUrl).filter(Boolean).map(url => {
+    if (!isPublishedDocsUrl(url)) brokenGate('Product Registry docsUrl must be an absolute HTTPS URL without credentials');
+    return url.replace(/\/$/, '');
+  }),
+);
+const ctx = {canonicalHosts, documentationUrls, expectedLabels, expectedRegistryLabels, lifecycles};
 const ruleControls = ruleSelfTest(ctx);
 
 let pages;
