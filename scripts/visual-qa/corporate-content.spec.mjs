@@ -39,7 +39,9 @@ test('archive keeps dated native discovery with one visible heading', async ({pa
   await open(page, {...surfaces[0], url:'http://127.0.0.1:4174/blog/archive'}, info);
   await expect(page.locator('.hero__subtitle')).toBeHidden();
   await expect(page.getByRole('heading', {level:1})).toHaveCount(1);
-  await expect(page.locator('main').getByRole('heading', {name:/^20\d{2}$/})).toHaveCount(1);
+  // Publisher headings include an accessible permalink label as well as the year.
+  await expect(page.locator('main h3[id="2026"]')).toContainText('2026');
+  await expect(page.getByRole('link', {name:'July 3 - Welcome to Horonom',exact:true})).toHaveAttribute('href','/blog/welcome');
   await expect(page.locator('main a[href^="/blog/"]').first()).toBeVisible();
   await layout(page);
 });
