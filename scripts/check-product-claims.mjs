@@ -266,6 +266,15 @@ function readProductRegistry() {
   return {registryMaturities, entries};
 }
 
+function isPublishedDocsUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // HTML helpers
 // ---------------------------------------------------------------------------
@@ -494,6 +503,9 @@ const RULES = [
  * passed its own tests, and the gate reported the site clean.
  */
 function ruleSelfTest(ctx) {
+  for (const value of ['http://docs.example.com', 'javascript:alert(1)', '/docs', 'https://user:pass@docs.example.com']) {
+    if (isPublishedDocsUrl(value)) brokenGate('documentation URL validation admitted an unsafe registry value');
+  }
   const good = [...ctx.expectedLabels][0] ?? 'Release candidate';
   const registryGood = [...ctx.expectedRegistryLabels][0] ?? 'Beta';
   const canonical = [...ctx.canonicalHosts][0] ?? 'agent-assembly.com';
@@ -709,7 +721,10 @@ const canonicalHosts = new Set(
   websites.map((w) => new URL(w).host.replace(/^www\./, '')),
 );
 const documentationUrls = new Set(
-  registryEntries.map(entry => entry.docsUrl).filter(Boolean).map(url => url.replace(/\/$/, '')),
+  registryEntries.map(entry => entry.docsUrl).filter(Boolean).map(url => {
+    if (!isPublishedDocsUrl(url)) brokenGate('Product Registry docsUrl must be an absolute HTTPS URL without credentials');
+    return url.replace(/\/$/, '');
+  }),
 );
 const ctx = {canonicalHosts, documentationUrls, expectedLabels, expectedRegistryLabels, lifecycles};
 const ruleControls = ruleSelfTest(ctx);
