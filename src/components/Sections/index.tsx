@@ -4,8 +4,6 @@ import {
   linkDomainOf,
   trackHoronomyEvent,
 } from '@site/src/analytics/trackEvent';
-import {PRODUCT_REGISTRY} from '@site/src/data/productRegistry';
-import {resolveDestination} from '../../../atlas/destinations.mjs';
 import styles from './styles.module.css';
 
 // Cross-hostname routing per IA plan §2.1 and UTM conventions §4 (HORO-47).
@@ -101,49 +99,6 @@ function Lore(): React.ReactElement {
 }
 
 /**
- * "How the systems relate" (HORO-284 PR-3) — the IA plan's "how the systems
- * relate" band. Each row's body is the Product Registry's own `relationship`
- * field verbatim. The framing sentence above the rows is owner-approved copy
- * (2026-08-31) — deliberately avoids both a false hard-dependency graph and a
- * defensive "most stand alone" framing; see HORO-284's ticket comments for
- * the direction note.
- *
- * Filtered to `resolveDestination(...).state === 'live'` (HORO-688) — a
- * release-gated registry entry (e.g. Eridanus, `not_yet_public`) must not
- * be named here even without a link: the org's own release-reconcile gate
- * (`scripts/public_release_reconcile.py` in horonomy/.github) treats any
- * mention of a not-yet-public product on horonom.com as premature exposure,
- * not just a live link to it.
- */
-function HowSystemsRelate(): React.ReactElement {
-  const products = [...PRODUCT_REGISTRY]
-    .filter((entry) => resolveDestination(entry).state === 'live')
-    .sort((a, b) => a.order - b.order);
-  return (
-    <section className={styles.band}>
-      <div className="hn-shell">
-        <div className="hn-section-kicker">How the systems relate</div>
-        <h2 className={styles.h2}>
-          One company. Focused systems that work independently — and fit
-          together.
-        </h2>
-        <div className={styles.relate}>
-          {products.map((p) => (
-            <div key={p.id} className={styles.relateRow}>
-              <div>
-                <h3 className={styles.relateName}>{p.name}</h3>
-                <div className={styles.relateCategory}>{p.category}</div>
-              </div>
-              <p className={styles.relateBody}>{p.relationship}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/**
  * "Why Horonom exists" (HORO-284 PR-5, owner-approved copy, 2026-08-31).
  * Placed first in `Sections` — right after the hero + System Map — so the
  * "why it matters" explanation the ticket's IA calls for lands before the
@@ -223,7 +178,6 @@ export default function Sections(): React.ReactElement {
   return (
     <>
       <WhyHoronomExists />
-      <HowSystemsRelate />
       <Philosophy />
       <Lore />
       <Manifesto />

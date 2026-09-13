@@ -34,7 +34,6 @@ export default function HeroUniverse(): React.ReactElement {
         <AmbientEffects />
         <ObserverSpider />
         <EnvironmentProps />
-        <ConstellationMap />
 
         {/* HTML overlay (content layer) */}
         <div
@@ -50,6 +49,8 @@ export default function HeroUniverse(): React.ReactElement {
             </div>
           </div>
         </div>
+        {/* Absolute on desktop; follows the purpose/actions in narrow-screen reading order. */}
+        <ConstellationMap />
       </div>
 
       <SystemMap />
