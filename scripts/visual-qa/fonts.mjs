@@ -2,7 +2,7 @@
 import {expect} from '@playwright/test';
 
 export const fontStylesheet='https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap';
-export const readinessMethod='required-render-v2';
+export const readinessMethod='required-render-v3';
 export function canonicalFontRequest(url) {
   return url.href===fontStylesheet || (url.protocol==='https:' && url.hostname==='fonts.gstatic.com' && !url.port && !url.search && !url.hash && /^\/s\/(spacegrotesk|ibmplexmono)\/v\d+\/[\w-]+\.(woff2?|ttf)$/.test(url.pathname));
 }
@@ -87,6 +87,25 @@ async function requiredState(page, state) {
   return {pending:[...documentState.pending,...imageState.pending,...observedState.pending],failures:[...documentState.failures,...stylesheetFailures(rendered,state),...imageState.failures,...observedState.failures]};
 }
 
+async function decodedVisibleImages(page) {
+  return page.evaluate(async()=>{
+    const visible=element=>{
+      const r=element.getBoundingClientRect(),style=getComputedStyle(element);
+      return r.width>0&&r.height>0&&r.bottom>0&&r.right>0&&r.top<innerHeight&&r.left<innerWidth&&style.visibility!=='hidden';
+    };
+    const images=[...document.images].filter(visible);
+    const decoded=await Promise.all(images.map(async img=>{
+      try{await img.decode();return null;}
+      catch{return 'Image decode failed: '+(img.currentSrc||img.src);}
+    }));
+    return decoded.filter(Boolean);
+  });
+}
+
+async function paintedFrame(page) {
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+}
+
 export async function settled(page, {noJavaScript=false}={}) {
   const state=observations.get(page);
   if(!state)throw new Error('Observe required resources before navigating');
@@ -97,4 +116,12 @@ export async function settled(page, {noJavaScript=false}={}) {
     return result.failures.length>0||result.pending.length===0;
   },{timeout:20000,message:'Required document/font/render readiness'+(noJavaScript?' (no JavaScript)':'')}).toBe(true);
   expect(result.failures,'Required render resources failed').toEqual([]);
+  // complete/naturalWidth confirms transfer, not that async-decoded image pixels
+  // have reached a painted frame (notably the observatory's WebP ground layer).
+  // Script-disabled engines cannot reliably resolve decode/animation-frame
+  // promises from page evaluation; their static fallback keeps transfer checks.
+  if(!noJavaScript){
+    if(!state.degraded)expect(await decodedVisibleImages(page),'Required render resources failed').toEqual([]);
+    await paintedFrame(page);
+  }
 }
