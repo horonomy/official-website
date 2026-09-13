@@ -19,13 +19,19 @@ conformance. External product links
 are inspected and receive trusted keyboard/pointer/touch activation with navigation
 cancelled in the test; destination availability is the product registry's concern.
 
-Readiness protocol `required-render-v2` (HORO-890) waits for the document load,
+Readiness protocol `required-render-v3` (HORO-1029, extending HORO-890) waits for the document load,
 active stylesheets, used fonts and required visible images/backgrounds. It observes
 the browser's actual resource requests without starting probe downloads or reading
 CORS-protected stylesheet rules. Missing required resources fail normal mode;
 the explicit degraded mode permits its intentionally failed image/font requests.
 Lazy/offscreen decoration does not extend viewport readiness. Plain browser state
 is polled from Node so the no-JavaScript path does not rely on page-world promises.
+Normal script-enabled captures additionally await visible image decoding and a
+paint opportunity; `complete`/`naturalWidth` alone did not guarantee the async
+ground-image pixels were present. Decode and paint stages have separate ten-second
+Node-side deadlines and fail descriptively. Explicit degraded captures skip image
+decode, and no-JavaScript captures retain transfer readiness because browser-page
+decode/animation-frame promises do not reliably resolve when scripting is disabled.
 Unrelated network activity is not a rendering requirement; Playwright
 [discourages network idleness as test readiness](https://playwright.dev/docs/api/class-page#page-wait-for-load-state).
 The utility command includes real-browser delayed/missing-resource regressions,
@@ -131,9 +137,9 @@ means those relative criteria are **unassessed**, not passed. Set
 metrics/mismatched environments fail. Baselines must be complete, clean, freshly built captures with a valid source SHA, no failures, and all twelve unique expected surface/viewport/run cells with matching viewport dimensions and at least thirty seconds of observation. Diagnostic, failed, duplicated or malformed evidence is rejected before comparison. Median LCP/trusted-click response regressions
 above 10% fail. Keep absolute values and trace findings in the PR.
 
-The recorded performance method now includes `required-render-v2`. Earlier
-HORO-874 captures used network-idle readiness and remain observations of that
-protocol; they are not comparable baselines for the new method. The strict method
+The recorded performance method now includes `required-render-v3`. Earlier
+`required-render-v2` and HORO-874 network-idle captures remain observations of their
+own protocols; they are not comparable baselines for the new method. The strict method
 equality check rejects that comparison. Buffered LCP/CLS and the thirty-second
 scene observation remain intact; the readiness protocol change still requires
 fresh performance captures before acceptance.

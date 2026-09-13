@@ -5,6 +5,64 @@ import {chromium,firefox,webkit} from '@playwright/test';
 import {observeReadiness,settled} from './fonts.mjs';
 import {readinessFixture} from './readiness.fixture.mjs';
 
+test('required readiness waits for visible image decode and its painted frame',async()=>{
+  const fixture=await readinessFixture();
+  let browser;
+  try{
+    browser=await chromium.launch();
+    const context=await browser.newContext();
+    await context.addInitScript(()=>{
+      const decode=HTMLImageElement.prototype.decode;
+      HTMLImageElement.prototype.decode=function(){
+        if(!this.src.endsWith('/asset.svg'))return decode.call(this);
+        window.__decodeStarted=true;
+        return new Promise((resolve,reject)=>{
+          window.__releaseDecode=()=>{
+            requestAnimationFrame(()=>{document.documentElement.dataset.decodePaint='ready';});
+            decode.call(this).then(resolve,reject);
+          };
+        });
+      };
+    });
+    const page=await context.newPage();
+    observeReadiness(page,{url:fixture.origin});
+    await page.goto(fixture.origin+'/ready',{waitUntil:'commit'});
+    let complete=false;
+    const ready=settled(page).then(()=>{complete=true;});
+    await fixture.requested('/asset.svg');
+    fixture.releaseImage();
+    await page.waitForFunction(()=>window.__decodeStarted===true);
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
+    assert.equal(complete,false,'Transfer completion must not bypass image decode');
+    await page.evaluate(()=>window.__releaseDecode());
+    await ready;
+    assert.equal(await page.locator('html').getAttribute('data-decode-paint'),'ready');
+    await context.close();
+  }finally{try{await browser?.close();}finally{await fixture.close();}}
+});
+
+test('a loaded image with failed decode remains a render failure',async()=>{
+  const fixture=await readinessFixture();
+  let browser;
+  try{
+    fixture.releaseImage();
+    browser=await chromium.launch();
+    const context=await browser.newContext();
+    await context.addInitScript(()=>{
+      const decode=HTMLImageElement.prototype.decode;
+      HTMLImageElement.prototype.decode=function(){
+        return this.src.endsWith('/asset.svg')?Promise.reject(new Error('Decode failed')):decode.call(this);
+      };
+    });
+    const page=await context.newPage();
+    observeReadiness(page,{url:fixture.origin});
+    await page.goto(fixture.origin+'/ready',{waitUntil:'load'});
+    await assert.rejects(()=>settled(page),error=>
+      /Required render resources failed/.test(error.message)&&error.message.includes('Image decode failed: '+fixture.origin+'/asset.svg'));
+    await context.close();
+  }finally{try{await browser?.close();}finally{await fixture.close();}}
+});
+
 for(const [engine,type] of Object.entries({chromium,firefox,webkit}))test('required readiness distinguishes render failures from unrelated traffic: '+engine,async()=>{
   const fixture=await readinessFixture();
   let browser;
