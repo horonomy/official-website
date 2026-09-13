@@ -5,11 +5,12 @@ title: Overview
 
 # Horonom documentation
 
-> Defining the boundaries of autonomy.
+import ProductDocumentation from '@site/src/components/ProductDocumentation';
 
-This space will hold product and platform documentation for Horonom and the
-systems it builds. It is intentionally minimal for now — a seed for the real
-content to come.
+Find the published documentation for each public product below. Product documentation
+owns its installation instructions, API reference, versions and technical limitations.
 
-For the flagship product, see
-[AI Agent Assembly](https://agent-assembly.com).
+<ProductDocumentation />
+
+For product discovery and current public availability, visit the
+[Horonom Product Atlas](https://horo.run/).
