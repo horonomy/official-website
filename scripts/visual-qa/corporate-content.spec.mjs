@@ -22,15 +22,24 @@ test('corporate documentation index links to existing publishers without inventi
   await open(page, {...surfaces[0], url:'http://127.0.0.1:4174/docs/intro'}, info);
   const article = page.locator('article');
   await expect(article.getByRole('link', {name:/ documentation$/})).toHaveCount(5);
+  for (const [name, href] of [
+    ['AI Agent Assembly', 'https://docs.agent-assembly.com'],
+    ['Circinus', 'https://circinus.horonom.com/docs'],
+    ['Ophiuchus', 'https://ophiuchus.horonom.com/docs'],
+    ['Fornax', 'https://docs.fornax.horonom.com'],
+    ['Horologium', 'https://horologium.horonom.com/docs'],
+  ]) await expect(article.getByRole('link', {name:`${name} documentation`,exact:true})).toHaveAttribute('href', href);
   await expect(article.getByText('No public documentation yet.', {exact:false})).toHaveCount(1);
   await expect(article).not.toContainText('Eridanus');
-  await expect(article.getByRole('link', {name:'Product overview'})).toHaveAttribute('href', /^https:\/\//);
+  await expect(article.getByRole('link', {name:'Product overview'})).toHaveAttribute('href', 'https://octans.horo.run');
   await layout(page);
 });
 
 test('archive keeps dated native discovery with one visible heading', async ({page}, info) => {
   await open(page, {...surfaces[0], url:'http://127.0.0.1:4174/blog/archive'}, info);
   await expect(page.locator('.hero__subtitle')).toBeHidden();
+  await expect(page.getByRole('heading', {level:1})).toHaveCount(1);
+  await expect(page.locator('main').getByRole('heading', {name:/^20\d{2}$/})).toHaveCount(1);
   await expect(page.locator('main a[href^="/blog/"]').first()).toBeVisible();
   await layout(page);
 });

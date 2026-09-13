@@ -18,6 +18,8 @@ import styles from './HeroUniverse.module.css';
  * A positioned scene composes the layers back-to-front per the z-index model in
  * `./layers.ts`: SceneLayers → AmbientEffects → ObserverSpider → EnvironmentProps
  * → ConstellationMap → the HTML overlay (HeroCopy + HeroCtaGroup + AnnotationCard).
+ * This describes paint order; the map follows the overlay in the DOM so mobile
+ * readers reach purpose and actions before the secondary scenery.
  * The SystemMap row sits below the scene and owns the `#products` anchor
  * (HORO-284 PR-2 — was `ProductCards`, sourced from the stale `products.ts`).
  *
