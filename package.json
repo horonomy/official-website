@@ -57,7 +57,9 @@
       "colord": "^2.9.4",
       "qs": "^6.16.0",
       "joi": "^17.13.6",
-      "@swc/html": "^1.16.2"
+      "@swc/html": "^1.16.2",
+      "image-size": "^2.0.3",
+      "sockjs>uuid": "^11.1.1"
     }
   },
   "browserslist": {
