@@ -53,6 +53,14 @@ const AGENT_ASSEMBLY_HOST = 'agent-assembly.com';
  */
 const TRACKED_ATTR = 'data-horo-tracked';
 
+/**
+ * Pseudo-schemes that do not navigate anywhere, so a click on one is not a
+ * link click. Matched case-insensitively and after any leading C0 control
+ * characters or spaces, because a browser strips those before it reads the
+ * scheme.
+ */
+const NON_NAVIGATING_SCHEME = /^[\u0000-\u0020]*(?:javascript|data|vbscript):/i;
+
 interface MatchResult {
   event: HoronomyEvent;
   target_product: TargetProduct;
@@ -66,8 +74,8 @@ function classifyLink(anchor: HTMLAnchorElement): MatchResult | null {
     return {event: 'horonomy_contact_click', target_product: 'horonomy'};
   }
 
-  // Anchors without an href (or javascript: pseudo-links) are not clicks.
-  if (!rawHref || rawHref.startsWith('javascript:')) {
+  // Anchors without an href (or with a pseudo-scheme) are not clicks.
+  if (!rawHref || NON_NAVIGATING_SCHEME.test(rawHref)) {
     return null;
   }
 

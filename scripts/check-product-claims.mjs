@@ -308,11 +308,17 @@ function attrValues(html, attr) {
  * Strip the parts of a page that are not prose a reader receives: scripts,
  * styles, and comments. Without this the gate reads minified bundles and
  * reports matches inside variable names.
+ *
+ * The end tags allow anything the HTML tokenizer allows after the tag name:
+ * whitespace (`</script >`) and even ignored attributes (`</script foo=bar>`)
+ * still close the element. A stricter pattern leaves such a block unstripped
+ * and its minified contents get read as prose. The leading `\s` keeps
+ * `</scriptfoo>` — not an end tag — from matching.
  */
 function visibleText(html) {
   return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script(?:\s[^>]*)?>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style(?:\s[^>]*)?>/gi, ' ')
     .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&[a-z]+;|&#\d+;/gi, ' ')
