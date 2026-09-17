@@ -308,11 +308,15 @@ function attrValues(html, attr) {
  * Strip the parts of a page that are not prose a reader receives: scripts,
  * styles, and comments. Without this the gate reads minified bundles and
  * reports matches inside variable names.
+ *
+ * The end tags tolerate whitespace before `>` (`</script >` is a valid end
+ * tag per the HTML spec); without that, such a block would survive the strip
+ * and its contents would be read as prose.
  */
 function visibleText(html) {
   return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script\s*>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style\s*>/gi, ' ')
     .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&[a-z]+;|&#\d+;/gi, ' ')
