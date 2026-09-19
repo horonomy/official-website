@@ -9,6 +9,28 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
+    # react and react-dom must move in the same PR. Docusaurus aborts the build
+    # unless their resolved versions are identical ("Incompatible React
+    # versions"), so a PR that bumps only one of the pair can never go green —
+    # that is a hard constraint, not a flake, and no relock resolves it.
+    # Declared twice on purpose: a group only covers the update kind named by
+    # `applies-to`, so without the second entry a React *security* advisory
+    # would arrive ungrouped and deadlock in exactly the same way.
+    groups:
+      react:
+        applies-to: version-updates
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      react-security:
+        applies-to: security-updates
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
 
   # GitHub Actions used by the CI and deploy workflows.
   - package-ecosystem: "github-actions"
