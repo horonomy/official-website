@@ -18,14 +18,18 @@ let server;
 const samples=[];
 const failures=[];
 const percent=(values,p)=>values.length ? [...values].sort((a,b)=>a-b)[Math.ceil(values.length*p)-1] : null;
+// One declaration, so the contexts the fonts are warmed for cannot drift from the
+// contexts that are measured: a different context can request different weights.
+const devices=[{device:'desktop',viewport:{width:1440,height:1000}},{device:'mobile',viewport:{width:390,height:844}}];
+const contextOptions=viewport=>({viewport,locale:'en-US',timezoneId:'UTC',colorScheme:'dark',serviceWorkers:'block',deviceScaleFactor:1});
 try {
   browser=await chromium.launch();
   server=spawn(process.execPath,['scripts/visual-qa/server.mjs'],{stdio:['ignore','pipe','inherit'],env:{...process.env,QA_SERVER_OWNER:String(process.pid)}});
   await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(new Error('QA server exited '+code)));});
   for (const {surface,port} of [{surface:'website',port:4174},{surface:'atlas',port:4175}]) {
-    for (const {device,viewport} of [{device:'desktop',viewport:{width:1440,height:1000}},{device:'mobile',viewport:{width:390,height:844}}]) {
+    for (const {device,viewport} of devices) {
       for (let run=1;run<=3;run++) {
-        const context=await browser.newContext({viewport,locale:'en-US',timezoneId:'UTC',colorScheme:'dark',serviceWorkers:'block',deviceScaleFactor:1});
+        const context=await browser.newContext(contextOptions(viewport));
         const page=await context.newPage();
         const origin='http://127.0.0.1:'+port;
         await context.route('**/*',route=>(new URL(route.request().url()).origin===origin || (route.request().method()==='GET'&&canonicalFontRequest(new URL(route.request().url())))) ? route.continue() : route.abort('blockedbyclient'));
