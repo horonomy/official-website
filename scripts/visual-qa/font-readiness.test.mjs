@@ -42,7 +42,40 @@ test('one loaded weight satisfies a family declared at several weights',()=>{
 test('a face that has errored is a failure, not something to keep waiting for',()=>{
   const broken={...loaded,faces:[{family:'Space Grotesk',status:'error'}]};
   assert.deepEqual(fontReadiness(broken,{fontFamilies:['Space Grotesk']}),
-    {pending:[],failures:['Required font unavailable: Space Grotesk']});
+    {pending:[],failures:['Required font unavailable: Space Grotesk (1 of 1 declared faces failed to load, none loaded)']});
+});
+
+test('a partly errored family is a failure, not a 20-second wait',()=>{
+  // Measured on CI, firefox-mobile: of the 12 declared Space Grotesk faces the
+  // 4 this page requested all errored and the other 8 were never requested, so
+  // no face was loaded and none ever could be. Requiring *every* face to be
+  // 'error' left this waiting on the 8 until the readiness poll gave up --
+  // twenty seconds to report a font that had already definitively failed.
+  const partly={...loaded,faces:[
+    ...Array(8).fill({family:'Space Grotesk',status:'unloaded'}),
+    ...Array(4).fill({family:'Space Grotesk',status:'error'}),
+  ]};
+  assert.deepEqual(fontReadiness(partly,{fontFamilies:['Space Grotesk']}),
+    {pending:[],failures:['Required font unavailable: Space Grotesk (4 of 12 declared faces failed to load, none loaded)']});
+});
+
+test('an errored weight alongside one still loading is still pending',()=>{
+  // The other side of that boundary: one weight 404ing must not condemn a
+  // family whose other weight is still in flight and may yet succeed.
+  const racing={...loaded,faces:[
+    {family:'Space Grotesk',status:'error'},
+    {family:'Space Grotesk',status:'loading'},
+  ]};
+  assert.deepEqual(fontReadiness(racing,{fontFamilies:['Space Grotesk']}),
+    {pending:['font Space Grotesk'],failures:[]});
+});
+
+test('an errored weight alongside a loaded one is ready',()=>{
+  const usable={...loaded,faces:[
+    {family:'Space Grotesk',status:'error'},
+    {family:'Space Grotesk',status:'loaded'},
+  ]};
+  assert.deepEqual(fontReadiness(usable,{fontFamilies:['Space Grotesk']}),{pending:[],failures:[]});
 });
 
 test('a surface that declares no families is unaffected',()=>{

@@ -73,13 +73,25 @@ function documentReadiness(rendered) {
  *
  * So wait for the named faces themselves. A face that has genuinely errored is a
  * failure rather than something to keep waiting for.
+ *
+ * The four states are ordered, and the order is the whole predicate: the
+ * canonical stylesheet declares each family at several weights, of which a page
+ * requests only the ones it renders, so a family is routinely a mix. `loaded`
+ * wins outright. Failing that, a face still `loading` means there is something
+ * left to wait for. Failing *that*, an `error` is terminal — the remaining
+ * `unloaded` faces are weights this page never asked for and nothing will ever
+ * request them, so waiting on them is waiting for nothing. Only an all-
+ * `unloaded` family is genuinely still pending: that is the vacuous window
+ * above, before layout has requested anything.
  */
 export function fontReadiness(rendered, state) {
   const pending=[],failures=[];
   for(const family of state.fontFamilies??[]) {
     const faces=(rendered.faces??[]).filter(face=>face.family===family);
     if(faces.some(face=>face.status==='loaded'))continue;
-    if(faces.length&&faces.every(face=>face.status==='error'))failures.push('Required font unavailable: '+family);
+    if(faces.some(face=>face.status==='loading')){pending.push('font '+family);continue;}
+    const errored=faces.filter(face=>face.status==='error').length;
+    if(errored)failures.push('Required font unavailable: '+family+' ('+errored+' of '+faces.length+' declared faces failed to load, none loaded)');
     else pending.push('font '+family);
   }
   return {pending,failures};
