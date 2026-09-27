@@ -126,10 +126,62 @@ async function requiredState(page, state) {
   const rendered=await page.evaluate(renderedResources);
   const documentState=documentReadiness(rendered),fontState=fontReadiness(rendered,state),imageState=imageReadiness(rendered,state),observedState=observedReadiness(rendered,state);
   return {pending:[...documentState.pending,...fontState.pending,...imageState.pending,...observedState.pending],failures:[...documentState.failures,...fontState.failures,...stylesheetFailures(rendered,state),...imageState.failures,...observedState.failures],
+    // The visible set, computed once here, is also what paint readiness below
+    // waits on: re-deriving "visible" in a second page function would leave two
+    // predicates to keep in step.
+    images:rendered.images.map(image=>image.url),
     // Carried for the give-up message below: which item is outstanding is the
     // whole diagnosis, and a capture runs on a machine nobody is watching.
     observed:[...state.requests.values()].filter(entry=>entry.pending||entry.error).map(entry=>entry.type+' '+entry.url+(entry.error?' — '+entry.error:' — in flight')),
     faces:(rendered.faces??[]).map(face=>face.family+'='+face.status),document:rendered.document,fonts:rendered.fonts};
+}
+
+/** Long enough that a large raster on a loaded CI runner is not called a defect,
+ *  short enough to be a diagnosis rather than a hung job. */
+const DECODE_TIMEOUT=15000;
+
+/**
+ * HORO-1498, the reported symptom. `img.complete` is "the bytes have arrived",
+ * not "the raster is ready to paint", and every scene image on the observatory
+ * declares `decoding="async"` (`SceneLayers.tsx`, `ObserverSpider.tsx`), which
+ * explicitly permits the engine to present a frame *before* an image has been
+ * decoded. `loading="eager"` governs only the fetch, so `load` does not imply
+ * painted either. A capture taken the moment the resource gate is satisfied can
+ * therefore land on a frame whose layers are still undecoded.
+ *
+ * That is the reload drift this ticket was filed for. Measured on the failing
+ * run: of two captures of the same reduced-motion scene, the second was
+ * byte-identical to the baseline and the first was a different, 137 KB smaller
+ * image; the difference was confined to y744-1000, 16.3% of the viewport, and
+ * per-element it was `img.ground` 96.96% and `img.keeper` 80.46% while
+ * `img.background` was 5.76%. One reload caught the ground and keeper layers
+ * unpainted and the other hit a warm decode. Nothing about the page differed —
+ * only when the shutter opened relative to the decode.
+ *
+ * `decode()` is the platform's own answer: it resolves once the image can be
+ * painted without inducing a decode delay on the next paint. So this waits on
+ * the condition itself rather than on elapsed time — a sleep long enough to hide
+ * this on one machine is not a guarantee on any other.
+ *
+ * Exported and parameterised so a test can prove the wait is real without
+ * holding a suite open for the full timeout.
+ */
+export async function undecodedImages(page, urls, timeout=DECODE_TIMEOUT) {
+  return page.evaluate(async ({urls, timeout}) => {
+    const name=image=>image.currentSrc||image.src;
+    const wanted=new Set(urls);
+    const targets=[...document.images].filter(image=>wanted.has(name(image)));
+    const outcomes=await Promise.all(targets.map(image=>{
+      // Never silently skipped: an engine without decode() would make this gate
+      // vacuous, and a vacuous gate is how the drift survived in the first place.
+      if(typeof image.decode!=='function')return name(image)+': this engine has no HTMLImageElement.decode(), so paint readiness cannot be proven';
+      return Promise.race([
+        image.decode().then(()=>null,error=>name(image)+': decode rejected — '+(error?.name??'unknown error')),
+        new Promise(resolve=>setTimeout(()=>resolve(name(image)+': still not decodable after '+timeout+'ms'),timeout)),
+      ]);
+    }));
+    return outcomes.filter(Boolean);
+  }, {urls, timeout});
 }
 
 export async function settled(page, {noJavaScript=false}={}) {
@@ -155,4 +207,20 @@ export async function settled(page, {noJavaScript=false}={}) {
       'Requests in flight or failed: '+(result?.observed.join(', ')||'(none)')].join('\n'),{cause:error});
   }
   expect(result.failures,'Required render resources failed').toEqual([]);
+  // Resources arriving is not the same event as the scene being paintable, so
+  // this runs after the gate above rather than inside it: the URLs to wait on are
+  // the visible set that gate just judged complete.
+  //
+  // Skipped without JavaScript, where a page-world promise never settles because
+  // nothing in the page runs. That surface keeps the bytes-arrived guarantee
+  // only, which is sound for it: it has no script, so no animation, no lazy
+  // decode trigger and no state to race.
+  //
+  // Skipped when degraded for the same reason `imageReadiness` is: that surface
+  // exists to prove the page survives images being unavailable, so an image which
+  // cannot be decoded is the premise of the test rather than a failure of it.
+  if(!noJavaScript&&!state.degraded) {
+    const undecoded=await undecodedImages(page,result.images);
+    expect(undecoded,'Visible images must be paintable before a capture').toEqual([]);
+  }
 }
