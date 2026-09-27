@@ -3,14 +3,17 @@ import {expect} from '@playwright/test';
 
 export const fontStylesheet='https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap';
 export const readinessMethod='required-render-v2';
+/** The families the canonical stylesheet above exists to deliver. Readiness waits
+ *  for these faces by name; a surface that does not use them declares none. */
+export const requiredFontFamilies=['Space Grotesk','IBM Plex Mono'];
 export function canonicalFontRequest(url) {
   return url.href===fontStylesheet || (url.protocol==='https:' && url.hostname==='fonts.gstatic.com' && !url.port && !url.search && !url.hash && /^\/s\/(spacegrotesk|ibmplexmono)\/v\d+\/[\w-]+\.(woff2?|ttf)$/.test(url.pathname));
 }
 const observations=new WeakMap();
 
 /** Observe actual requests; readiness never starts a second asset download. */
-export function observeReadiness(page, {url,degraded=false}) {
-  const state={origin:new URL(url).origin,degraded,requests:new Map()};
+export function observeReadiness(page, {url,degraded=false,fontFamilies=[]}) {
+  const state={origin:new URL(url).origin,degraded,fontFamilies:degraded?[]:fontFamilies,requests:new Map()};
   observations.set(page,state);
   page.on('request',request=>{
     if(request.isNavigationRequest()&&request.frame()===page.mainFrame())state.requests.clear();
@@ -46,13 +49,39 @@ function renderedResources() {
     for(const pseudo of [null,'::before','::after'])backgrounds.push(getComputedStyle(element,pseudo).backgroundImage);
   }
   const styles=[...document.querySelectorAll('link[rel="stylesheet"]')].filter(link=>!link.disabled&&matchMedia(link.media||'all').matches).map(link=>({url:link.href,loaded:!!link.sheet}));
-  return {document:document.readyState,fonts:document.fonts.status,images,backgrounds,styles};
+  const faces=[...document.fonts].map(face=>({family:face.family.replace(/["']/g,''),status:face.status}));
+  return {document:document.readyState,fonts:document.fonts.status,faces,images,backgrounds,styles};
 }
 
 function documentReadiness(rendered) {
   const pending=[],failures=[];
   if(rendered.document!=='complete')pending.push('document');
   if(rendered.fonts!=='loaded')pending.push('fonts');
+  return {pending,failures};
+}
+
+/**
+ * HORO-1498. `document.fonts.status` is NOT "every declared face has loaded" —
+ * per CSS Font Loading it is 'loaded' whenever no load is *in progress*. That
+ * includes the window after navigation and before layout has requested any
+ * webfont, where the set reports 'loaded' while every face is still 'unloaded'.
+ * Gating on the aggregate alone therefore passes vacuously and releases the
+ * capture against fallback-font metrics, which is load-dependent and so shows up
+ * as a different spec failing on a different engine each run: a per-face
+ * assertion fails outright, two reload captures straddle the font swap and drift
+ * pixel-wise, and layout measures overflow against the wrong metrics.
+ *
+ * So wait for the named faces themselves. A face that has genuinely errored is a
+ * failure rather than something to keep waiting for.
+ */
+export function fontReadiness(rendered, state) {
+  const pending=[],failures=[];
+  for(const family of state.fontFamilies??[]) {
+    const faces=(rendered.faces??[]).filter(face=>face.family===family);
+    if(faces.some(face=>face.status==='loaded'))continue;
+    if(faces.length&&faces.every(face=>face.status==='error'))failures.push('Required font unavailable: '+family);
+    else pending.push('font '+family);
+  }
   return {pending,failures};
 }
 
@@ -83,8 +112,8 @@ function observedReadiness(rendered, state) {
 
 async function requiredState(page, state) {
   const rendered=await page.evaluate(renderedResources);
-  const documentState=documentReadiness(rendered),imageState=imageReadiness(rendered,state),observedState=observedReadiness(rendered,state);
-  return {pending:[...documentState.pending,...imageState.pending,...observedState.pending],failures:[...documentState.failures,...stylesheetFailures(rendered,state),...imageState.failures,...observedState.failures]};
+  const documentState=documentReadiness(rendered),fontState=fontReadiness(rendered,state),imageState=imageReadiness(rendered,state),observedState=observedReadiness(rendered,state);
+  return {pending:[...documentState.pending,...fontState.pending,...imageState.pending,...observedState.pending],failures:[...documentState.failures,...fontState.failures,...stylesheetFailures(rendered,state),...imageState.failures,...observedState.failures]};
 }
 
 export async function settled(page, {noJavaScript=false}={}) {
