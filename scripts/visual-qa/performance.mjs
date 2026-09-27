@@ -4,7 +4,7 @@ import {execFileSync, spawn} from 'node:child_process';
 import {mkdir, writeFile, readFile} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 import os from 'node:os';
-import {canonicalFontRequest, observeReadiness, readinessMethod, settled} from './fonts.mjs';
+import {canonicalFontRequest, observeReadiness, readinessMethod, requiredFontFamilies, settled} from './fonts.mjs';
 import {cumulativeLayoutShift} from './performance-metrics.mjs';
 import {validatePerformanceBaseline} from './performance-baseline.mjs';
 
@@ -29,7 +29,8 @@ try {
         const page=await context.newPage();
         const origin='http://127.0.0.1:'+port;
         await context.route('**/*',route=>(new URL(route.request().url()).origin===origin || (route.request().method()==='GET'&&canonicalFontRequest(new URL(route.request().url())))) ? route.continue() : route.abort('blockedbyclient'));
-        observeReadiness(page,{url:origin});
+        const families=surface==='website'?requiredFontFamilies:[];
+        observeReadiness(page,{url:origin,fontFamilies:families});
         const cdp=await context.newCDPSession(page);
         await cdp.send('Network.enable');
         await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
@@ -50,7 +51,10 @@ try {
         await page.goto(origin+'/',{waitUntil:'load'});
         await settled(page);
         const fonts=await page.evaluate(()=>[...document.fonts].map(face=>({family:face.family,status:face.status})));
-        if(surface==='website')for(const family of ['Space Grotesk','IBM Plex Mono'])if(!fonts.some(face=>face.family.replace(/["']/g,'')===family&&face.status==='loaded'))throw new Error('Canonical font unavailable: '+family);
+        // HORO-1498: readiness above waits for these faces. Kept as a hard check so
+        // a readiness gate that stopped covering them aborts the capture rather
+        // than quietly recording a baseline measured with fallback-font metrics.
+        for(const family of families)if(!fonts.some(face=>face.family.replace(/["']/g,'')===family&&face.status==='loaded'))throw new Error('Canonical font unavailable: '+family);
         const decline=page.getByRole('button',{name:surface==='website'?'Reject':'Decline',exact:true});
         if(await decline.isVisible())await decline.click();
         await page.evaluate(()=>document.addEventListener('click',event=>{
