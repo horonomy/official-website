@@ -113,7 +113,11 @@ function observedReadiness(rendered, state) {
 async function requiredState(page, state) {
   const rendered=await page.evaluate(renderedResources);
   const documentState=documentReadiness(rendered),fontState=fontReadiness(rendered,state),imageState=imageReadiness(rendered,state),observedState=observedReadiness(rendered,state);
-  return {pending:[...documentState.pending,...fontState.pending,...imageState.pending,...observedState.pending],failures:[...documentState.failures,...fontState.failures,...stylesheetFailures(rendered,state),...imageState.failures,...observedState.failures]};
+  return {pending:[...documentState.pending,...fontState.pending,...imageState.pending,...observedState.pending],failures:[...documentState.failures,...fontState.failures,...stylesheetFailures(rendered,state),...imageState.failures,...observedState.failures],
+    // Carried for the give-up message below: which item is outstanding is the
+    // whole diagnosis, and a capture runs on a machine nobody is watching.
+    observed:[...state.requests.values()].filter(entry=>entry.pending||entry.error).map(entry=>entry.type+' '+entry.url+(entry.error?' — '+entry.error:' — in flight')),
+    faces:(rendered.faces??[]).map(face=>face.family+'='+face.status),document:rendered.document,fonts:rendered.fonts};
 }
 
 export async function settled(page, {noJavaScript=false}={}) {
@@ -121,9 +125,22 @@ export async function settled(page, {noJavaScript=false}={}) {
   if(!state)throw new Error('Observe required resources before navigating');
   await page.waitForLoadState('load');
   let result;
-  await expect.poll(async()=>{
-    result=await requiredState(page,state);
-    return result.failures.length>0||result.pending.length===0;
-  },{timeout:20000,message:'Required document/font/render readiness'+(noJavaScript?' (no JavaScript)':'')}).toBe(true);
+  const label='Required document/font/render readiness'+(noJavaScript?' (no JavaScript)':'');
+  try {
+    await expect.poll(async()=>{
+      result=await requiredState(page,state);
+      return result.failures.length>0||result.pending.length===0;
+    },{timeout:20000,message:label}).toBe(true);
+  } catch(error) {
+    // `expect.poll`'s message is fixed before polling starts, so it can only
+    // ever report that readiness timed out — never what readiness was still
+    // waiting for. Attaching the last observed state is the difference between
+    // a diagnosable CI failure and a rerun.
+    throw new Error([label+' timed out.',
+      'Still pending: '+(result?.pending.join(', ')||'(none — readiness raced its own poll)'),
+      'document='+result?.document+' fonts='+result?.fonts,
+      'Declared faces: '+(result?.faces.join(', ')||'(none)'),
+      'Requests in flight or failed: '+(result?.observed.join(', ')||'(none)')].join('\n'),{cause:error});
+  }
   expect(result.failures,'Required render resources failed').toEqual([]);
 }
