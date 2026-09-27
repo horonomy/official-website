@@ -24,14 +24,27 @@ import {surfaces} from './helpers.mjs';
  * Every engine is warmed at every viewport it will be captured at, so the cache
  * holds the union of the weights the site actually requests rather than whichever
  * weights one layout happens to need. Playwright sets no `userAgent` for these
- * projects, so the viewports of one engine share its cache entries and the extra
- * passes are hits rather than fetches.
+ * projects, so the viewports of one engine share its cache entries, and the family
+ * files are keyed on the URL alone (`font-cache.mjs`), so engines whose stylesheets
+ * name the same assets share them too — chromium warms first and firefox's passes
+ * are then hits rather than fetches. The extra passes cost a page load, not a
+ * download.
  */
 const engines = {chromium, firefox, webkit};
 /** Enough that one bad moment upstream is not a failed run, few enough that a
  *  genuinely unavailable font is reported in seconds rather than minutes. */
 const ATTEMPTS = 3;
 const READY_TIMEOUT = 15000;
+/**
+ * Waiting between attempts is what makes a retry a retry. A rate-limit or a
+ * dropped connection upstream is not over in the few hundred milliseconds it takes
+ * to tear down one context and navigate a new one, so three back-to-back attempts
+ * sample almost the same instant and fail together — which is how the run on main
+ * reported three exhausted attempts against a transient failure. Growing the wait
+ * keeps a genuinely absent font a diagnosis in seconds (6s of waiting at worst,
+ * once, because the first unacquirable family ends the run) rather than minutes.
+ */
+export const backoffMs = attempt => 2000 * attempt;
 
 export default async function warmFontCache(config) {
   const targets = surfaces.filter(surface => (surface.fonts ?? []).length > 0);
@@ -64,6 +77,7 @@ async function warm(browser, project, surface) {
     } finally {
       await context.close();
     }
+    if (attempt < ATTEMPTS) await new Promise(resolve => setTimeout(resolve, backoffMs(attempt)));
   }
   throw new Error(['Could not acquire the canonical font assets for ' + label + ' in ' + ATTEMPTS + ' attempts.',
     'Outstanding: ' + outstanding.join(', '),
