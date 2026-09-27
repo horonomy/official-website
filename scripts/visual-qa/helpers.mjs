@@ -6,10 +6,13 @@ import {existsSync} from 'node:fs';
 import {validateReview} from './baseline-review.mjs';
 import os from 'node:os';
 import AxeBuilder from '@axe-core/playwright';
-import {canonicalFontRequest, observeReadiness, settled} from './fonts.mjs';
+import {canonicalFontRequest, observeReadiness, requiredFontFamilies, settled} from './fonts.mjs';
+import {recordFontResponses, serveCachedFont} from './font-cache.mjs';
 
 export const surfaces = [
-  {name:'website', url:'http://127.0.0.1:4174/', action:'#observatory a[href="/#products"]', decline:'Reject', reducedMotionState:'#observatory[data-hn-motion="static"]'},
+  // `fonts` is what readiness waits for and what the assertion in open() checks,
+  // from one declaration rather than a name comparison in each place.
+  {name:'website', url:'http://127.0.0.1:4174/', action:'#observatory a[href="/#products"]', decline:'Reject', reducedMotionState:'#observatory[data-hn-motion="static"]', fonts:requiredFontFamilies},
   {name:'atlas', url:'http://127.0.0.1:4175/', action:'.hn-atlas-card__link', decline:'Decline'},
 ];
 export function traversalKey(info) {
@@ -19,22 +22,34 @@ export async function json(info, name, value) {
   await info.attach(name, {body:Buffer.from(JSON.stringify(value,null,2)),contentType:'application/json'});
 }
 export async function open(page, surface, info, {degraded=false,noJavaScript=false}={}) {
+  const local = new URL(surface.url).origin;
+  // Every request that is not loopback and survives the router below is a canonical
+  // font asset, by that router's own check. Serve those from the per-run cache, and
+  // record the browser's responses into it, so the whole suite depends on one live
+  // fetch per asset rather than one per test (HORO-1498).
+  const remoteFont = url => new URL(url).origin !== local;
+  recordFontResponses(page, response => remoteFont(response.url()));
   await page.context().route('**/*', route => {
     const url = new URL(route.request().url());
-    if (url.origin !== new URL(surface.url).origin && (degraded || route.request().method()!=='GET' || !canonicalFontRequest(url))) return route.abort('blockedbyclient');
+    if (remoteFont(url) && (degraded || route.request().method()!=='GET' || !canonicalFontRequest(url))) return route.abort('blockedbyclient');
     if (degraded && ['image','font'].includes(route.request().resourceType())) return route.abort('failed');
+    if (remoteFont(url)) return serveCachedFont(route);
     return route.continue();
   });
   const errors=[];
   page.on('pageerror', error => errors.push(error.message));
-  observeReadiness(page,{url:surface.url,degraded});
+  // Every later settled() call on this page — including the ones after a reload
+  // in the specs and inside repeatLoad() — inherits these families, so a reload
+  // cannot re-open the pre-swap window that HORO-1498 was.
+  const families = degraded?[]:(surface.fonts ?? []);
+  observeReadiness(page,{url:surface.url,degraded,fontFamilies:families});
   const response = await page.goto(surface.url, {waitUntil:'load'});
   expect(response.status()).toBe(200);
   await settled(page,{noJavaScript});
   const fonts=await page.evaluate(()=>[...document.fonts].map(face=>({family:face.family,status:face.status})));
-  if(surface.name==='website'&&!degraded) {
-    for(const family of ['Space Grotesk','IBM Plex Mono']) expect(fonts.some(face=>face.family.replace(/["']/g,'')===family&&face.status==='loaded'),'Canonical '+family+' font loaded').toBe(true);
-  }
+  // Readiness above already waits for these. Kept as an assertion so a readiness
+  // gate that stopped covering them fails here instead of passing silently.
+  for(const family of families) expect(fonts.some(face=>face.family.replace(/["']/g,'')===family&&face.status==='loaded'),'Canonical '+family+' font loaded').toBe(true);
   await expect(page.locator('h1')).toBeVisible();
   const decline = page.getByRole('button', {name:surface.decline,exact:true});
   if (await decline.isVisible()) {
