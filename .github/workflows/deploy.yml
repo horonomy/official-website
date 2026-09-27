@@ -41,16 +41,21 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
+      # Pinned by SHA like the wrangler step below (HORO-1499, HORO-1503). This
+      # job publishes the live site on push to main, so a failure here lands
+      # after merge, where pull-request CI can no longer catch it.
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v6
+        # Only the floating v6 tag names this commit; upstream's newest release,
+        # v6.1.0, is d9184bf1.
+        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6, ahead of v6.1.0
         with:
           version: 10
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           cache: pnpm
