@@ -47,6 +47,21 @@ const LOCAL = /^\.{1,2}\//;
 const SHA = /^[0-9a-f]{40}$/;
 /** One release identifier and nothing else: `v7.0.1`, `v4.0`, `1.2.3-rc.1`. */
 const RELEASE = /^v?\d+(?:\.\d+)*(?:-[0-9A-Za-z.]+)?$/;
+/** The same thing, for an upstream whose releases are not named by bare version.
+ *  `github/codeql-action` publishes `codeql-bundle-v2.25.2` alongside `v4.x.y`,
+ *  and for the commit this repository pins that bundle tag is the *only* ref that
+ *  names it — all 589 tags in that repository were resolved to their commits to
+ *  check. The first version of this rule rejected it, which made the gate demand
+ *  an annotation that would have been false.
+ *
+ *  This is still a single whitespace-free token ending in a version, so the thing
+ *  the rule exists to refuse — prose, where a claim like "ahead of v6.1.0" can
+ *  hide — remains refused. What it cannot do is tell a real release name from an
+ *  invented one, e.g. `ahead-of-v6.1.0` written as one token. Nothing offline can:
+ *  this gate proves the shape of a reference and never what a name resolves to,
+ *  and a reviewer reads the annotation. The original defect was an honest mistake
+ *  written as prose, not a disguise. */
+const QUALIFIED_RELEASE = /^(?:[A-Za-z][A-Za-z0-9.]*-)+v?\d+(?:\.\d+)*(?:-[0-9A-Za-z.]+)?$/;
 /** The deliberate escape hatch, for a pinned commit no release names. Spelling it
  *  out is the point: it is a claim a reviewer can check, unlike silence. */
 const UNTAGGED = /^untagged\b/;
@@ -83,7 +98,7 @@ export function findUnpinnedReferences(files) {
       if (at === -1) report('no version is given at all, so this tracks the default branch');
       else if (!SHA.test(reference.slice(at + 1))) report('a tag or branch, which the owner can re-point at any commit');
       else if (!annotated) report('pinned, but no comment says which release the SHA is');
-      else if (!RELEASE.test(annotation) && !UNTAGGED.test(annotation))
+      else if (!RELEASE.test(annotation) && !QUALIFIED_RELEASE.test(annotation) && !UNTAGGED.test(annotation))
         report(`the comment must name exactly one release, or begin with "untagged" — not ${JSON.stringify(annotation)}`);
     });
   }
