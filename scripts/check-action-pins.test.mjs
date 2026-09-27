@@ -70,6 +70,24 @@ test('a reusable workflow is judged on its ref, not its path depth', () => {
     'a tag or branch, which the owner can re-point at any commit');
 });
 
+test('an annotation names one release, or says plainly that none does', () => {
+  // The case that got through. `pnpm/action-setup` was annotated
+  // `# v6, ahead of v6.1.0`, and both halves were false: the pinned SHA was the
+  // annotated tag object for v6, not a commit, and its commit is tagged v6.0.10 --
+  // a month behind v6.1.0. Prose leaves room for a claim like that; one release
+  // identifier does not.
+  assert.equal(only(`        uses: pnpm/action-setup@${SHA} # v6, ahead of v6.1.0`)[0].problem,
+    'the comment must name exactly one release, or begin with "untagged" — not "v6, ahead of v6.1.0"');
+  for (const prose of ['# latest', '# TODO', '# v6 only', '# see HORO-1503', '# v7.0.1 (probably)'])
+    assert.equal(only(`        uses: owner/repo@${SHA} ${prose}`).length, 1, prose + ' must be rejected');
+  // And the forms that do name a release, so the rule is not simply "reject".
+  for (const release of ['# v7.0.1', '# v4.0', '# 1.2.3', '# v2.0.0-rc.1'])
+    assert.deepEqual(only(`        uses: owner/repo@${SHA} ${release}`), [], release + ' must be accepted');
+  // A commit no release names is a real situation and stays expressible -- it just
+  // has to be asserted rather than left to the reader to notice.
+  assert.deepEqual(only(`        uses: owner/repo@${SHA} # untagged: ahead of v6.1.0, no release names it`), []);
+});
+
 test('every reference in this repository is pinned and annotated', () => {
   // The anti-vacuity guard. The cases above prove the predicate discriminates;
   // this one applies it to the real workflows, so re-floating any reference
