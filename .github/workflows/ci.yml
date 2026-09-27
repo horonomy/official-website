@@ -42,6 +42,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Runs before anything expensive, and needs no network: a floating action
+      # reference lets an upstream owner change what this repository executes
+      # with no commit here to review, which is how a broken wrangler-action
+      # release sat in the production deploy path for 26 hours (HORO-1499).
+      - name: Check action pins
+        run: pnpm check:action-pins
+
+      - name: Test repository scripts
+        run: pnpm test:scripts
+
       - name: Type-check
         run: pnpm typecheck
 
