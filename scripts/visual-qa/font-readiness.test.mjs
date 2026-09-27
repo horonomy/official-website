@@ -81,7 +81,17 @@ test('a real browser produces the vacuous state and settled() refuses it',async(
     assert.equal(rendered.fonts,'loaded','the aggregate set status reads as loaded');
     assert.deepEqual(rendered.faces,[{family:'Required',status:'unloaded'}],'while the declared face has not loaded');
     assert.deepEqual(fontReadiness(rendered,{fontFamilies:['Required']}).pending,['font Required']);
-    await assert.rejects(()=>settled(page),/Required document\/font\/render readiness/);
+    // And it says what it was waiting for. `expect.poll`'s own message is fixed
+    // before polling starts, so a bare rejection leaves a capture failure on CI
+    // indistinguishable between an unloaded face, a stalled asset request and a
+    // document that never completed -- the diagnosis has to be in the message.
+    await assert.rejects(()=>settled(page),error=>{
+      assert.match(error.message,/Required document\/font\/render readiness/);
+      assert.match(error.message,/Still pending: font Required/);
+      assert.match(error.message,/Declared faces: Required=unloaded/);
+      assert.match(error.message,/document=complete fonts=loaded/);
+      return true;
+    });
     await context.close();
   }finally{try{await browser?.close();}finally{await fixture.close();}}
 });
