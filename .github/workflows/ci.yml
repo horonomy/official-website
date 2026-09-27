@@ -24,21 +24,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v6
+        # This commit carries only the floating v6 tag: upstream's newest
+        # release, v6.1.0, is d9184bf1, so no published release names it.
+        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6, ahead of v6.1.0
         with:
           version: 10
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 20
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Runs before anything expensive, and needs no network: a floating action
+      # reference lets an upstream owner change what this repository executes
+      # with no commit here to review, which is how a broken wrangler-action
+      # release sat in the production deploy path for 26 hours (HORO-1499).
+      - name: Check action pins
+        run: pnpm check:action-pins
+
+      - name: Test repository scripts
+        run: pnpm test:scripts
 
       - name: Type-check
         run: pnpm typecheck
@@ -66,15 +78,13 @@ jobs:
     name: atlas
     runs-on: ubuntu-latest
     steps:
-      # SHA-pinned (SonarCloud githubactions:S7637) — this job is new code,
-      # so unlike the `build` job above (pre-existing, tag-pinned, a
-      # repo-wide convention out of this ticket's scope to change) it starts
-      # pinned. Comment notes the tag each SHA corresponds to.
+      # SHA-pinned (SonarCloud githubactions:S7637), as every workflow in this
+      # repository now is — enforced by `pnpm check:action-pins` (HORO-1503).
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6
+        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6, ahead of v6.1.0
         with:
           version: 10
 
