@@ -4,7 +4,9 @@ import {execFileSync, spawn} from 'node:child_process';
 import {mkdir, writeFile, readFile} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 import os from 'node:os';
-import {canonicalFontRequest, observeReadiness, readinessMethod, settled} from './fonts.mjs';
+import {canonicalFontRequest, observeReadiness, readinessMethod, requiredFontFamilies, settled} from './fonts.mjs';
+import {recordFontResponses, serveCachedFont} from './font-cache.mjs';
+import warmFontCache from './warm-fonts.mjs';
 import {cumulativeLayoutShift} from './performance-metrics.mjs';
 import {validatePerformanceBaseline} from './performance-baseline.mjs';
 
@@ -18,18 +20,44 @@ let server;
 const samples=[];
 const failures=[];
 const percent=(values,p)=>values.length ? [...values].sort((a,b)=>a-b)[Math.ceil(values.length*p)-1] : null;
+// One declaration, so the contexts the fonts are warmed for cannot drift from the
+// contexts that are measured: a different context can request different weights.
+const devices=[{device:'desktop',viewport:{width:1440,height:1000}},{device:'mobile',viewport:{width:390,height:844}}];
+const contextOptions=viewport=>({viewport,locale:'en-US',timezoneId:'UTC',colorScheme:'dark',serviceWorkers:'block',deviceScaleFactor:1});
 try {
   browser=await chromium.launch();
   server=spawn(process.execPath,['scripts/visual-qa/server.mjs'],{stdio:['ignore','pipe','inherit'],env:{...process.env,QA_SERVER_OWNER:String(process.pid)}});
   await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(new Error('QA server exited '+code)));});
+  // HORO-1498, the sibling path. `run.mjs` sends this mode straight to this file
+  // instead of through playwright.config.mjs, so the suite's globalSetup font
+  // warm-up never applied here: all twelve contexts below fetched the canonical
+  // fonts live with the HTTP cache disabled, and one bad moment upstream made the
+  // strict check throw, which the single catch turns into an aborted run —
+  // observed as `Canonical font unavailable: Space Grotesk` after one recorded
+  // sample. Warm the same per-run cache the rendered suite uses, in a named step
+  // that retries and fails up front naming the family it could not acquire.
+  await warmFontCache({projects:devices.map(({device,viewport})=>({name:'performance-'+device,use:{browserName:'chromium',...contextOptions(viewport)}}))});
   for (const {surface,port} of [{surface:'website',port:4174},{surface:'atlas',port:4175}]) {
-    for (const {device,viewport} of [{device:'desktop',viewport:{width:1440,height:1000}},{device:'mobile',viewport:{width:390,height:844}}]) {
+    for (const {device,viewport} of devices) {
       for (let run=1;run<=3;run++) {
-        const context=await browser.newContext({viewport,locale:'en-US',timezoneId:'UTC',colorScheme:'dark',serviceWorkers:'block',deviceScaleFactor:1});
+        const context=await browser.newContext(contextOptions(viewport));
         const page=await context.newPage();
         const origin='http://127.0.0.1:'+port;
-        await context.route('**/*',route=>(new URL(route.request().url()).origin===origin || (route.request().method()==='GET'&&canonicalFontRequest(new URL(route.request().url())))) ? route.continue() : route.abort('blockedbyclient'));
-        observeReadiness(page,{url:origin});
+        // Serve the canonical fonts from that cache and record what the browser
+        // receives, exactly as the rendered suite's open() does. Everything else
+        // stays cold, which is the point of this capture; the fonts are the one
+        // third-party dependency, and a measurement must not be able to fail
+        // because Google Fonts had a bad second.
+        const remote=url=>new URL(url).origin!==origin;
+        recordFontResponses(page,response=>remote(response.url()));
+        await context.route('**/*',route=>{
+          const url=new URL(route.request().url());
+          if(remote(url)&&(route.request().method()!=='GET'||!canonicalFontRequest(url)))return route.abort('blockedbyclient');
+          if(remote(url))return serveCachedFont(route);
+          return route.continue();
+        });
+        const families=surface==='website'?requiredFontFamilies:[];
+        observeReadiness(page,{url:origin,fontFamilies:families});
         const cdp=await context.newCDPSession(page);
         await cdp.send('Network.enable');
         await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
@@ -50,7 +78,10 @@ try {
         await page.goto(origin+'/',{waitUntil:'load'});
         await settled(page);
         const fonts=await page.evaluate(()=>[...document.fonts].map(face=>({family:face.family,status:face.status})));
-        if(surface==='website')for(const family of ['Space Grotesk','IBM Plex Mono'])if(!fonts.some(face=>face.family.replace(/["']/g,'')===family&&face.status==='loaded'))throw new Error('Canonical font unavailable: '+family);
+        // HORO-1498: readiness above waits for these faces. Kept as a hard check so
+        // a readiness gate that stopped covering them aborts the capture rather
+        // than quietly recording a baseline measured with fallback-font metrics.
+        for(const family of families)if(!fonts.some(face=>face.family.replace(/["']/g,'')===family&&face.status==='loaded'))throw new Error('Canonical font unavailable: '+family);
         const decline=page.getByRole('button',{name:surface==='website'?'Reject':'Decline',exact:true});
         if(await decline.isVisible())await decline.click();
         await page.evaluate(()=>document.addEventListener('click',event=>{
@@ -113,7 +144,7 @@ finally {
   try { server?.kill('SIGTERM'); } catch(error) { failures.push('Server cleanup failed: '+error.message); }
 }
 const report={sourceCommit,dirty,freshBuild:!!process.env.QA_SOURCE_COMMIT,browser:browser?.version()??null,platform:os.platform(),architecture:os.arch(),cpu:os.cpus()[0]?.model,
-  method:readinessMethod+' required document/font/render readiness; three fresh contexts per surface/viewport; cache disabled; local assets plus existing canonical Google font CSS/families; no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; all other external network blocked.',
+  method:readinessMethod+' required document/font/render readiness; three fresh contexts per surface/viewport; cache disabled; local assets plus the existing canonical Google font CSS/families, which are acquired from upstream once per run before any capture and then served byte-identically to every context from a per-run local cache, so no sample depends on a live third-party fetch; no network or CPU throttling; thirty seconds of actual scene rendering with pointer, Tab and six trusted link activations; navigation prevented; all other external network blocked.',
   limitations:['Local lab, not physical-device evidence.','Observed event duration is not field INP; no observed entries means unavailable, not zero. Trusted click to two RAF callbacks is a local response opportunity proxy, not confirmed display presentation.','RAF intervals are cadence, not scripting/render cost. Trace and total scripting/layout/style durations require attribution against a same-device baseline for effect p95 and new long-task acceptance.','No golden performance baseline was automatically approved.'],samples,failures};
 report.status=failures.length?'failed':'complete';
 if(process.env.QA_PERF_BASELINE){

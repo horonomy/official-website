@@ -22,12 +22,18 @@ export async function readinessFixture() {
       response.writeHead(200,{'Content-Type':'text/css'});
       response.end('body{background:#101216;color:white;font:20px sans-serif}h1{color:#00ddaa}.art{width:40px;height:40px}');return;
     }
-    if(!['/ready','/missing-image','/missing-background','/missing-style','/missing-font','/degraded'].includes(path)){
+    if(!['/ready','/missing-image','/missing-background','/missing-style','/missing-font','/unused-font','/degraded'].includes(path)){
       response.writeHead(404);response.end('Required fixture resource missing');return;
     }
     const missing=path==='/missing-image'||path==='/missing-background'||path==='/degraded';
     const asset=missing?'/missing.svg':'/asset.svg';
-    const font=path==='/missing-font'||path==='/degraded'?'<style>@font-face{font-family:Required;src:url(/missing.woff2)}h1{font-family:Required,sans-serif}</style>':'';
+    // /unused-font DECLARES a face and applies it to nothing, so no engine ever
+    // requests it. That is the HORO-1498 window held open indefinitely: the set
+    // reports status 'loaded' because no load is in progress, while the face
+    // itself stays 'unloaded'. It needs no font bytes to reproduce.
+    const declaredFace='@font-face{font-family:Required;src:url(/missing.woff2)}';
+    const font=path==='/unused-font'?'<style>'+declaredFace+'</style>'
+      :path==='/missing-font'||path==='/degraded'?'<style>'+declaredFace+'h1{font-family:Required,sans-serif}</style>':'';
     const img=path==='/missing-background'?'':`<img alt="Required diagram" width="40" height="40" src="${asset}">`;
     response.writeHead(200,{'Content-Type':'text/html'});
     response.end(`<!doctype html><html lang="en"><head><title>Required render fixture</title><link rel="stylesheet" href="${path==='/missing-style'?'/missing.css':'/fixture.css'}">${font}</head><body><h1>Required content</h1>${img}<div class="art" style="background-image:url(${asset})"></div><a href="#content" id="content">Available action</a><script>fetch('/unrelated').catch(()=>{});</script></body></html>`);
