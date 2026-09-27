@@ -5,6 +5,8 @@ import {mkdir, writeFile, readFile} from 'node:fs/promises';
 import {gzipSync} from 'node:zlib';
 import os from 'node:os';
 import {canonicalFontRequest, observeReadiness, readinessMethod, requiredFontFamilies, settled} from './fonts.mjs';
+import {recordFontResponses, serveCachedFont} from './font-cache.mjs';
+import warmFontCache from './warm-fonts.mjs';
 import {cumulativeLayoutShift} from './performance-metrics.mjs';
 import {validatePerformanceBaseline} from './performance-baseline.mjs';
 
@@ -26,13 +28,34 @@ try {
   browser=await chromium.launch();
   server=spawn(process.execPath,['scripts/visual-qa/server.mjs'],{stdio:['ignore','pipe','inherit'],env:{...process.env,QA_SERVER_OWNER:String(process.pid)}});
   await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',code=>reject(new Error('QA server exited '+code)));});
+  // HORO-1498, the sibling path. `run.mjs` sends this mode straight to this file
+  // instead of through playwright.config.mjs, so the suite's globalSetup font
+  // warm-up never applied here: all twelve contexts below fetched the canonical
+  // fonts live with the HTTP cache disabled, and one bad moment upstream made the
+  // strict check throw, which the single catch turns into an aborted run —
+  // observed as `Canonical font unavailable: Space Grotesk` after one recorded
+  // sample. Warm the same per-run cache the rendered suite uses, in a named step
+  // that retries and fails up front naming the family it could not acquire.
+  await warmFontCache({projects:devices.map(({device,viewport})=>({name:'performance-'+device,use:{browserName:'chromium',...contextOptions(viewport)}}))});
   for (const {surface,port} of [{surface:'website',port:4174},{surface:'atlas',port:4175}]) {
     for (const {device,viewport} of devices) {
       for (let run=1;run<=3;run++) {
         const context=await browser.newContext(contextOptions(viewport));
         const page=await context.newPage();
         const origin='http://127.0.0.1:'+port;
-        await context.route('**/*',route=>(new URL(route.request().url()).origin===origin || (route.request().method()==='GET'&&canonicalFontRequest(new URL(route.request().url())))) ? route.continue() : route.abort('blockedbyclient'));
+        // Serve the canonical fonts from that cache and record what the browser
+        // receives, exactly as the rendered suite's open() does. Everything else
+        // stays cold, which is the point of this capture; the fonts are the one
+        // third-party dependency, and a measurement must not be able to fail
+        // because Google Fonts had a bad second.
+        const remote=url=>new URL(url).origin!==origin;
+        recordFontResponses(page,response=>remote(response.url()));
+        await context.route('**/*',route=>{
+          const url=new URL(route.request().url());
+          if(remote(url)&&(route.request().method()!=='GET'||!canonicalFontRequest(url)))return route.abort('blockedbyclient');
+          if(remote(url))return serveCachedFont(route);
+          return route.continue();
+        });
         const families=surface==='website'?requiredFontFamilies:[];
         observeReadiness(page,{url:origin,fontFamilies:families});
         const cdp=await context.newCDPSession(page);
