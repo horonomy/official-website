@@ -88,6 +88,21 @@ test('an annotation names one release, or says plainly that none does', () => {
   assert.deepEqual(only(`        uses: owner/repo@${SHA} # untagged: ahead of v6.1.0, no release names it`), []);
 });
 
+test('a release whose name is not a bare version is still one release', () => {
+  // The false positive this rule had. `github/codeql-action` names its bundle
+  // releases `codeql-bundle-v2.25.2`, and for the commit this repository pins
+  // that tag is the only ref that resolves to it, so demanding a bare `vN.N.N`
+  // here would have demanded an annotation that was false.
+  for (const release of ['# codeql-bundle-v2.25.2', '# aws-sdk-v3.1.0', '# release-2024.1'])
+    assert.deepEqual(only(`        uses: owner/repo@${SHA} ${release}`), [], release + ' must be accepted');
+  // Widening the grammar must not let prose back in: every one of these was
+  // rejected before and has to stay rejected, because each is a claim rather
+  // than a name and it is claims that hid the original defect.
+  for (const prose of ['# codeql-bundle v2.25.2', '# v6, ahead of v6.1.0', '# v6 only', '# latest',
+                       '# codeql-bundle-latest', '# roughly v2.25'])
+    assert.equal(only(`        uses: owner/repo@${SHA} ${prose}`).length, 1, prose + ' must be rejected');
+});
+
 test('every reference in this repository is pinned and annotated', () => {
   // The anti-vacuity guard. The cases above prove the predicate discriminates;
   // this one applies it to the real workflows, so re-floating any reference
