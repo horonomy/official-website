@@ -43,12 +43,38 @@ export function cacheRoot() {
   return process.env.QA_FONT_CACHE_DIR ?? join(tmpdir(), 'hn-visual-qa-fonts');
 }
 
-/** Keyed on the User-Agent as well as the URL: Google Fonts serves a different
- *  `css2` body per UA (format and unicode-range), and these projects span three
- *  engines plus a mobile UA, so a single-keyed cache would hand one engine
- *  another's `@font-face` rules. */
+/**
+ * The stylesheet is keyed on the User-Agent as well as the URL: Google Fonts
+ * serves a different `css2` body per UA (format and unicode-range), so a
+ * URL-only key would hand one engine another's `@font-face` rules.
+ *
+ * The family files that stylesheet names are the opposite case, and keying those
+ * on the UA too was a real reliability cost rather than a safeguard. Their URLs
+ * are already content-addressed, so the same URL is the same bytes whoever asks:
+ * measured against `/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2`,
+ * requests under a Chrome, a Firefox and a Safari User-Agent returned the same
+ * sha256 (`08949f72…`), the same 14708 bytes and the same `font/woff2`. Meanwhile
+ * chromium's and firefox's stylesheets name an *identical* set of 13 asset URLs —
+ * so a UA-keyed cache made firefox refetch all 13 live with chromium's
+ * byte-identical copies already warm, and a run on main duly failed to acquire
+ * `Space Grotesk` for `firefox-desktop` alone.
+ *
+ * Keyed on the URL, whichever engine warms an asset first serves it to the rest,
+ * and the suite's live third-party requests drop from one set per engine to one
+ * set per *distinct* set. WebKit's stylesheet names a disjoint set, so it shares
+ * nothing and still fetches its own — correctly, and with no special case here.
+ */
+function sharedAcrossEngines(url) {
+  try {
+    return new URL(url).hostname === 'fonts.gstatic.com';
+  } catch {
+    return false;
+  }
+}
+
 function entryPath(url, userAgent) {
-  return join(cacheRoot(), createHash('sha256').update(userAgent + '\n' + url).digest('hex') + '.json');
+  const key = sharedAcrossEngines(url) ? url : userAgent + '\n' + url;
+  return join(cacheRoot(), createHash('sha256').update(key).digest('hex') + '.json');
 }
 
 export async function readEntry(url, userAgent) {

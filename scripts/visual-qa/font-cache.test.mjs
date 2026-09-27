@@ -103,6 +103,36 @@ test('a different engine gets its own entry, not the first engine\'s rules',asyn
   assert.equal(readdirSync(cacheRoot()).length,2);
 });
 
+test('a family file warmed by one engine is served to the next; the stylesheet is not',async t=>{
+  // The family files are content-addressed, so the same URL is the same bytes
+  // whoever asks: measured against the real asset, a Chrome, a Firefox and a Safari
+  // User-Agent each returned sha256 08949f72..., 14708 bytes and font/woff2. And
+  // chromium's and firefox's stylesheets name an identical set of 13 such URLs, so
+  // keying them per engine made firefox refetch all 13 live with chromium's
+  // byte-identical copies already warm -- which failed for firefox-desktop alone.
+  await scratch(t);
+  const {deliver}=recording();
+  deliver({userAgent:'Chromium/1',url:WOFF2,body:'WOFF2 BYTES',headers:{'content-type':'font/woff2'}});
+  await recorded(WOFF2,'Chromium/1');
+
+  const firefox=routing({url:WOFF2,userAgent:'Firefox/1'});
+  await serveCachedFont(firefox.route);
+  assert.equal(firefox.calls.continued,0,'a warmed family file must not be refetched for another engine');
+  assert.equal(firefox.calls.fulfilled[0].body.toString(),'WOFF2 BYTES');
+  assert.equal(firefox.calls.fulfilled[0].headers['content-type'],'font/woff2');
+  assert.equal(readdirSync(cacheRoot()).length,1,'one entry for the asset, not one per engine');
+
+  // The stylesheet keeps its per-engine entry regardless: webkit is served a
+  // different css2 body, and sharing that would hand it chromium's @font-face
+  // rules, whose faces then never load.
+  deliver({userAgent:'Chromium/1',url:STYLESHEET,body:'CHROMIUM CSS'});
+  await recorded(STYLESHEET,'Chromium/1');
+  const sheet=routing({url:STYLESHEET,userAgent:'Webkit/1'});
+  await serveCachedFont(sheet.route);
+  assert.equal(sheet.calls.continued,1,'the stylesheet stays keyed per engine');
+  assert.deepEqual(sheet.calls.fulfilled,[]);
+});
+
 test('nothing is recorded that the browser did not successfully receive',async t=>{
   await scratch(t);
   const {deliver}=recording();
