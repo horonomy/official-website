@@ -7,6 +7,7 @@ import {validateReview} from './baseline-review.mjs';
 import os from 'node:os';
 import AxeBuilder from '@axe-core/playwright';
 import {canonicalFontRequest, observeReadiness, requiredFontFamilies, settled} from './fonts.mjs';
+import {recordFontResponses, serveCachedFont} from './font-cache.mjs';
 
 export const surfaces = [
   // `fonts` is what readiness waits for and what the assertion in open() checks,
@@ -21,10 +22,18 @@ export async function json(info, name, value) {
   await info.attach(name, {body:Buffer.from(JSON.stringify(value,null,2)),contentType:'application/json'});
 }
 export async function open(page, surface, info, {degraded=false,noJavaScript=false}={}) {
+  const local = new URL(surface.url).origin;
+  // Every request that is not loopback and survives the router below is a canonical
+  // font asset, by that router's own check. Serve those from the per-run cache, and
+  // record the browser's responses into it, so the whole suite depends on one live
+  // fetch per asset rather than one per test (HORO-1498).
+  const remoteFont = url => new URL(url).origin !== local;
+  recordFontResponses(page, response => remoteFont(response.url()));
   await page.context().route('**/*', route => {
     const url = new URL(route.request().url());
-    if (url.origin !== new URL(surface.url).origin && (degraded || route.request().method()!=='GET' || !canonicalFontRequest(url))) return route.abort('blockedbyclient');
+    if (remoteFont(url) && (degraded || route.request().method()!=='GET' || !canonicalFontRequest(url))) return route.abort('blockedbyclient');
     if (degraded && ['image','font'].includes(route.request().resourceType())) return route.abort('failed');
+    if (remoteFont(url)) return serveCachedFont(route);
     return route.continue();
   });
   const errors=[];
