@@ -46,10 +46,10 @@ jobs:
       # SHA-pinned (SonarCloud githubactions:S7637) — comment notes the tag
       # each SHA corresponds to.
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6
+        uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6, ahead of v6.1.0
         with:
           version: 10
 
