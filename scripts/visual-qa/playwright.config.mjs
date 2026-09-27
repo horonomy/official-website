@@ -6,6 +6,9 @@ if (browsers.some(name => !['chromium','firefox','webkit'].includes(name))) thro
 const viewports = {desktop:{width:1440,height:1000}, tablet:{width:834,height:1112}, mobile:{width:390,height:844}};
 export default defineConfig({
   testDir: '.', testMatch: '*.spec.mjs', timeout: 60000,
+  // Acquire the canonical font assets before any capture, so no capture depends on
+  // a live third-party fetch (HORO-1498). Runs after the local server starts.
+  globalSetup: resolve(import.meta.dirname, 'warm-fonts.mjs'),
   fullyParallel: false, workers: 1, retries: 0, forbidOnly: true,
   updateSnapshots: 'none',
   snapshotPathTemplate: '{testDir}/baselines/{platform}/{projectName}/{arg}{ext}',
