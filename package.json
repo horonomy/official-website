@@ -43,7 +43,7 @@
     "@types/node": "^26.6.2",
     "@types/react": "^19.3.0",
     "typescript": "~6.0.2",
-    "wrangler": "4.136.3"
+    "wrangler": "4.142.0"
   },
   "browserslist": {
     "production": [
