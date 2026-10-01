@@ -84,7 +84,7 @@ jobs:
         # The comment read `# v4` and was inaccurate: this commit carries the
         # tags v4.0.0 and v4.0, not the floating v4, which has since advanced.
         # Naming the release is the point of the comment (HORO-1499).
-        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
         with:
           # Preserve the publish CLI used before adding the local Wrangler 3 pin.
           wranglerVersion: "4.130.0"
