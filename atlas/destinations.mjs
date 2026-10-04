@@ -9,10 +9,9 @@
 // horo.run -> horonom.com migration (HORO-566/572) 2026-09-06 (HORO-594) —
 // do not re-add/remove a host without re-verifying live:
 //   - agent-assembly.com: 200, live (unchanged since 2026-08-23).
-//   - octans.horo.run: unchanged since 2026-08-31 — a minimal, honest
-//     "in development, no public surface yet" status page (`noindex`),
-//     live (200). Not a placeholder for a real product claim; replace with
-//     the real product surface once one exists.
+//   - octans.horonom.com: product-owned experimental marketing and
+//     same-host /docs/ verified by HORO-1703. The legacy marketing host
+//     is excluded from canonical links; it is not a runtime boundary.
 //   - circinus.horonom.com / ophiuchus.horonom.com / fornax.horonom.com /
 //     horologium.horonom.com: canonical marketing hosts as of the HORO-566
 //     domain migration, each confirmed 200/live 2026-09-06 (HORO-572/594).
@@ -43,7 +42,7 @@
 /** @type {ReadonlySet<string>} */
 export const LIVE_HOSTS = new Set([
   'agent-assembly.com',
-  'octans.horo.run',
+  'octans.horonom.com',
   'circinus.horonom.com',
   'ophiuchus.horonom.com',
   'fornax.horonom.com',
