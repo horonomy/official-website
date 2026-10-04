@@ -113,6 +113,7 @@ export function renderPage(entries, resolve) {
   return `<!doctype html>
 <html lang="en">
 <head>
+  <link rel="canonical" href="https://horo.run/">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Product Atlas — Horonom</title>
