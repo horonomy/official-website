@@ -57,7 +57,7 @@ export function renderConstellation(order) {
 
 /**
  * @param {import('../src/data/productRegistry.js').ProductEntry[]} entries
- * @param {(entry: {canonicalUrl: string}) => {state: 'live'|'pending', href: string|null}} resolve
+ * @param {(entry: {canonicalUrl: string|null}) => {state: 'live'|'pending', href: string|null}} resolve
  * @returns {string}
  */
 export function renderPage(entries, resolve) {

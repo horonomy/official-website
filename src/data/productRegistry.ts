@@ -62,7 +62,8 @@ export interface ProductEntry {
    * a family alias (`<slug>.horo.run`) or an existing standalone domain
    * that stays canonical per the rebrand's non-goals (e.g. Agent Assembly
    * keeps `agent-assembly.com`). */
-  canonicalUrl: string;
+  /** `null` when product is intentionally gated and has no public surface. */
+  canonicalUrl: string | null;
   /** `<slug>.horo.run` family alias, when distinct from `canonicalUrl`
    * (e.g. redirects to a standalone canonical domain). `null` when the
    * canonical URL *is* the family alias. */
@@ -101,9 +102,8 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     // Horo Run family-alias row below.
     canonicalUrl: 'https://agent-assembly.com',
     familyAliasUrl: 'https://agent-assembly.horo.run',
-    // Not verified against the live site — leave null rather than guess a
-    // path. Fill in once confirmed to actually resolve.
-    docsUrl: null,
+    // Canonical hosted documentation, verified live (HORO-1698).
+    docsUrl: 'https://docs.agent-assembly.com',
     appUrl: null,
     apiUrl: null,
     githubUrl: 'https://github.com/ai-agent-assembly',
@@ -195,10 +195,9 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     docsUrl: 'https://docs.fornax.horonom.com',
     appUrl: null,
     apiUrl: null,
-    // horonomy/fornax-core is a private repo — no public-visitable link.
-    // fornax-website (the marketing site) is public but is a presentation
-    // repo, not the product itself, so it is not linked as "the" GitHub URL.
-    githubUrl: null,
+    // Public OSS product repository; the marketing site remains a separate
+    // presentation repository and is not substituted here.
+    githubUrl: 'https://github.com/horonomy/fornax-core',
     celestialIdentity: 'Fornax',
     relationship: 'Standalone — usable without any other Horonom product.',
     legacyAliases: ['https://fornax.horo.run'],
@@ -241,14 +240,9 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     // Intentionally NOT public: horonomy/eridanus's own release-evidence
     // record (metadata/release-evidence/eridanus.yaml in horonomy/.github)
     // states claimed_lifecycle: not_yet_public — no website, no docs, no
-    // hosted service. canonicalUrl is a placeholder value that
-    // resolveDestination() never resolves live (no host on LIVE_HOSTS);
-    // it exists only because ProductEntry.canonicalUrl is non-nullable, the
-    // same pattern used for every other pending entry in this registry.
-    // Do NOT add eridanus.horo.run/eridanus.horonom.com to LIVE_HOSTS
-    // merely to make this resolve — that would fabricate a public surface
-    // for a release-gated product.
-    canonicalUrl: 'https://eridanus.horo.run',
+    // No public identity surface exists until its independent release gate
+    // crosses. Keep this nullable rather than inventing a placeholder URL.
+    canonicalUrl: null,
     familyAliasUrl: null,
     docsUrl: null,
     appUrl: null,

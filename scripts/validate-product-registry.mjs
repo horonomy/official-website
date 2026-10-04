@@ -15,7 +15,7 @@ import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const REGISTRY_PATH = join(REPO_ROOT, 'src', 'data', 'productRegistry.ts');
+const REGISTRY_PATH = process.argv[2] || join(REPO_ROOT, 'src', 'data', 'productRegistry.ts');
 
 const MATURITY_VALUES = new Set(['experimental', 'beta', 'release_candidate', 'available']);
 
@@ -58,7 +58,15 @@ const errors = [];
 const seenIds = new Set();
 const seenSlugs = new Set();
 const seenOrders = new Set();
-const httpsRe = /^https:\/\/[^\s]+$/;
+function isValidHttpsUrl(value) {
+  if (typeof value !== 'string') return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && Boolean(url.hostname) && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
 
 for (const entryText of entries) {
   const id = field(entryText, 'id');
@@ -68,6 +76,10 @@ for (const entryText of entries) {
   const maturity = field(entryText, 'maturity');
   const canonicalUrl = field(entryText, 'canonicalUrl');
   const githubUrl = field(entryText, 'githubUrl');
+  const familyAliasUrl = field(entryText, 'familyAliasUrl');
+  const docsUrl = field(entryText, 'docsUrl');
+  const appUrl = field(entryText, 'appUrl');
+  const apiUrl = field(entryText, 'apiUrl');
   const order = orderField(entryText);
   const label = id || name || '(unknown entry)';
 
@@ -78,12 +90,28 @@ for (const entryText of entries) {
   if (!maturity || !MATURITY_VALUES.has(maturity)) {
     errors.push(`${label}: maturity "${maturity}" is not in the controlled vocabulary (${[...MATURITY_VALUES].join(', ')})`);
   }
-  if (!canonicalUrl || !httpsRe.test(canonicalUrl)) {
+  if (canonicalUrl !== null && !isValidHttpsUrl(canonicalUrl)) {
     errors.push(`${label}: canonicalUrl must be an https URL, got "${canonicalUrl}"`);
+  }
+  if (canonicalUrl === null) {
+    if (maturity !== 'experimental') {
+      errors.push(`${label}: null canonicalUrl is only valid for experimental/gated products`);
+    }
+    for (const [fieldName, value] of [['familyAliasUrl', familyAliasUrl], ['docsUrl', docsUrl], ['appUrl', appUrl], ['apiUrl', apiUrl], ['githubUrl', githubUrl]]) {
+      if (value !== null) errors.push(`${label}: gated product with null canonicalUrl must not expose ${fieldName}`);
+    }
+    if (/legacyAliases:\s*\[\s*'/.test(entryText)) {
+      errors.push(`${label}: gated product with null canonicalUrl must not expose legacyAliases`);
+    }
+  }
+  for (const [fieldName, value] of [['docsUrl', docsUrl], ['appUrl', appUrl], ['apiUrl', apiUrl], ['familyAliasUrl', familyAliasUrl]]) {
+    if (value !== null && value !== undefined && !isValidHttpsUrl(value)) {
+      errors.push(`${label}: ${fieldName} must be an https URL or null, got "${value}"`);
+    }
   }
   if (githubUrl === undefined) {
     errors.push(`${label}: missing githubUrl (use null if the repo is not public-visitable)`);
-  } else if (githubUrl !== null && !httpsRe.test(githubUrl)) {
+  } else if (githubUrl !== null && !isValidHttpsUrl(githubUrl)) {
     errors.push(`${label}: githubUrl must be an https URL or null, got "${githubUrl}"`);
   }
   if (id) {
