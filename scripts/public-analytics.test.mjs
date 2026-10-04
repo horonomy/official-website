@@ -43,7 +43,7 @@ test('initial corporate config and Atlas automatic hits override raw location/re
   assert.deepEqual(JSON.parse(JSON.stringify(calls[1][1])), {page_location:'https://horonom.com/',page_referrer:''});
   assert.equal(calls[2][2].send_page_view, false);
   calls.length=0;
-  const script=renderAnalyticsHead().match(/<script>([\s\S]*?)<\/script>/)[1];
+  const script=renderAnalyticsHead().match(/<script>([\s\S]*?)<\/script>/i)[1];
   const dataLayer=[];
   vm.runInNewContext(script,{window:{dataLayer},dataLayer,localStorage:{getItem:()=>null},Date});
   const config=dataLayer.find(c=>c[0]==='config')[2];
