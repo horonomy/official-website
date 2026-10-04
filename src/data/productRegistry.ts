@@ -117,19 +117,19 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     name: 'Octans',
     slug: 'octans',
     category: 'Change safety',
-    problem: 'Verifies a change is safe to ship before it reaches production, across distributed services.',
+    problem: 'Examines supported OpenAPI contract changes and proposes repairs for human review; an experimental static-analysis prototype.',
     maturity: 'experimental',
-    canonicalUrl: 'https://octans.horo.run',
+    canonicalUrl: 'https://octans.horonom.com',
     familyAliasUrl: null,
-    docsUrl: null,
+    docsUrl: 'https://octans.horonom.com/docs/',
     appUrl: null,
     apiUrl: null,
-    // horonomy/octans is a private repo (Alpha-stage experiment) — no
+    // horonomy/octans is a private, unsupported experiment — no
     // public-visitable link to show.
     githubUrl: null,
     celestialIdentity: 'Octans',
     relationship: 'Standalone — usable without any other Horonom product.',
-    legacyAliases: [],
+    legacyAliases: ['https://octans.horo.run'],
     order: 1,
   },
   {

@@ -15,7 +15,7 @@ test('the Atlas uses the founder-provided Horonom company Measurement ID', () =>
 test('destinationTypeFor classifies a plain marketing host as marketing', () => {
   assert.equal(destinationTypeFor('https://fornax.horonom.com'), 'marketing');
   assert.equal(destinationTypeFor('https://agent-assembly.com'), 'marketing');
-  assert.equal(destinationTypeFor('https://octans.horo.run'), 'marketing');
+  assert.equal(destinationTypeFor('https://octans.horonom.com'), 'marketing');
 });
 
 test('destinationTypeFor classifies a docs. subdomain as docs', () => {
