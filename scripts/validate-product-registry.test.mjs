@@ -1,7 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
-import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
@@ -11,7 +10,7 @@ const validator = join(root, 'scripts', 'validate-product-registry.mjs');
 const sourcePath = join(root, 'src', 'data', 'productRegistry.ts');
 
 async function runWith(mutator) {
-  const dir = await mkdtemp(join(tmpdir(), 'registry-validator-'));
+  const dir = await mkdtemp(join(root, '.registry-validator-'));
   const fixture = join(dir, 'registry.ts');
   const source = await readFile(sourcePath, 'utf8');
   await writeFile(fixture, mutator(source));
@@ -46,4 +45,3 @@ test('rejects malformed or insecure secondary URLs', async () => {
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /docsUrl must be an https URL/);
 });
-

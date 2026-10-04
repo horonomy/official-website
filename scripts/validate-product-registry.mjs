@@ -11,11 +11,17 @@
 // Exit 0 = clean. Exit 1 = a registry entry is invalid.
 
 import {readFileSync} from 'node:fs';
-import {dirname, join} from 'node:path';
+import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const REGISTRY_PATH = process.argv[2] || join(REPO_ROOT, 'src', 'data', 'productRegistry.ts');
+const requestedRegistryPath = process.argv[2] || join(REPO_ROOT, 'src', 'data', 'productRegistry.ts');
+const REGISTRY_PATH = resolve(requestedRegistryPath);
+const repoPrefix = `${resolve(REPO_ROOT)}${requestedRegistryPath ? '/' : ''}`;
+if (!REGISTRY_PATH.startsWith(repoPrefix)) {
+  console.error('FAIL: registry path must remain inside the repository.');
+  process.exit(1);
+}
 
 const MATURITY_VALUES = new Set(['experimental', 'beta', 'release_candidate', 'available']);
 
