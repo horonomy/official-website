@@ -51,12 +51,13 @@ export const LIVE_HOSTS = new Set([
 ]);
 
 /**
- * @param {{canonicalUrl: string}} entry
+ * @param {{canonicalUrl: string|null}} entry
  * @returns {{state: 'live', href: string} | {state: 'pending', href: null}}
  */
 export function resolveDestination(entry) {
   let host;
   try {
+    if (!entry.canonicalUrl) return {state: 'pending', href: null};
     host = new URL(entry.canonicalUrl).host;
   } catch {
     return {state: 'pending', href: null};

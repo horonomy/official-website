@@ -78,7 +78,7 @@ for (const entryText of entries) {
   if (!maturity || !MATURITY_VALUES.has(maturity)) {
     errors.push(`${label}: maturity "${maturity}" is not in the controlled vocabulary (${[...MATURITY_VALUES].join(', ')})`);
   }
-  if (!canonicalUrl || !httpsRe.test(canonicalUrl)) {
+  if (canonicalUrl !== null && (!canonicalUrl || !httpsRe.test(canonicalUrl))) {
     errors.push(`${label}: canonicalUrl must be an https URL, got "${canonicalUrl}"`);
   }
   if (githubUrl === undefined) {

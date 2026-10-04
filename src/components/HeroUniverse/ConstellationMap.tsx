@@ -76,6 +76,7 @@ function Constellation({
   active: boolean;
   onInteraction: (source: 'focus' | 'hover', id: string | null) => void;
 }): React.ReactElement {
+  if (!entry.canonicalUrl) return <></>;
   const isPrimary = entry.order === 0;
   const [lx, ly] = shape.label;
   const box = bbox(shape.nodes);
