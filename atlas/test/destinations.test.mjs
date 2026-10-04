@@ -17,6 +17,11 @@ test('an unparseable URL fails closed to pending, not a thrown error', () => {
   assert.deepEqual(result, {state: 'pending', href: null});
 });
 
+test('an explicitly gated null URL fails closed to pending', () => {
+  const result = resolveDestination({canonicalUrl: null});
+  assert.deepEqual(result, {state: 'pending', href: null});
+});
+
 test('the family-alias host is never on the allowlist', () => {
   assert.equal(LIVE_HOSTS.has('agent-assembly.horo.run'), false);
 });

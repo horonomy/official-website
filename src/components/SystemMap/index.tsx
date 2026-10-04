@@ -178,6 +178,7 @@ function StagePill({entry}: {entry: ProductEntry}): React.ReactElement {
 }
 
 function SystemMapCard({entry}: {entry: ProductEntry}): React.ReactElement {
+  if (!entry.canonicalUrl) return <></>;
   const isAgentAssembly = entry.id === 'ai-agent-assembly';
   const href = isAgentAssembly
     ? AGENT_ASSEMBLY_URL_SYSTEM_MAP_CARD
