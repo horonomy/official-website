@@ -27,8 +27,8 @@
 //     horonomy/.github's metadata/release-evidence/eridanus.yaml records
 //     claimed_lifecycle: not_yet_public — no website, no docs, no hosted
 //     service exists. Adding either host here would fabricate a public
-//     surface for a release-gated product; the Eridanus registry entry
-//     renders "pending" until that changes.
+//     surface for a release-gated product; the Eridanus registry entry keeps
+//     canonicalUrl null and therefore renders "pending" until that changes.
 //   - horonomy/{octans,circinus,ophiuchus,horologium} GitHub repos are
 //     PRIVATE, so githubUrl is not a usable fallback for any of them.
 //   - familyAliasUrl (e.g. agent-assembly.horo.run) must never be linked —
