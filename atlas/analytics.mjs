@@ -86,7 +86,8 @@ export function renderAnalyticsHead() {
       }
     } catch (e) { /* localStorage unavailable — stay default-denied */ }
     gtag('js', new Date());
-    gtag('config', '${ATLAS_MEASUREMENT_ID}', {anonymize_ip: true});
+    gtag('set', {page_location: 'https://horo.run/', page_referrer: ''});
+    gtag('config', '${ATLAS_MEASUREMENT_ID}', {anonymize_ip: true, page_location: 'https://horo.run/', page_referrer: ''});
   </script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=${ATLAS_MEASUREMENT_ID}"></script>`;
 }

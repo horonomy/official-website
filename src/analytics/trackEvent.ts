@@ -1,3 +1,5 @@
+import {publicDestination, publicPageUrl} from './publicPage';
+
 /**
  * Horonomy site event tracker (HORO-41).
  *
@@ -85,16 +87,18 @@ export function trackHoronomyEvent(
   // Taxonomy §3.1: required on every event. Read directly from `location` /
   // `document` at emit time so SPA navigations report the current page, not
   // the page the handler was bound on.
+  const page_location = publicPageUrl();
   const base: DataLayerEntry = {
     event,
     hostname: window.location.hostname,
-    page_path:
-      window.location.pathname + window.location.search + window.location.hash,
+    page_location,
+    page_path: new URL(page_location).pathname,
+    page_referrer: '',
     page_title: document.title,
     surface: 'horonomy_site' satisfies Surface,
   };
 
-  dataLayer.push(cta ? {...base, ...cta} : base);
+  dataLayer.push(cta ? {...base, ...cta, link_url: publicDestination(cta.link_url)} : base);
 }
 
 /**
