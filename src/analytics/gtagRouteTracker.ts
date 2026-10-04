@@ -1,14 +1,6 @@
-/**
- * SPA page-view tracker for the self-managed gtag setup (HORO-37).
- *
- * Because we don't use preset-classic's built-in `gtag` plugin (so we can
- * guarantee the Consent-Mode default-denied init runs before the first hit —
- * see `docusaurus.config.ts`), we also lose that plugin's route-change
- * page-view tracking. This client module restores it with the same behaviour:
- * on every client-side navigation it sends an updated `page_path` and a
- * `page_view` event. Consent Mode still gates whether GA stores anything, so
- * this is safe to fire regardless of the visitor's choice.
- */
+import {publicPageUrl} from './publicPage';
+
+/** Explicit public page views replace automatic request-URL collection. */
 type Gtag = (...args: unknown[]) => void;
 
 // Minimal shape of the history `Location` Docusaurus passes to client-module
@@ -27,7 +19,7 @@ export function onRouteDidUpdate({
   previousLocation: RouteLocation | null;
 }): void {
   if (
-    !previousLocation ||
+    previousLocation &&
     (location.pathname === previousLocation.pathname &&
       location.search === previousLocation.search &&
       location.hash === previousLocation.hash)
@@ -40,12 +32,10 @@ export function onRouteDidUpdate({
   setTimeout(() => {
     const gtag = (window as unknown as {gtag?: Gtag}).gtag;
     if (typeof gtag === 'function') {
-      gtag(
-        'set',
-        'page_path',
-        location.pathname + location.search + location.hash,
-      );
-      gtag('event', 'page_view');
+      const page_location = publicPageUrl();
+      const params = {page_location, page_path: new URL(page_location).pathname, page_referrer: ''};
+      gtag('set', params);
+      gtag('event', 'page_view', params);
     }
   });
 }

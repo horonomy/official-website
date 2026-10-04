@@ -65,5 +65,6 @@ try {
  */
 export const gtagConfigScript = `
 gtag('js', new Date());
-gtag('config', '${GA_MEASUREMENT_ID}', { 'anonymize_ip': true });
+gtag('set', {page_location: 'https://horonom.com/', page_referrer: ''});
+gtag('config', '${GA_MEASUREMENT_ID}', { 'anonymize_ip': true, send_page_view: false });
 `;
