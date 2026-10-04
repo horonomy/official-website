@@ -11,21 +11,12 @@
 // Exit 0 = clean. Exit 1 = a registry entry is invalid.
 
 import {readFileSync} from 'node:fs';
-import {dirname, join, resolve} from 'node:path';
-import {fileURLToPath} from 'node:url';
 
-const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const requestedRegistryPath = process.argv[2] || join(REPO_ROOT, 'src', 'data', 'productRegistry.ts');
-const REGISTRY_PATH = resolve(requestedRegistryPath);
-const repoPrefix = `${resolve(REPO_ROOT)}${requestedRegistryPath ? '/' : ''}`;
-if (!REGISTRY_PATH.startsWith(repoPrefix)) {
-  console.error('FAIL: registry path must remain inside the repository.');
-  process.exit(1);
-}
+const source = process.argv[2] === '--stdin'
+  ? readFileSync(0, 'utf8')
+  : readFileSync(new URL('../src/data/productRegistry.ts', import.meta.url), 'utf8');
 
 const MATURITY_VALUES = new Set(['experimental', 'beta', 'release_candidate', 'available']);
-
-const source = readFileSync(REGISTRY_PATH, 'utf8');
 
 // The registry is a TS module (typed object literals), not JSON, so it
 // can't be JSON.parse'd directly. Extracting each `{...}` entry inside the

@@ -14,7 +14,7 @@ async function runWith(mutator) {
   const fixture = join(dir, 'registry.ts');
   const source = await readFile(sourcePath, 'utf8');
   await writeFile(fixture, mutator(source));
-  const result = spawnSync(process.execPath, [validator, fixture], {encoding: 'utf8'});
+  const result = spawnSync(process.execPath, [validator, '--stdin'], {input: await readFile(fixture), encoding: 'utf8'});
   await rm(dir, {recursive: true, force: true});
   return result;
 }
