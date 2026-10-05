@@ -21,7 +21,6 @@ async function runWith(mutator) {
 
 test('rejects a released beta entry without a canonical identity', async () => {
   const result = await runWith((source) => source
-    .replace("id: 'eridanus'", "id: 'eridanus'")
     .replace("maturity: 'experimental',\n    // Intentionally NOT public", "maturity: 'beta',\n    // Intentionally NOT public")
   );
   assert.notEqual(result.status, 0);
