@@ -183,7 +183,7 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     name: 'Fornax',
     slug: 'fornax',
     category: 'Agent integrity',
-    problem: 'Verifies real evidence for what an AI coding agent claims it did.',
+    problem: 'Verifies real evidence for what an AI agent claims it did.',
     maturity: 'experimental',
     // Migrated HORO-566/FORNX-328: canonical marketing is fornax.horonom.com
     // (verified live 2026-09-06); the legacy fornax.horo.run host was found
