@@ -1,0 +1,18 @@
+# Cloudflare Pages response-header baseline (HORO-1700). Docusaurus copies
+# everything under static/ into build/ unchanged, so this sits next to
+# build/index.html.
+#
+# CSP is Report-Only for now: this site loads the GA4 gtag.js bootstrap
+# (docusaurus.config.ts self-managed gtag init), Google Fonts (Space
+# Grotesk / IBM Plex Mono), and whatever Cloudflare's own RUM beacon
+# injects at the edge. Report-Only lets real violations surface in the
+# browser console without blocking any request while that allowlist is
+# verified against production traffic — matching the same safe rollout
+# pattern already used in ai-agent-assembly/docs (see HORO-1700 history).
+
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' www.googletagmanager.com static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: fonts.gstatic.com; connect-src 'self' www.google-analytics.com www.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
