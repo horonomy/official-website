@@ -38,6 +38,15 @@
 //     this account's tokens don't have scope for) but the Atlas must keep
 //     linking the canonical https://agent-assembly.com directly, never the
 //     alias, per HORO-286's "avoid duplicate indexable copies" AC.
+//   - libra.horonom.com / eltanin.horonom.com: added 2026-10-09 (HORO-1706
+//     final-gate reconciliation) — both published this same campaign
+//     (HORO-1701/1702, founder-approved Developer Preview/Experimental MVP
+//     publication, HORO-1695 comment 26198/26199), each confirmed live
+//     200/real TLS/correct canonical tag before being added here. Omitting
+//     them would have left horo.run's Atlas rendering "pending" for two
+//     products horonom.com's own System Map already shows as live — this
+//     is exactly the drift this allowlist's "reconciled registry truth"
+//     requirement exists to catch.
 
 /** @type {ReadonlySet<string>} */
 export const LIVE_HOSTS = new Set([
@@ -47,6 +56,8 @@ export const LIVE_HOSTS = new Set([
   'ophiuchus.horonom.com',
   'fornax.horonom.com',
   'horologium.horonom.com',
+  'libra.horonom.com',
+  'eltanin.horonom.com',
 ]);
 
 /**
