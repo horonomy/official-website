@@ -186,21 +186,28 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     problem: 'Verifies real evidence for what an AI agent claims it did.',
     maturity: 'experimental',
     // Migrated HORO-566/FORNX-328: canonical marketing is fornax.horonom.com
-    // (verified live 2026-09-06); the legacy fornax.horo.run host was found
-    // still serving duplicate content with no redirect during this same
-    // reconciliation pass and has since been fixed to 301 here (HORO-572,
-    // fornax-edge Worker).
+    // (verified live 2026-09-06).
+    //
+    // HORO-1700 correction (2026-10-09): the HORO-572 redirect this comment
+    // used to describe for fornax.horo.run no longer applies. FORNX-241
+    // (2026-09-19, founder-approved) deliberately repurposed that host as
+    // the live Fornax SaaS/dashboard frontend (served by fornax-cloud's own
+    // Worker), superseding the redirect. It is therefore the product's real
+    // appUrl, not a legacyAlias to redirect away from.
     canonicalUrl: 'https://fornax.horonom.com',
     familyAliasUrl: null,
     docsUrl: 'https://docs.fornax.horonom.com',
-    appUrl: null,
-    apiUrl: null,
+    appUrl: 'https://fornax.horo.run',
+    // Documented, live API surface (e.g. /v1/devices/register) at the same
+    // host as appUrl, not a separate domain — see docs.fornax.horonom.com's
+    // own quick-start.
+    apiUrl: 'https://fornax.horo.run/v1',
     // Public OSS product repository; the marketing site remains a separate
     // presentation repository and is not substituted here.
     githubUrl: 'https://github.com/horonomy/fornax-core',
     celestialIdentity: 'Fornax',
     relationship: 'Standalone — usable without any other Horonom product.',
-    legacyAliases: ['https://fornax.horo.run'],
+    legacyAliases: [],
     order: 4,
   },
   {
@@ -218,10 +225,12 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     canonicalUrl: 'https://horologium.horonom.com',
     familyAliasUrl: null,
     docsUrl: 'https://horologium.horonom.com/docs',
-    appUrl: null,
-    // horologium.horo.run remains the real runtime boundary
-    // (/v1/*, /app/*, /healthz, /readyz) — unaffected by this migration.
-    apiUrl: null,
+    // HORO-1700 correction (2026-10-09): horologium.horo.run/app is a real,
+    // live demo the marketing site itself publicly links to — appUrl: null
+    // understated what's already public. /v1/* is a real, anonymously-
+    // readable API at the same host (capability-scoped read:truth default).
+    appUrl: 'https://horologium.horo.run/app',
+    apiUrl: 'https://horologium.horo.run/v1',
     // horonomy/horologium is a private repo (Public Alpha) — no
     // public-visitable link to show.
     githubUrl: null,
