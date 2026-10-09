@@ -255,4 +255,52 @@ export const PRODUCT_REGISTRY: readonly ProductEntry[] = [
     legacyAliases: [],
     order: 6,
   },
+  {
+    id: 'libra',
+    name: 'Libra Governor',
+    slug: 'libra',
+    category: 'Agentic work governance',
+    problem: 'Estimates the cost and time of an agentic task before admitting it, then tracks actual spend against that estimate.',
+    tagline: 'Never start work you are unlikely to afford to finish.',
+    maturity: 'experimental',
+    // HORO-1701: published as Developer Preview per founder approval
+    // (HORO-1695 comment 26198/26199) — local-first only, no hosted
+    // runtime/SaaS/account. Verified live 2026-10-09.
+    canonicalUrl: 'https://libra.horonom.com',
+    familyAliasUrl: null,
+    docsUrl: 'https://libra.horonom.com/docs',
+    // Local-first by design — no hosted control plane in this Developer
+    // Preview. Do not add one here merely because ProductEntry has the field.
+    appUrl: null,
+    apiUrl: null,
+    githubUrl: 'https://github.com/horonomy/libra-governor',
+    celestialIdentity: 'Libra',
+    relationship: 'Standalone — runs alongside Claude Code/Codex, not a dependency of any other Horonom product.',
+    legacyAliases: [],
+    order: 7,
+  },
+  {
+    id: 'eltanin',
+    name: 'Eltanin',
+    slug: 'eltanin',
+    category: 'Compute authorization',
+    problem: 'Authorizes protected local compute with a scoped, expiring lease and explicit platform evidence, instead of ambient trust.',
+    maturity: 'experimental',
+    // HORO-1702: published as Experimental MVP per founder approval
+    // (HORO-1695 comment 26198/26199). No site analytics (the product's own
+    // footer states this explicitly) — not a gap, a deliberate choice.
+    // Linux/NVIDIA device-level enforcement evidence (E3) is still pending;
+    // do not promote maturity past 'experimental' until that gate closes.
+    // Verified live 2026-10-09.
+    canonicalUrl: 'https://eltanin.horonom.com',
+    familyAliasUrl: null,
+    docsUrl: 'https://eltanin.horonom.com/docs',
+    appUrl: null,
+    apiUrl: null,
+    githubUrl: 'https://github.com/horonomy/eltanin',
+    celestialIdentity: 'Eltanin',
+    relationship: 'Standalone — usable without any other Horonom product.',
+    legacyAliases: [],
+    order: 8,
+  },
 ] as const;
