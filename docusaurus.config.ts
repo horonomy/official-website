@@ -250,6 +250,10 @@ const config: Config = {
               label: 'github.com/ai-agent-assembly',
               href: 'https://github.com/ai-agent-assembly',
             },
+            {
+              label: 'Support open source (individual maintainer, Ko-fi)',
+              href: 'https://ko-fi.com/chisanan232',
+            },
           ],
         },
         {
